@@ -1,0 +1,857 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Regeneration Files 3.9 | Mitosis Virtual Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one working column. Each part is a field of view (canvas) beside an info panel, then a response card. Stain colors come from a real root tip slide: magenta chromosomes, teal cytoplasm. */
+:root{
+  --font-display:"Atkinson Hyperlegible","Trebuchet MS",Arial,sans-serif;
+  --font-body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono:"Atkinson Hyperlegible",Arial,sans-serif;
+  --font-code:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --bg:#F1F3F7; --surface:#FFFFFF; --ink:#1C2230; --muted:#566074; --line:#D3D9E4;
+  --stain:#9C1F6B; --stain2:#4B2A8F; --stain-soft:#EBD3E2;
+  --teal:#0F6E78; --teal-soft:#D5EAEC; --on-teal:#FFFFFF;
+  --cyto:#E3EFF0; --wall:#456F76; --field:#E9F1F2;
+  --ok:#1B7A47; --ok-soft:#DDF1E5; --bad:#B02E1A; --bad-soft:#F9E1DC; --focus:#1F5FD1;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#10141F; --surface:#181E2D; --ink:#E8EBF2; --muted:#9AA4B8; --line:#2A3247;
+    --stain:#E873B4; --stain2:#B49CFF; --stain-soft:#4A2A41;
+    --teal:#4FC0CB; --teal-soft:#16343A; --on-teal:#08181B;
+    --cyto:#16282F; --wall:#4F8189; --field:#121D24;
+    --ok:#5FCB8E; --ok-soft:#173826; --bad:#FF8F78; --bad-soft:#40201B; --focus:#7AA7FF;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10141F; --surface:#181E2D; --ink:#E8EBF2; --muted:#9AA4B8; --line:#2A3247;
+  --stain:#E873B4; --stain2:#B49CFF; --stain-soft:#4A2A41;
+  --teal:#4FC0CB; --teal-soft:#16343A; --on-teal:#08181B;
+  --cyto:#16282F; --wall:#4F8189; --field:#121D24;
+  --ok:#5FCB8E; --ok-soft:#173826; --bad:#FF8F78; --bad-soft:#40201B; --focus:#7AA7FF;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.55;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+.wrap{max-width:1020px;margin:0 auto;padding-block:20px 72px;padding-inline:16px}
+h1,h2,h3{font-family:var(--font-display);line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(2rem,5.5vw,3rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:1.45rem;font-weight:800}
+h3{font-size:1.1rem;font-weight:600}
+p{margin:0}
+.muted{color:var(--muted)}
+.eyebrow{font-family:var(--font-mono);font-size:.85rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.brand{font-family:var(--font-display);font-weight:800;font-size:1.05rem;display:flex;align-items:center;gap:9px}
+.dot{width:12px;height:12px;border-radius:50%;background:var(--stain);box-shadow:9px 0 0 -1px var(--teal);margin-right:9px}
+.steps{display:flex;gap:6px;list-style:none;margin:0 0 18px;padding:0;overflow-x:auto}
+.steps li{flex:1 0 auto;min-width:88px;padding:8px 10px 6px;border-bottom:3px solid var(--line);font-size:.84rem;font-weight:700;color:var(--muted)}
+.steps li small{display:block;font-family:var(--font-mono);font-weight:400;font-size:.82rem}
+.steps li.on{border-color:var(--stain);color:var(--ink)}
+.steps li.done{border-color:var(--teal);color:var(--ink)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;min-width:0}
+.stack{display:flex;flex-direction:column;gap:14px;min-width:0}
+.grid2{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:16px;align-items:start}
+@media(max-width:780px){.grid2{grid-template-columns:minmax(0,1fr)}}
+canvas.scope{display:block;width:100%;height:auto;border-radius:8px;background:var(--field);border:1px solid var(--line)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{border:1px solid var(--line);background:var(--surface);color:var(--ink);font:inherit;font-size:.84rem;padding:5px 11px;border-radius:999px;cursor:pointer}
+.chip[disabled]{opacity:.45;cursor:not-allowed}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:14px}
+.stat{border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0}
+.stat b{display:block;font-family:var(--font-mono);font-size:1.7rem;font-weight:500;line-height:1.1;color:var(--stain)}
+.stat span{font-size:.85rem;color:var(--muted);display:block}
+.opts{display:flex;flex-direction:column;gap:8px;margin:12px 0}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:11px 12px;border:1.5px solid var(--line);border-radius:8px;cursor:pointer;background:var(--surface)}
+.opt:hover{border-color:var(--teal)}
+.opt input{margin-top:4px;accent-color:var(--teal);width:18px;height:18px;flex:none}
+.opt.sel{border-color:var(--teal);background:var(--teal-soft)}
+.opt.ok{border-color:var(--ok);background:var(--ok-soft)}
+.opt.bad{border-color:var(--bad);background:var(--bad-soft)}
+.opt.locked{cursor:default}
+.opt em{font-style:normal;font-weight:700;font-size:.82rem;white-space:nowrap}
+.fb{padding:10px 12px;border-radius:8px;font-size:.95rem;margin:4px 0 12px;background:var(--bg)}
+.fb b.ok{color:var(--ok)} .fb b.bad{color:var(--bad)}
+.btn{font:inherit;font-weight:700;border-radius:8px;padding:10px 18px;border:1.5px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer}
+.btn.primary{background:var(--teal);border-color:var(--teal);color:var(--on-teal)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.between{justify-content:space-between}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-weight:700}
+input[type=text],input[type=number],select,textarea{font:inherit;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:8px;padding:10px 12px;width:100%}
+textarea{min-height:110px;resize:vertical}
+input[type=number]{width:110px}
+.err{color:var(--bad);font-weight:700;min-height:1.4em}
+.parts{list-style:none;margin:16px 0 0;padding:0;display:flex;flex-direction:column;gap:10px}
+.parts li{display:grid;grid-template-columns:78px minmax(0,1fr);gap:10px;padding-top:10px;border-top:1px solid var(--line)}
+.parts b{font-family:var(--font-mono);font-weight:500;font-size:.82rem;color:var(--stain)}
+.range{width:100%;accent-color:var(--teal);margin:6px 0}
+.sortgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin:14px 0}
+.card{position:relative;border:2px solid var(--line);border-radius:10px;background:var(--surface);padding:8px;cursor:pointer;font:inherit;text-align:left;color:inherit;min-width:0}
+.card.picked{border-color:var(--teal)}
+.card[disabled]{cursor:default;opacity:1}
+.card .let{font-family:var(--font-mono);font-size:.85rem;color:var(--muted);margin-top:6px}
+.card .badge{position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;background:var(--teal);color:var(--on-teal);font-family:var(--font-mono);display:grid;place-items:center}
+.slidewrap{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:16px;align-items:start}
+.slidewrap.single{grid-template-columns:minmax(0,1fr)}
+.slidewrap canvas{max-width:560px;margin:0 auto}
+.picker{position:sticky;top:12px}
+.pk-top{display:flex;flex-direction:column;gap:8px;align-items:stretch;margin-bottom:10px}
+#cvz{width:100%;max-width:240px;border-radius:8px;background:var(--field);border:1px solid var(--line)}
+.phbtns{display:grid;grid-template-columns:1fr;gap:6px;margin:10px 0}
+.phbtns .btn{text-align:left;display:flex;justify-content:space-between;gap:8px}
+.phbtns kbd{font-family:var(--font-mono);font-size:.82rem;opacity:.7}
+.progress{height:8px;background:var(--line);border-radius:999px;overflow:hidden;margin:6px 0 10px}
+.progress i{display:block;height:100%;background:var(--teal)}
+.refstrip{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:12px}
+.refstrip figure{margin:0;font-size:.85rem;line-height:1.3}
+.refstrip canvas{width:100%;height:auto;aspect-ratio:1;border-radius:6px;background:var(--field)}
+.refstrip b{display:block;margin-top:4px}
+@media(max-width:640px){.refstrip{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:820px){
+  .slidewrap{grid-template-columns:minmax(0,1fr)}
+  .picker{position:fixed;left:0;right:0;bottom:0;top:auto;z-index:5;border-radius:14px 14px 0 0;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));box-shadow:0 -8px 24px rgba(0,0,0,.22)}
+  #cvz{max-width:84px}
+  .pk-top{flex-direction:row;align-items:center;gap:12px}
+  .phbtns{grid-template-columns:repeat(5,minmax(0,1fr));margin:8px 0}
+  .phbtns .btn{padding:9px 3px;font-size:.82rem;justify-content:center;text-align:center}
+  .phbtns kbd{display:none}
+  .pad-picker{padding-bottom:230px}
+}
+.tbl{width:100%;border-collapse:collapse;font-size:.95rem}
+.tbl th,.tbl td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+.tbl th{font-family:var(--font-mono);font-size:.82rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:500}
+.tbl td.num{font-family:var(--font-code);font-variant-numeric:tabular-nums}
+.scroll{overflow-x:auto}
+.tag{display:inline-block;font-family:var(--font-mono);font-size:.82rem;padding:2px 9px;border-radius:999px;font-weight:500;white-space:nowrap}
+.tag.ok{background:var(--ok-soft);color:var(--ok)} .tag.bad{background:var(--bad-soft);color:var(--bad)} .tag.wait{background:var(--teal-soft);color:var(--teal)}
+.score{font-family:var(--font-code);font-size:clamp(2.2rem,8vw,3.2rem);line-height:1;font-weight:500}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:14px}
+.kv div{border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.kv b{display:block;font-family:var(--font-code);font-weight:500;font-size:1.15rem}
+.kv span{font-size:.85rem;color:var(--muted)}
+.item{padding:12px 0;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:4px}
+.item:last-child{border-bottom:0}
+.item .q{font-weight:700}
+.resume{margin-bottom:14px;justify-content:space-between}
+#copybox{width:100%;min-height:150px;font-family:var(--font-code);font-size:.85rem;margin-top:10px}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+
+.submit-alert{border:2px solid var(--stain);background:var(--stain-soft);border-radius:10px;padding:13px 14px;margin:14px 0}
+.submit-alert strong{display:block;margin-bottom:4px}
+.stepshot{margin:8px 0 0 20px;padding:0}.stepshot li{margin:5px 0}
+.axo-placeholder{min-height:260px;border:3px dashed var(--teal);border-radius:10px;background:var(--teal-soft);display:grid;place-items:center;text-align:center;padding:20px;margin:12px 0}
+.axo-placeholder b{display:block;font-size:1.15rem;margin-bottom:5px}
+@media print{.top,.steps,.turnin-actions,.btn.restart-only{display:none!important}.wrap{max-width:none;padding:0}.panel{break-inside:avoid;box-shadow:none}body{background:#fff}.submit-alert{border:1px solid #777}}
+
+</style>
+<style>body{margin:0}</style></head><body>
+<div class="wrap">
+  <header class="top"><div class="brand"><span class="dot"></span>The Regeneration Files • 3.9 Virtual Lab</div><div class="eyebrow" id="who"></div></header>
+  <ol class="steps" id="steps" hidden></ol>
+  <main id="app"></main>
+</div>
+<script>
+/* ---------- lab content ---------- */
+const STG=['Interphase','Prophase','Metaphase','Anaphase','Telophase','Cytokinesis'];
+const PH=['Interphase','Prophase','Metaphase','Anaphase','Telophase'];
+const PC=['I','P','M','A','T'];
+const LET=['A','B','C','D','E'];
+const COUNTS=[27,6,3,2,2];
+
+const STAGE_INFO=[
+  {d:`The cell grows (G1), copies its DNA (S), and prepares to divide (G2). The nucleus is visible and the chromatin is loose. By the end of G2, every chromosome has two identical sister chromatids.`,chr:'4',sub:'in one nucleus',cm:'2',cells:'1'},
+  {d:`Chromatin coils tightly into chromosomes you can see. The nuclear envelope breaks down, and the centrosomes move to opposite poles as spindle fibers form.`,chr:'4',sub:'condensing',cm:'2',cells:'1'},
+  {d:`Spindle fibers attach to the center of each chromosome. The chromosomes line up along the middle of the cell, called the metaphase plate.`,chr:'4',sub:'at the plate',cm:'2',cells:'1'},
+  {d:`Sister chromatids separate and the spindle fibers pull them toward opposite poles. Each separated chromatid is now counted as its own chromosome.`,chr:'8',sub:'4 moving to each pole',cm:'1',cells:'1'},
+  {d:`Chromosomes reach the poles and begin to uncoil. A new nuclear envelope forms around each set. The cell now has two nuclei.`,chr:'8',sub:'4 at each pole',cm:'1',cells:'1'},
+  {d:`The cytoplasm divides. In animal cells the membrane pinches inward (cleavage furrow). Cytokinesis usually begins during late anaphase or telophase. The result is two genetically identical diploid cells.`,chr:'4',sub:'in each new cell',cm:'1',cells:'2'}
+];
+
+const PRED=[
+  {q:`The cell has finished G1, S, and G2, so its DNA is copied. Mitosis begins with prophase. What will you see first?`,
+   opts:[`Sister chromatids pull apart and move to opposite poles.`,`The chromatin coils into visible chromosomes and the nuclear envelope begins to break down.`,`The cell pinches in two.`],ok:1,
+   why:`In prophase, chromatin condenses into chromosomes (each made of two sister chromatids), the nucleolus disappears, and spindle fibers begin to form.`},
+  {q:`During prophase, spindle fibers attach to the chromosomes. Where will the chromosomes be in the next stage, metaphase?`,
+   opts:[`Clustered at the two poles.`,`Back inside a new nucleus.`,`Lined up across the middle of the cell, called the metaphase plate.`],ok:2,
+   why:`Spindle fibers from both poles tug on each chromosome until the chromosomes line up at the cell's equator. This makes sure each daughter cell gets one copy of every chromosome.`},
+  {q:`Next is anaphase. What do the spindle fibers do to the chromosomes?`,
+   opts:[`Pull the sister chromatids apart toward opposite poles.`,`Copy the DNA a second time.`,`Push every chromosome to the same pole.`],ok:0,
+   why:`The spindle fibers shorten and pull the sister chromatids apart. DNA was already copied during S phase, so it is not copied again.`},
+  {q:`The separated chromatids have reached the poles. What happens in telophase?`,
+   opts:[`The chromosomes condense and the nuclear envelope breaks down.`,`The chromosomes line up in the middle again.`,`A new nuclear envelope forms around each set of chromosomes, and the chromosomes begin to uncoil.`],ok:2,
+   why:`Telophase is close to the reverse of prophase. Two nuclei re-form, the spindle disappears, and the chromosomes relax back into loose chromatin.`},
+  {q:`The cell now has two nuclei. In an animal cell, how does cytokinesis divide the cytoplasm?`,
+   opts:[`The membrane pinches inward, forming a cleavage furrow.`,`The two nuclei fuse back together.`,`The DNA is copied again before the cell splits.`],ok:0,
+   why:`A ring of protein fibers tightens at the middle of the cell and pinches it in two. Plant cells cannot pinch because of their cell wall, so they build a cell plate instead.`}
+];
+
+const QS=[
+  {q:`What is the main result of mitosis?`,
+   opts:[`Four cells with half the chromosome number of the parent`,`Two genetically identical cells with the same chromosome number as the parent`,`Two cells with different DNA`,`One cell with double the chromosomes`],ok:1,
+   why:`Mitosis makes two daughter cells that are genetically identical to the parent cell. Making four cells with half the chromosomes describes meiosis.`},
+  {q:`A body cell with 8 chromosomes (2n = 8) goes through mitosis. How many chromosomes are in each daughter cell?`,
+   opts:[`4`,`8`,`16`,`2`],ok:1,
+   why:`Mitosis keeps the chromosome number the same, so each daughter cell has 8 chromosomes.`},
+  {q:`The same cell (2n = 8) is in metaphase. How many chromatids does it have?`,
+   opts:[`8`,`4`,`32`,`16`],ok:3,
+   why:`The cell has 8 chromosomes, and each one has 2 sister chromatids after S phase. 8 x 2 = 16 chromatids.`},
+  {q:`Which event marks the start of anaphase?`,
+   opts:[`The nuclear envelope re-forms.`,`Chromosomes line up in the middle.`,`The DNA is copied.`,`Sister chromatids separate.`],ok:3,
+   why:`Anaphase begins when the sister chromatids separate and start moving to opposite poles.`},
+  {q:`In a typical growing tissue, which part of the cell cycle takes up most of the time?`,
+   opts:[`Interphase`,`Prophase`,`Anaphase`,`Cytokinesis`],ok:0,
+   why:`Cells spend most of their time in interphase growing, copying DNA, and preparing to divide. The stages of mitosis are much shorter.`},
+  {q:`What is the job of the spindle fibers?`,
+   opts:[`Copy the DNA`,`Build the new cell wall`,`Move and separate the chromosomes`,`Make the nuclear envelope`],ok:2,
+   why:`Spindle fibers attach to chromosomes and move them to the middle of the cell and then apart to the poles.`},
+  {q:`How does cytokinesis differ between plant and animal cells?`,
+   opts:[`Plant cells form a cell plate, and animal cells pinch in with a cleavage furrow.`,`Plant cells pinch in, and animal cells form a cell plate.`,`Only animal cells go through cytokinesis.`,`Plant cells skip telophase.`],ok:0,
+   why:`A plant cell has a rigid cell wall, so it builds a new wall (the cell plate) down the middle. An animal cell has no wall, so its membrane pinches in.`},
+  {q:`A cut on your arm heals when new skin cells replace the damaged ones. Which process makes the new skin cells?`,
+   opts:[`Meiosis`,`Fertilization`,`Mitosis`,`Binary fission`],ok:2,
+   why:`Mitosis supports growth and repair in body cells. Binary fission is how bacteria reproduce, and meiosis makes gametes.`},
+  {q:`A healthy cell finds damaged DNA before it enters mitosis. What is the most likely result?`,
+   opts:[`The cell divides faster to avoid the damage.`,`The cell skips cytokinesis.`,`The cell pauses at a checkpoint so the DNA can be repaired, or the cell self-destructs if it cannot be fixed.`,`The cell goes straight to anaphase.`],ok:2,
+   why:`Checkpoints act as quality control. If the damage cannot be repaired, the cell is usually directed to die rather than pass on faulty DNA.`},
+  {q:`Cancer cells divide again and again without stopping. Which statement best explains why?`,
+   opts:[`Their cell cycle controls, such as checkpoints, are not working properly.`,`They skip interphase.`,`They divide by meiosis.`,`They have no DNA to copy.`],ok:0,
+   why:`Mutations in genes that control the cell cycle can break the checkpoints, so the cell keeps dividing even when it should stop.`}
+];
+
+const SHORT_PROMPT=`Use your slide data from Part 3. Which phase did you count the most cells in? Explain what that tells you about how long a cell spends in that phase.`;
+const SHORT_PTS=3;
+/* ---------- helpers ---------- */
+const TOK={};
+const TK=['ink','muted','line','stain','stain2','stain-soft','teal','teal-soft','cyto','wall','field','surface','ok','bad','focus'];
+function readTokens(){const cs=getComputedStyle(document.documentElement);TK.forEach(k=>{TOK[k]=cs.getPropertyValue('--'+k).trim();});}
+const lerp=(a,b,f)=>a+(b-a)*f, ease=f=>f*f*(3-2*f), clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+function hashStr(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+function rng(seed){let a=seed>>>0;return function(){a=(a+0x6D2B79F5)|0;let t=Math.imul(a^(a>>>15),1|a);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296;};}
+function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+function circ(ctx,x,y,r){ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);}
+
+/* ---------- animated cell model (2n = 4) ---------- */
+const NUC=[1,.35,0,0,0,0], DNUC=[0,0,0,0,.55,1], COND=[.12,.75,1,1,.8,.25], REACH=[0,.3,1,1,.7,0];
+const SPREAD=[0,.6,1,1,1,1], BEND=[0,0,0,1,1,1], PINCH=[0,0,0,0,.25,.95], PLATE=[0,0,0,0,.35,1];
+const SC=[[-24,-18],[22,-26],[-18,24],[27,17]], SC2=[[-38,-30],[34,-38],[-34,32],[38,26]];
+const PLT=[-54,-18,18,54].map(y=>[0,y]);
+const AY=[-46,-16,16,46], TY=[-30,-10,10,30], CY=[-22,-8,8,22];
+const POSA=[SC,SC2,PLT,AY.map(y=>[-64,y]),TY.map(y=>[-108,y]),CY.map(y=>[-108,y])];
+const POSB=[SC,SC2,PLT,AY.map(y=>[64,y]),TY.map(y=>[108,y]),CY.map(y=>[108,y])];
+const CHR_L=[60,60,40,40];
+function K(a,t){t=clamp(t,0,5);if(t>=5)return a[5];const i=Math.floor(t);return lerp(a[i],a[i+1],ease(t-i));}
+function KP(tab,t,i){t=clamp(t,0,5);if(t>=5)return tab[5][i];const s=Math.floor(t),f=ease(t-s),a=tab[s][i],b=tab[s+1][i];return[lerp(a[0],b[0],f),lerp(a[1],b[1],f)];}
+
+function chromatid(ctx,cx,cy,a1,a2,L,lw,col,wob,ph){
+  const arm=a=>{const p=[],N=7;for(let k=0;k<=N;k++){const r=L/2*k/N,w=wob*Math.sin(r*.28+ph)*Math.min(1,k/2);p.push([cx+Math.cos(a)*r-Math.sin(a)*w,cy+Math.sin(a)*r+Math.cos(a)*w]);}return p;};
+  const p1=arm(a1),p2=arm(a2);
+  ctx.strokeStyle=col;ctx.lineWidth=lw;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();
+  ctx.moveTo(p1[p1.length-1][0],p1[p1.length-1][1]);
+  for(let k=p1.length-2;k>=0;k--)ctx.lineTo(p1[k][0],p1[k][1]);
+  for(let k=1;k<p2.length;k++)ctx.lineTo(p2[k][0],p2[k][1]);
+  ctx.stroke();
+}
+function animalPath(ctx,Rx,Ry,p){
+  ctx.beginPath();
+  for(let k=0;k<=96;k++){const th=k/96*Math.PI*2,x=Rx*Math.cos(th),sy=1-p*Math.exp(-Math.pow(x/(Rx*.28),2)),y=Ry*Math.sin(th)*sy;k?ctx.lineTo(x,y):ctx.moveTo(x,y);}
+  ctx.closePath();
+}
+const CW=420, CH=280;
+function drawCell(cv,t,mode){
+  const dpr=window.devicePixelRatio||1,w=cv.clientWidth||CW,pw=Math.round(w*dpr),ph=Math.round(w*CH/CW*dpr);
+  if(cv.width!==pw||cv.height!==ph){cv.width=pw;cv.height=ph;}
+  const ctx=cv.getContext('2d');ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,cv.width,cv.height);
+  const s=cv.width/CW;ctx.setTransform(s,0,0,s,CW/2*s,CH/2*s);
+  const Rx=195,Ry=125,pinch=K(PINCH,t),plate=K(PLATE,t);
+  ctx.fillStyle=TOK.cyto;ctx.strokeStyle=TOK.wall;ctx.lineWidth=3;
+  if(mode==='plant'){
+    rr(ctx,-Rx,-Ry,2*Rx,2*Ry,16);ctx.fill();ctx.stroke();
+    if(plate>0){ctx.lineWidth=2+plate*3;ctx.setLineDash(plate<1?[6,5]:[]);ctx.beginPath();ctx.moveTo(0,-Ry*plate);ctx.lineTo(0,Ry*plate);ctx.stroke();ctx.setLineDash([]);}
+  }else{animalPath(ctx,Rx,Ry,pinch);ctx.fill();ctx.stroke();}
+  /* nuclei */
+  const nuc=K(NUC,t),dn=K(DNUC,t);
+  if(nuc>.01){ctx.globalAlpha=nuc;ctx.fillStyle=TOK['teal-soft'];ctx.strokeStyle=TOK.teal;ctx.lineWidth=2.5;circ(ctx,0,0,72);ctx.fill();ctx.stroke();
+    ctx.fillStyle=TOK['stain-soft'];ctx.strokeStyle=TOK.stain;ctx.lineWidth=1.5;circ(ctx,12,-4,9);ctx.fill();ctx.stroke();ctx.globalAlpha=1;}
+  if(dn>.01){ctx.globalAlpha=dn;ctx.fillStyle=TOK['teal-soft'];ctx.strokeStyle=TOK.teal;ctx.lineWidth=2.5;[-1,1].forEach(sg=>{circ(ctx,sg*108,0,52);ctx.fill();ctx.stroke();});ctx.globalAlpha=1;}
+  /* spindle + centrosomes */
+  const sp=K(SPREAD,t),px=lerp(14,166,sp),py=lerp(-92,0,sp),reach=K(REACH,t);
+  if(reach>.02){ctx.strokeStyle=TOK.teal;ctx.globalAlpha=.55;ctx.lineWidth=1.3;ctx.lineCap='round';
+    for(let i=0;i<4;i++){const a=KP(POSA,t,i),b=KP(POSB,t,i);
+      ctx.beginPath();ctx.moveTo(-px,py);ctx.lineTo(lerp(-px,a[0],reach),lerp(py,a[1],reach));ctx.stroke();
+      ctx.beginPath();ctx.moveTo(px,py);ctx.lineTo(lerp(px,b[0],reach),lerp(py,b[1],reach));ctx.stroke();}
+    ctx.globalAlpha=1;}
+  ctx.fillStyle=TOK.teal;ctx.strokeStyle=TOK.surface;ctx.lineWidth=2;[-1,1].forEach(sg=>{circ(ctx,sg*px,py,6.5);ctx.fill();ctx.stroke();});
+  /* chromosomes: each is two sister chromatids */
+  const cond=K(COND,t),bend=K(BEND,t);
+  for(let i=0;i<4;i++){
+    const col=i<2?TOK.stain:TOK.stain2,L=CHR_L[i]*(1.55-.55*cond),lw=lerp(1.6,8.5,cond),wob=(1-cond)*9;
+    const a=KP(POSA,t,i),b=KP(POSB,t,i);ctx.globalAlpha=.6+.4*cond;
+    chromatid(ctx,a[0],a[1],lerp(Math.PI+.3,2*Math.PI-.55,bend),lerp(.3,.55,bend),L,lw,col,wob,i*1.7);
+    chromatid(ctx,b[0],b[1],lerp(Math.PI-.3,Math.PI+.55,bend),lerp(-.3,Math.PI-.55,bend),L,lw,col,wob,i*1.7+.8);
+  }
+  ctx.globalAlpha=1;
+}
+
+/* ---------- root tip slide ---------- */
+function drawSlideCell(ctx,x,y,size,ph,seed){
+  const r=rng(seed),u=size/100;ctx.save();ctx.translate(x,y);ctx.scale(u,u);
+  const w=86+r()*8,h=86+r()*8;
+  ctx.fillStyle=TOK.cyto;ctx.strokeStyle=TOK.wall;ctx.lineWidth=2.5;rr(ctx,-w/2,-h/2,w,h,9);ctx.fill();ctx.stroke();
+  const ang=r()*Math.PI,ax=[Math.cos(ang),Math.sin(ang)],pe=[-ax[1],ax[0]];
+  const P=(a,b)=>[ax[0]*a+pe[0]*b,ax[1]*a+pe[1]*b];
+  const seg=(p,q,wd,col,al)=>{ctx.globalAlpha=al||1;ctx.strokeStyle=col;ctx.lineWidth=wd;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();ctx.moveTo(p[0],p[1]);ctx.lineTo(q[0],q[1]);ctx.stroke();ctx.globalAlpha=1;};
+  const colr=k=>k%2?TOK.stain2:TOK.stain;
+  if(ph===0){
+    const ox=(r()-.5)*10,oy=(r()-.5)*10,nr=22+r()*4;
+    ctx.fillStyle=TOK['stain-soft'];ctx.strokeStyle=TOK.stain;ctx.lineWidth=2;circ(ctx,ox,oy,nr);ctx.fill();ctx.stroke();
+    ctx.fillStyle=TOK.stain;circ(ctx,ox+(r()-.5)*8,oy+(r()-.5)*8,6);ctx.fill();
+    ctx.globalAlpha=.55;for(let k=0;k<9;k++){const a=r()*6.28,d=r()*(nr-5);circ(ctx,ox+Math.cos(a)*d,oy+Math.sin(a)*d,1.5);ctx.fill();}ctx.globalAlpha=1;
+  }else if(ph===1){
+    const ox=(r()-.5)*8,oy=(r()-.5)*8;
+    ctx.setLineDash([3,3]);ctx.strokeStyle=TOK.stain;ctx.globalAlpha=.5;ctx.lineWidth=1.6;circ(ctx,ox,oy,26);ctx.stroke();ctx.setLineDash([]);ctx.globalAlpha=1;
+    for(let k=0;k<7;k++){const a=r()*6.28,d=r()*14,sx=ox+Math.cos(a)*d,sy=oy+Math.sin(a)*d,b=r()*6.28,len=15+r()*9;
+      ctx.strokeStyle=colr(k);ctx.lineWidth=3.2;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(sx,sy);
+      ctx.quadraticCurveTo(sx+Math.cos(b)*len*.5+Math.sin(b)*7,sy+Math.sin(b)*len*.5-Math.cos(b)*7,sx+Math.cos(b)*len,sy+Math.sin(b)*len);ctx.stroke();}
+  }else if(ph===2){
+    for(let k=0;k<6;k++){const b=(k-2.5)*11;seg(P(-42,0),P(0,b),1,TOK.teal,.35);seg(P(42,0),P(0,b),1,TOK.teal,.35);}
+    for(let k=0;k<6;k++){const b=(k-2.5)*11;seg(P(-8,b-3),P(8,b+3),3.6,colr(k));seg(P(-8,b+3),P(8,b-3),3.6,colr(k));}
+  }else if(ph===3){
+    const d=17;
+    for(let k=0;k<6;k++){const b=(k-2.5)*10;[-1,1].forEach(sg=>{
+      const tip=P(sg*d,b),a1=P(sg*(d-10),b-4),a2=P(sg*(d-10),b+4);
+      ctx.strokeStyle=colr(k);ctx.lineWidth=3.3;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();ctx.moveTo(a1[0],a1[1]);ctx.lineTo(tip[0],tip[1]);ctx.lineTo(a2[0],a2[1]);ctx.stroke();});}
+  }else{
+    ctx.setLineDash([5,4]);seg(P(0,-40),P(0,40),3,TOK.wall);ctx.setLineDash([]);
+    [-1,1].forEach(sg=>{const c=P(sg*27,0);
+      ctx.fillStyle=TOK['stain-soft'];ctx.strokeStyle=TOK.stain;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(c[0],c[1],8,21,ang,0,Math.PI*2);ctx.fill();ctx.stroke();
+      for(let k=0;k<5;k++){const q=P(sg*27+(r()-.5)*6,(k-2)*7.5);seg(q,[q[0]+ax[0]*5,q[1]+ax[1]*5],2.6,colr(k),.85);}});
+  }
+  ctx.restore();
+}
+const SW=500, SH=800;
+function drawSlide(cv,SL,ids,sel,done){
+  const d=window.devicePixelRatio||1,w=cv.clientWidth||SW;cv.width=Math.round(w*d);cv.height=Math.round(w*d*SH/SW);
+  const ctx=cv.getContext('2d'),s=cv.width/SW;ctx.setTransform(s,0,0,s,0,0);ctx.fillStyle=TOK.field;ctx.fillRect(0,0,SW,SH);
+  SL.forEach((c,i)=>{
+    const cx=(i%5)*100+50,cy=Math.floor(i/5)*100+50;drawSlideCell(ctx,cx,cy,100,c.p,c.s);
+    ctx.font='500 10px '+getComputedStyle(document.body).getPropertyValue('--font-mono');ctx.fillStyle=TOK.muted;ctx.textAlign='left';ctx.textBaseline='alphabetic';ctx.fillText(String(i+1),cx-44,cy+44);
+    const id=ids[i];
+    if(id!=null){
+      const ok=id===c.p,txt=done&&!ok?PC[id]+'>'+PC[c.p]:PC[id],bw=txt.length>1?36:20;
+      ctx.fillStyle=done?(ok?TOK.ok:TOK.bad):TOK.ink;rr(ctx,cx+46-bw,cy-46,bw,18,5);ctx.fill();
+      ctx.fillStyle=TOK.surface;ctx.font='700 12px '+getComputedStyle(document.body).getPropertyValue('--font-mono');ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(txt,cx+46-bw/2,cy-37);
+    }
+    if(i===sel&&!done){ctx.strokeStyle=TOK.focus;ctx.lineWidth=4;rr(ctx,cx-48,cy-48,96,96,9);ctx.stroke();}
+  });
+}
+/* ---------- state ---------- */
+const KEY='mitosis-lab-v1';
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const app=$('#app');
+function fresh(){return{name:'',period:'',started:0,finished:0,step:'welcome',
+  p1:{ans:[null,null,null,null,null],chk:[0,0,0,0,0],reached:0},
+  p2:{order:[],done:0},
+  p3:{ids:Array(40).fill(null),done:0,pct:['','','','',''],mins:['',''],calc:0},
+  p4:{ans:Array(10).fill(null),chk:Array(10).fill(0)},short:''};}
+function load(){try{const j=localStorage.getItem(KEY);return j?JSON.parse(j):null;}catch(e){return null;}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+let S=fresh(), SL=[];
+function seed(){return hashStr((S.name||'').trim().toLowerCase()+'|'+S.period);}
+function buildSlide(){const r=rng(seed()+13),a=[];COUNTS.forEach((c,p)=>{for(let i=0;i<c;i++)a.push(p);});
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  SL=a.map(p=>({p,s:Math.floor(r()*1e9)}));}
+function p2Cards(){const r=rng(seed()+7);let a=[1,2,3,4,5];
+  for(let i=4;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  if(a.every((v,i)=>v===i+1))a=[2,3,4,5,1];return a;}
+
+function sc(){
+  const p1=S.p1.ans.reduce((n,a,i)=>n+(a===PRED[i].ok?1:0),0);
+  const cards=p2Cards(),p2=S.p2.done?S.p2.order.reduce((n,k,pos)=>n+(cards[k]===pos+1?1:0),0):0;
+  const ids=S.p3.ids,right=ids.reduce((n,v,i)=>n+(SL[i]&&v===SL[i].p?1:0),0),p3id=S.p3.done?Math.round(right/40*10):0;
+  const cnt=PH.map((_,p)=>ids.filter(v=>v===p).length),pct=cnt.map(c=>c/40*100);
+  const exp=[...pct,pct[0]/100*1440,pct[2]/100*1440],got=[...S.p3.pct,...S.p3.mins].map(v=>parseFloat(v));
+  const tol=[1,1,1,1,1,15,15],okc=exp.map((e,i)=>Number.isFinite(got[i])&&Math.abs(got[i]-e)<=tol[i]);
+  const calc=S.p3.calc?okc.filter(Boolean).length:0;
+  const p4=S.p4.ans.reduce((n,a,i)=>n+(S.p4.chk[i]&&a===QS[i].ok?1:0),0);
+  return{p1,p2,right,p3id,cnt,pct,exp,got,okc,calc,p4,total:p1+p2+p3id+calc+p4,max:37,cards};
+}
+
+/* ---------- shell ---------- */
+const STEPS=[['p1','Part 1','Stages'],['p2','Part 2','Order'],['p3','Part 3','Root tip'],['p4','Part 4','Questions'],['review','Results','Review']];
+function renderSteps(){
+  const el=$('#steps');
+  if(S.step==='welcome'){el.hidden=true;$('#who').textContent='';return;}
+  el.hidden=false;const cur=STEPS.findIndex(s=>s[0]===S.step);
+  el.innerHTML=STEPS.map((s,i)=>`<li class="${i===cur?'on':i<cur?'done':''}"${i===cur?' aria-current="step"':''}>${s[1]}<small>${s[2]}</small></li>`).join('');
+  $('#who').textContent=S.name+' · '+S.period;
+}
+function go(step){S.step=step;render();window.scrollTo(0,0);}
+function render(){
+  cancelAnim();window.__redraw=null;renderSteps();
+  ({welcome:viewWelcome,p1:viewP1,p2:viewP2,p3:viewP3,p4:viewP4,review:viewReview})[S.step]();
+  if(S.started)save();
+}
+function optsHTML(name,opts,sel,locked,okIdx){
+  return `<div class="opts" role="radiogroup">`+opts.map((o,i)=>{
+    let c='opt',tag='';
+    if(locked){c+=' locked';if(i===okIdx){c+=' ok';tag=' <em>Correct answer</em>';}else if(i===sel){c+=' bad';tag=' <em>Your answer</em>';}}
+    else if(i===sel)c+=' sel';
+    return `<label class="${c}"><input type="radio" name="${name}" value="${i}"${i===sel?' checked':''}${locked?' disabled':''}><span>${o}${tag}</span></label>`;
+  }).join('')+`</div>`;
+}
+const fbHTML=(ok,why)=>`<div class="fb"><b class="${ok?'ok':'bad'}">${ok?'Correct.':'Not quite.'}</b> ${why}</div>`;
+
+/* ---------- welcome ---------- */
+function viewWelcome(){
+  const sv=load();
+  const resume=sv&&sv.started?`<div class="panel row resume"><div><b>Welcome back, ${esc(sv.name)}.</b><div class="muted">Your progress was saved on this device.</div></div><button class="btn primary" data-act="resume">Resume</button></div>`:'';
+  const periods=[1,2,3,4,5,6,7,8].map(n=>`<option>Period ${n}</option>`).join('');
+  app.innerHTML=`${resume}<div class="grid2"><div class="stack">
+    <div><div class="eyebrow">High school biology lab</div><h1>Mitosis Lab</h1></div>
+    <p>Watch a cell divide, put the stages in order, then count cells on a stained onion root tip slide. You get feedback on the screen as you go, and your answers are scored for you.</p>
+    <ul class="parts">
+      <li><b>PART 1</b><span><strong>Watch a cell divide.</strong> Predict each stage, then see what happens. (5 points)</span></li>
+      <li><b>PART 2</b><span><strong>Put the stages in order.</strong> (5 points)</span></li>
+      <li><b>PART 3</b><span><strong>Root tip slide.</strong> Identify 40 cells, then use your counts to calculate percentages and time. (17 points)</span></li>
+      <li><b>PART 4</b><span><strong>Questions.</strong> Ten multiple choice questions and one short written answer. (10 points, plus ${SHORT_PTS} points scored by your teacher)</span></li>
+    </ul>
+    <p class="muted">When you finish, a results page shows every question and your answers. Your teacher will tell you how to turn it in.</p></div>
+    <form class="panel" id="startform" novalidate>
+      <h2>Start the lab</h2><p class="muted" style="margin:6px 0 16px">Your name and class period appear on your results page.</p>
+      <div class="field"><label for="nm">Your name</label><input id="nm" type="text" autocomplete="name" placeholder="First and last name"></div>
+      <div class="field"><label for="pd">Class period</label><select id="pd"><option value="">Choose your period</option>${periods}<option value="other">Other</option></select></div>
+      <div class="field" id="pdo" hidden><label for="pdt">Type your class or period</label><input id="pdt" type="text"></div>
+      <div class="err" id="err" role="alert"></div>
+      <button class="btn primary" type="submit" data-act="start">Begin Part 1</button>
+    </form></div>`;
+  $('#pd').addEventListener('change',e=>{$('#pdo').hidden=e.target.value!=='other';});
+  $('#startform').addEventListener('submit',e=>{e.preventDefault();startLab();});
+}
+function startLab(){
+  const nm=$('#nm').value.trim();let pd=$('#pd').value;if(pd==='other')pd=$('#pdt').value.trim();
+  if(!nm){$('#err').textContent='Enter your name to begin.';$('#nm').focus();return;}
+  if(!pd){$('#err').textContent='Choose your class period to begin.';return;}
+  S=fresh();S.name=nm;S.period=pd;S.started=Date.now();buildSlide();go('p1');
+}
+
+/* ---------- part 1: guided stages ---------- */
+let cur=0,raf=0,P1mode='animal',shown=-1;
+function cancelAnim(){if(raf)cancelAnimationFrame(raf);raf=0;}
+function reduced(){return window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;}
+function viewP1(){
+  const p=S.p1;cur=p.reached;P1mode='animal';shown=-1;
+  app.innerHTML=`<div class="grid2"><div class="stack"><div class="panel">
+      <div class="eyebrow">Cell model · 2n = 4 · 2 long and 2 short chromosomes</div>
+      <canvas class="scope" id="cv1" role="img" aria-label="Animated model of a dividing cell" style="margin-top:8px"></canvas>
+      <div class="chips" id="chips"></div><div id="explore"></div></div></div>
+    <div class="stack"><div class="panel" id="info"></div><div class="panel" id="pred"></div></div></div>`;
+  window.__redraw=paintP1;paintP1();renderPred();renderExplore();
+}
+function stageOf(t){return Math.min(5,Math.max(0,Math.round(t)));}
+function paintP1(){
+  const cv=$('#cv1');if(!cv)return;drawCell(cv,cur,P1mode);
+  const st=stageOf(cur);cv.setAttribute('aria-label',`Cell model showing ${STG[st]}`);
+  if(st!==shown){shown=st;renderInfo(st);renderChips(st);}
+}
+function renderInfo(st){
+  const d=STAGE_INFO[st];
+  $('#info').innerHTML=`<div class="eyebrow">Stage ${st+1} of 6</div><h2 style="margin:4px 0 8px">${STG[st]}</h2><p>${d.d}</p>
+    <div class="stats"><div class="stat"><b>${d.chr}</b><span>Chromosomes<br>${d.sub}</span></div><div class="stat"><b>${d.cm}</b><span>Chromatids per chromosome</span></div><div class="stat"><b>${d.cells}</b><span>${d.cells==='1'?'Cell':'Cells'}</span></div></div>`;
+}
+function renderChips(st){
+  $('#chips').innerHTML=STG.map((n,i)=>`<button class="chip${i===st?' on':''}" data-act="chip" data-s="${i}"${i>S.p1.reached?' disabled':''}>${n}</button>`).join('');
+}
+function renderPred(){
+  const p=S.p1,i=p.reached,box=$('#pred');if(!box)return;
+  if(i>=5){const n=sc().p1;
+    box.innerHTML=`<div class="eyebrow">Part 1 complete</div><h3 style="margin:4px 0 8px">You predicted ${n} of 5 stages correctly.</h3><p>Drag the slider to scrub through the whole cycle. Switch to a plant cell to compare cytokinesis, and watch the chromosome counts change.</p><div style="margin-top:14px"><button class="btn primary" data-act="to" data-to="p2">Continue to Part 2</button></div>`;return;}
+  const q=PRED[i],locked=!!p.chk[i];
+  box.innerHTML=`<div class="eyebrow">Prediction ${i+1} of 5</div><h3 style="margin-top:4px">${q.q}</h3>`+optsHTML('p1q',q.opts,p.ans[i],locked,q.ok)+
+    (locked?fbHTML(p.ans[i]===q.ok,q.why)+`<button class="btn primary" data-act="next1">Play ${STG[i+1]}</button>`
+           :`<button class="btn primary" data-act="chk1" data-needsel${p.ans[i]==null?' disabled':''}>Check answer</button>`);
+}
+function renderExplore(){
+  const box=$('#explore');if(!box)return;
+  if(S.p1.reached<5){box.innerHTML='';return;}
+  box.innerHTML=`<label class="eyebrow" for="sl" style="display:block;margin-top:14px">Scrub through the cycle</label>
+    <input class="range" id="sl" type="range" min="0" max="5" step="0.01" value="${cur}">
+    <div class="row" style="margin-top:6px"><span class="muted">Cell type:</span>
+      <button class="chip${P1mode==='animal'?' on':''}" data-act="mode" data-m="animal">Animal cell</button>
+      <button class="chip${P1mode==='plant'?' on':''}" data-act="mode" data-m="plant">Plant cell</button></div>
+    <p class="muted" style="margin-top:8px;font-size:.9rem">${P1mode==='plant'?'A plant cell builds a cell plate across the middle during cytokinesis. Its cell wall keeps it from pinching in.':'An animal cell pinches in at the middle during cytokinesis (cleavage furrow).'}</p>`;
+}
+function animateTo(target){
+  cancelAnim();const from=cur,t0=performance.now(),dur=reduced()?1:Math.max(1000,Math.abs(target-from)*1300);
+  const tick=now=>{const f=Math.min(1,(now-t0)/dur);cur=from+(target-from)*f;paintP1();
+    if(f<1)raf=requestAnimationFrame(tick);else{raf=0;cur=target;paintP1();renderPred();renderExplore();}};
+  raf=requestAnimationFrame(tick);
+}
+
+/* ---------- part 2: order the stages ---------- */
+function viewP2(){
+  const cards=p2Cards(),p=S.p2,n=p.order.length;
+  const grid=cards.map((st,k)=>{const pos=p.order.indexOf(k);
+    return `<button class="card${pos>=0?' picked':''}" data-act="pick" data-k="${k}"${p.done||pos>=0?' disabled':''} aria-label="Cell ${LET[k]}${pos>=0?', picked '+(pos+1):''}"><canvas class="scope" data-t="${st}" aria-hidden="true"></canvas><div class="let">Cell ${LET[k]}${p.done?' · '+STG[st]:''}</div>${pos>=0?`<span class="badge">${pos+1}</span>`:''}</button>`;}).join('');
+  let res='';
+  if(p.done){const s=sc().p2;
+    res=`<h3>${s} of 5 in the right place.</h3><div class="scroll"><table class="tbl"><tr><th>Step</th><th>You picked</th><th>Correct</th><th></th></tr>`+
+      p.order.map((k,pos)=>{const ok=cards[k]===pos+1;return `<tr><td class="num">${pos+1}</td><td>Cell ${LET[k]} (${STG[cards[k]]})</td><td>${STG[pos+1]}</td><td><span class="tag ${ok?'ok':'bad'}">${ok?'Correct':'Check this one'}</span></td></tr>`;}).join('')+`</table></div>
+      <div><button class="btn primary" data-act="to" data-to="p3">Continue to Part 3</button></div>`;
+  }
+  app.innerHTML=`<div class="panel stack"><div><div class="eyebrow">Part 2</div><h2>Put the stages in order</h2></div>
+    <p>These five cells show the stages that follow interphase. Tap them in the order they happen, starting with the earliest. Interphase is already done, so the first cell you pick should be the one that comes right after it.</p>
+    <div class="sortgrid">${grid}</div>
+    <div class="row"><span class="muted">${n} of 5 picked</span>
+      ${p.done?'':`<button class="btn" data-act="undo2"${n?'':' disabled'}>Undo last pick</button><button class="btn" data-act="reset2"${n?'':' disabled'}>Start over</button><button class="btn primary" data-act="sub2"${n===5?'':' disabled'}>Submit order</button>`}</div>${res}</div>`;
+  const paint=()=>$$('.sortgrid canvas').forEach(c=>drawCell(c,+c.dataset.t,'animal'));window.__redraw=paint;paint();
+}
+/* ---------- part 3: root tip slide ---------- */
+let SEL=0;
+const HINTS=['Round, smooth nucleus with a dark nucleolus.','Thick dark threads inside a fading nucleus.','Chromosomes in a line across the middle.','Two groups of V shapes moving apart.','Two dense groups at opposite ends, with a wall forming between.'];
+function nextUnid(from){for(let k=0;k<40;k++){const i=(from+k)%40;if(S.p3.ids[i]==null)return i;}return clamp(from,0,39);}
+function viewP3(){
+  const p=S.p3,done=!!p.done;
+  if(!done)SEL=nextUnid(0);
+  const ref=PH.map((n,i)=>`<figure><canvas data-ph="${i}" aria-hidden="true"></canvas><b>${n}</b>${HINTS[i]}</figure>`).join('');
+  app.className=done?'':'pad-picker';
+  app.innerHTML=`<div class="stack"><div class="panel"><div class="eyebrow">Part 3</div><h2 style="margin:4px 0 8px">Onion root tip slide</h2>
+    <p>The tip of an onion root is a growing region, so many of its cells are dividing. This slide shows 40 stained cells. ${done?'Your identifications are scored below. Green tags are correct. Red tags show your choice, then the right answer.':'Click a cell, then choose its phase. The next unlabeled cell is selected for you. You can also press 1 to 5 on a keyboard.'}</p>
+    <div class="refstrip">${ref}</div></div>
+    ${done?resultsP3():''}
+    <div class="slidewrap${done?' single':''}"><div class="panel" style="padding:10px"><canvas class="scope" id="slidecv" role="img" aria-label="Microscope view of 40 onion root tip cells in a grid, 5 across and 8 down"></canvas></div>
+    ${done?'':`<div class="panel picker" id="picker"></div>`}</div></div>`;
+  window.__redraw=paintP3;paintP3();updGates();
+}
+function paintP3(){
+  const cv=$('#slidecv');if(!cv)return;drawSlide(cv,SL,S.p3.ids,SEL,!!S.p3.done);
+  $$('.refstrip canvas').forEach(c=>{const d=window.devicePixelRatio||1,w=c.clientWidth||100;c.width=c.height=Math.round(w*d);const x=c.getContext('2d');x.clearRect(0,0,c.width,c.height);drawSlideCell(x,c.width/2,c.height/2,c.width*.98,+c.dataset.ph,31+(+c.dataset.ph)*17);});
+  if(!S.p3.done)renderPicker();
+}
+function renderPicker(){
+  const box=$('#picker');if(!box)return;
+  const n=S.p3.ids.filter(v=>v!=null).length,id=S.p3.ids[SEL];
+  box.innerHTML=`<div class="eyebrow">Cell ${SEL+1} of 40</div>
+    <div class="pk-top"><canvas id="cvz" aria-hidden="true"></canvas><div class="muted" style="font-size:.9rem">${id==null?'Not identified yet':'You chose <b>'+PH[id]+'</b>'}</div></div>
+    <div class="phbtns">${PH.map((nm,i)=>`<button class="btn" data-act="ph" data-p="${i}">${nm}<kbd>${i+1}</kbd></button>`).join('')}</div>
+    <div class="progress"><i style="width:${n/40*100}%"></i></div><div class="muted">${n} of 40 identified</div>
+    <button class="btn primary" data-act="sub3" style="width:100%;margin-top:8px"${n<40?' disabled':''}>Submit identifications</button>`;
+  const z=$('#cvz');if(z){const d=window.devicePixelRatio||1,w=z.clientWidth||200;z.width=z.height=Math.round(w*d);const x=z.getContext('2d');x.fillStyle=TOK.field;x.fillRect(0,0,z.width,z.height);drawSlideCell(x,z.width/2,z.height/2,z.width*.98,SL[SEL].p,SL[SEL].s);}
+}
+function assignPhase(p){
+  if(S.p3.done)return;S.p3.ids[SEL]=p;save();SEL=nextUnid(SEL+1);paintP3();
+}
+function resultsP3(){
+  const r=sc(),lock=!!S.p3.calc,actual=PH.map((_,p)=>SL.filter(c=>c.p===p).length);
+  const calcRow=(label,i,id,val,unit)=>`<tr><td>${label}</td><td><input id="${id}" type="number" step="any" inputmode="decimal" aria-label="${label}" value="${esc(val)}"${lock?' disabled':''}> ${unit}</td>${lock?`<td>${r.okc[i]?'<span class="tag ok">Correct</span>':'<span class="tag bad">Expected '+r.exp[i].toFixed(1)+'</span>'}</td>`:''}</tr>`;
+  const pctRows=PH.map((n,i)=>`<tr><td>${n}</td><td class="num">${r.cnt[i]}</td><td class="num">${actual[i]}</td><td><input id="pct${i}" type="number" step="any" inputmode="decimal" aria-label="Percent of cells in ${n}" value="${esc(S.p3.pct[i])}"${lock?' disabled':''}> %</td>${lock?`<td>${r.okc[i]?'<span class="tag ok">Correct</span>':'<span class="tag bad">Expected '+r.exp[i].toFixed(1)+'</span>'}</td>`:''}</tr>`).join('');
+  return `<div class="panel stack"><div><div class="eyebrow">Part 3 results</div><h2>You identified ${r.right} of 40 cells correctly. (${r.p3id} of 10 points)</h2></div>
+    <h3>Calculate from your counts</h3>
+    <p>Use the number of cells you counted in each phase. Percent = cells counted ÷ 40 × 100. Answers within 1 percent count as correct.</p>
+    <div class="scroll"><table class="tbl"><tr><th>Phase</th><th>You counted</th><th>On the slide</th><th>Percent of 40 cells</th>${lock?'<th>Check</th>':''}</tr>${pctRows}</table></div>
+    <p>Suppose one full cell cycle in onion root tip cells takes 24 hours (1,440 minutes). The time spent in a phase is about proportional to the percent of cells found in it. Minutes = percent ÷ 100 × 1,440. Answers within 15 minutes count as correct.</p>
+    <div class="scroll"><table class="tbl"><tr><th>Estimate</th><th>Your answer</th>${lock?'<th>Check</th>':''}</tr>${calcRow('Minutes in interphase',5,'min0',S.p3.mins[0],'min')}${calcRow('Minutes in metaphase',6,'min1',S.p3.mins[1],'min')}</table></div>
+    ${lock?`<h3>${r.calc} of 7 calculations correct.</h3><div><button class="btn primary" data-act="to" data-to="p4">Continue to Part 4</button></div>`:`<div><button class="btn primary" data-act="calc3" disabled>Check calculations</button></div>`}</div>`;
+}
+
+/* ---------- part 4: questions ---------- */
+function qcard(i){
+  const q=QS[i],lock=!!S.p4.chk[i],a=S.p4.ans[i];
+  return `<div class="panel" id="qc${i}"><div class="eyebrow">Question ${i+1} of ${QS.length}</div><h3 style="margin-top:4px">${q.q}</h3>${optsHTML('q'+i,q.opts,a,lock,q.ok)}${lock?fbHTML(a===q.ok,q.why):`<button class="btn primary" data-act="chkq" data-i="${i}" data-needsel${a==null?' disabled':''}>Check answer</button>`}</div>`;
+}
+function viewP4(){
+  app.className='';
+  app.innerHTML=`<div class="stack"><div class="panel"><div class="eyebrow">Part 4</div><h2 style="margin:4px 0 8px">Check your understanding</h2><p>Choose an answer, then check it. Each answer is locked once you check it, so read the explanation before you move on.</p></div>
+    ${QS.map((_,i)=>qcard(i)).join('')}
+    <div class="panel stack"><div><div class="eyebrow">Short answer · scored by your teacher (${SHORT_PTS} points)</div><h3 style="margin-top:4px">${SHORT_PROMPT}</h3></div>
+      <div class="field"><label for="short" class="muted" style="font-weight:400">Write at least a couple of full sentences.</label><textarea id="short">${esc(S.short)}</textarea></div>
+      <div class="row"><button class="btn primary" data-act="finish" disabled>See my results</button><span class="muted" id="gate"></span></div></div></div>`;
+  updGates();
+}
+function updGates(){
+  const c=$('[data-act="calc3"]');
+  if(c)c.disabled=![...S.p3.pct,...S.p3.mins].every(v=>String(v).trim()!==''&&Number.isFinite(parseFloat(v)));
+  const f=$('[data-act="finish"]');
+  if(f){const allq=S.p4.chk.every(Boolean),sa=S.short.trim().length>=25;f.disabled=!(allq&&sa);const g=$('#gate');if(g)g.textContent=!allq?'Check all ten questions first.':!sa?'Add your short answer.':'';}
+}
+
+/* ---------- results ---------- */
+const stat=(ok)=>`<span class="tag ${ok?'ok':'bad'}">${ok?'Correct':'Incorrect'}</span>`;
+function item(label,q,lines,ok){return `<div class="item"><div class="row between"><span class="eyebrow">${label}</span>${stat(ok)}</div><div class="q">${q}</div>${lines.filter(Boolean).map(l=>`<div>${l}</div>`).join('')}</div>`;}
+function checkCode(r){return hashStr([S.name,S.period,r.total,S.finished].join('|')).toString(36).toUpperCase().padStart(6,'0').slice(0,6);}
+function viewReview(){
+  app.className='';
+  const r=sc(),when=S.finished?new Date(S.finished).toLocaleString():'',mins=S.finished?Math.max(1,Math.round((S.finished-S.started)/60000)):0;
+  const pctTxt=Math.round(r.total/r.max*100);
+  const p1=PRED.map((q,i)=>{const a=S.p1.ans[i],ok=a===q.ok;return item('Part 1 · Prediction '+(i+1),q.q,['Your answer: '+(a==null?'No answer':q.opts[a]),ok?'':'Correct answer: '+q.opts[q.ok],q.why],ok);}).join('');
+  const p2=`<div class="scroll"><table class="tbl"><tr><th>Step</th><th>You picked</th><th>Correct</th><th></th></tr>`+S.p2.order.map((k,pos)=>{const ok=r.cards[k]===pos+1;return `<tr><td class="num">${pos+1}</td><td>Cell ${LET[k]} (${STG[r.cards[k]]})</td><td>${STG[pos+1]}</td><td>${stat(ok)}</td></tr>`;}).join('')+`</table></div>`;
+  const wrong=S.p3.ids.map((v,i)=>v!==SL[i].p?`Cell ${i+1}: you chose ${PH[v]}, actual ${PH[SL[i].p]}`:null).filter(Boolean);
+  const actual=PH.map((_,p)=>SL.filter(c=>c.p===p).length);
+  const labels=[...PH.map(n=>'Percent in '+n),'Minutes in interphase','Minutes in metaphase'];
+  const p3=`<div class="scroll"><table class="tbl"><tr><th>Phase</th><th>You counted</th><th>On the slide</th></tr>${PH.map((n,i)=>`<tr><td>${n}</td><td class="num">${r.cnt[i]}</td><td class="num">${actual[i]}</td></tr>`).join('')}</table></div>
+    <p style="margin-top:10px"><b>${r.right} of 40 cells identified correctly.</b></p>${wrong.length?`<ul style="margin:6px 0 0;padding-left:20px">${wrong.map(w=>`<li>${w}</li>`).join('')}</ul>`:'<p>All 40 cells were correct.</p>'}
+    <div class="scroll" style="margin-top:12px"><table class="tbl"><tr><th>Calculation</th><th>Your answer</th><th>Expected from your counts</th><th></th></tr>${labels.map((l,i)=>`<tr><td>${l}</td><td class="num">${esc(r.got[i]!==r.got[i]?'blank':r.got[i])}</td><td class="num">${r.exp[i].toFixed(1)}</td><td>${stat(r.okc[i])}</td></tr>`).join('')}</table></div>`;
+  const p4=QS.map((q,i)=>{const a=S.p4.ans[i],ok=a===q.ok;return item('Part 4 · Question '+(i+1),q.q,['Your answer: '+(a==null?'No answer':q.opts[a]),ok?'':'Correct answer: '+q.opts[q.ok],q.why],ok);}).join('');
+  app.innerHTML=`<div class="stack">
+    <div class="panel"><div class="eyebrow">Lab results</div><h1 style="margin:4px 0 12px">${esc(S.name)}</h1>
+      <div class="row" style="gap:18px"><div><div class="score">${r.total} / ${r.max}</div><div class="muted">${pctTxt}% auto-scored, plus ${SHORT_PTS} points to be scored by your teacher</div></div></div>
+      <div class="kv"><div><b>${esc(S.period)}</b><span>Class period</span></div><div><b>${esc(when)}</b><span>Finished</span></div><div><b>${mins} min</b><span>Time on lab</span></div><div><b>${checkCode(r)}</b><span>Check code</span></div></div>
+      <div class="kv"><div><b>${r.p1} / 5</b><span>Part 1 predictions</span></div><div><b>${r.p2} / 5</b><span>Part 2 order</span></div><div><b>${r.p3id} / 10</b><span>Part 3 cell ID</span></div><div><b>${r.calc} / 7</b><span>Part 3 calculations</span></div><div><b>${r.p4} / 10</b><span>Part 4 questions</span></div><div><b>? / ${SHORT_PTS}</b><span>Short answer (teacher)</span></div></div></div>
+    <div class="panel stack"><h3>Turn in your work</h3><p>Scroll through this page and take a screenshot of each section, including the top with your name and score. Upload the screenshots where your teacher asked. You can also copy your results as text and paste them into your assignment.</p>
+      <div class="row"><button class="btn primary" data-act="copy">Copy results as text</button><button class="btn" data-act="restart">Start over</button></div><textarea id="copybox" readonly hidden aria-label="Results text"></textarea></div>
+    <div class="panel"><h2>Part 1: Predictions</h2>${p1}</div>
+    <div class="panel"><h2>Part 2: Order of the stages</h2><div style="margin-top:8px">${p2}</div></div>
+    <div class="panel"><h2>Part 3: Root tip slide</h2><div style="margin-top:8px">${p3}</div></div>
+    <div class="panel"><h2>Part 4: Questions</h2>${p4}</div>
+    <div class="panel"><h2>Short answer</h2><p class="muted" style="margin:6px 0 10px">${SHORT_PROMPT}</p><p style="white-space:pre-wrap">${esc(S.short)}</p></div></div>`;
+}
+function resultsText(){
+  const r=sc(),L=[];
+  L.push('MITOSIS LAB RESULTS',`Name: ${S.name}`,`Class period: ${S.period}`,`Finished: ${new Date(S.finished).toLocaleString()}`,`Auto-scored total: ${r.total} / ${r.max} (short answer worth ${SHORT_PTS} points is scored by teacher)`,`Check code: ${checkCode(r)}`,'',
+    `Part 1 predictions: ${r.p1} / 5`,`Part 2 order: ${r.p2} / 5`,`Part 3 cell ID: ${r.p3id} / 10 (${r.right} of 40 cells)`,`Part 3 calculations: ${r.calc} / 7`,`Part 4 questions: ${r.p4} / 10`,'');
+  L.push('Part 3 counts (you counted / on slide): '+PH.map((n,i)=>`${n} ${r.cnt[i]}/${SL.filter(c=>c.p===i).length}`).join(', '));
+  L.push('Part 3 answers: '+r.got.map((g,i)=>`${i<5?PH[i]+' %':i===5?'Interphase min':'Metaphase min'} = ${g!==g?'blank':g}`).join('; '),'');
+  QS.forEach((q,i)=>{const a=S.p4.ans[i];L.push(`Q${i+1}: ${a===q.ok?'Correct':'Incorrect'} | Your answer: ${a==null?'none':q.opts[a]}`);});
+  L.push('','Short answer:',S.short);return L.join('\n');
+}
+function copyText(t,btn){
+  const done=()=>{btn.textContent='Copied';setTimeout(()=>{btn.textContent='Copy results as text';},1800);};
+  const fb=()=>{const ta=$('#copybox');ta.hidden=false;ta.value=t;ta.focus();ta.select();};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done).catch(fb);}else fb();
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click',e=>{
+  const sl=e.target.closest('#slidecv');
+  if(sl&&!S.p3.done){const r=sl.getBoundingClientRect(),c=clamp(Math.floor((e.clientX-r.left)/r.width*5),0,4),rw=clamp(Math.floor((e.clientY-r.top)/r.height*8),0,7);SEL=rw*5+c;paintP3();return;}
+  const b=e.target.closest('[data-act]');if(!b||b.disabled)return;
+  switch(b.dataset.act){
+    case 'resume':{const sv=load();if(sv){S=sv;buildSlide();render();window.scrollTo(0,0);}break;}
+    case 'to':go(b.dataset.to);break;
+    case 'chk1':{const i=S.p1.reached;if(S.p1.ans[i]==null)return;S.p1.chk[i]=1;save();renderPred();break;}
+    case 'next1':{S.p1.reached++;save();$('#pred').innerHTML=`<p class="muted">Watching ${STG[S.p1.reached]}...</p>`;animateTo(S.p1.reached);break;}
+    case 'chip':animateTo(+b.dataset.s);break;
+    case 'mode':P1mode=b.dataset.m;renderExplore();paintP1();break;
+    case 'pick':{const k=+b.dataset.k;if(S.p2.done||S.p2.order.includes(k))return;S.p2.order.push(k);save();viewP2();break;}
+    case 'undo2':S.p2.order.pop();save();viewP2();break;
+    case 'reset2':S.p2.order=[];save();viewP2();break;
+    case 'sub2':if(S.p2.order.length===5){S.p2.done=1;save();viewP2();}break;
+    case 'ph':assignPhase(+b.dataset.p);break;
+    case 'sub3':if(S.p3.ids.every(v=>v!=null)){S.p3.done=1;save();viewP3();window.scrollTo(0,0);}break;
+    case 'calc3':S.p3.calc=1;save();viewP3();break;
+    case 'chkq':{const i=+b.dataset.i;if(S.p4.ans[i]==null)return;S.p4.chk[i]=1;save();const el=$('#qc'+i);el.outerHTML=qcard(i);updGates();break;}
+    case 'finish':if(!b.disabled){S.finished=Date.now();go('review');}break;
+    case 'copy':copyText(resultsText(),b);break;
+    case 'restart':
+      if(b.dataset.sure){try{localStorage.removeItem(KEY);}catch(x){}S=fresh();SL=[];app.className='';render();window.scrollTo(0,0);}
+      else{b.dataset.sure='1';b.textContent='Click again to erase all your work';}
+      break;
+  }
+});
+document.addEventListener('change',e=>{
+  const t=e.target;if(t.type!=='radio')return;const v=+t.value;
+  if(t.name==='p1q')S.p1.ans[S.p1.reached]=v;
+  else if(/^q\d+$/.test(t.name))S.p4.ans[+t.name.slice(1)]=v;
+  else return;
+  save();t.closest('.opts').querySelectorAll('.opt').forEach(l=>l.classList.toggle('sel',l.querySelector('input').checked));
+  const holder=t.closest('.panel'),btn=holder&&holder.querySelector('[data-needsel]');if(btn)btn.disabled=false;
+});
+document.addEventListener('input',e=>{
+  const t=e.target;
+  if(/^pct\d$/.test(t.id))S.p3.pct[+t.id[3]]=t.value;
+  else if(/^min\d$/.test(t.id))S.p3.mins[+t.id[3]]=t.value;
+  else if(t.id==='short')S.short=t.value;
+  else if(t.id==='sl'){cur=parseFloat(t.value);paintP1();return;}
+  else return;
+  save();updGates();
+});
+document.addEventListener('keydown',e=>{
+  if(S.step!=='p3'||S.p3.done||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName))return;
+  const n=parseInt(e.key,10);
+  if(n>=1&&n<=5){assignPhase(n-1);return;}
+  const mv={ArrowRight:1,ArrowLeft:-1,ArrowDown:5,ArrowUp:-5}[e.key];
+  if(mv){e.preventDefault();SEL=clamp(SEL+mv,0,39);paintP3();}
+});
+
+
+/* ===== 3.9 REGENERATION FILES CUSTOMIZATION ===== */
+function fresh(){return{name:'',period:'',started:0,finished:0,step:'welcome',
+  p1:{ans:[null,null,null,null,null],chk:[0,0,0,0,0],reached:0},
+  p2:{order:[],done:0},
+  p3:{ids:Array(40).fill(null),done:1,counts:['','','','',''],countChecked:0,pct:['','','','',''],mins:['',''],calc:0},
+  p4:{ans:Array(10).fill(null),chk:Array(10).fill(0)},axo:null,short:''};}
+
+function ensureCustomState(){
+  if(!S.p3)S.p3={};
+  if(!Array.isArray(S.p3.counts))S.p3.counts=['','','','',''];
+  if(S.p3.countChecked==null)S.p3.countChecked=0;
+  if(!Array.isArray(S.p3.pct))S.p3.pct=['','','','',''];
+  if(!Array.isArray(S.p3.mins))S.p3.mins=['',''];
+  if(S.p3.calc==null)S.p3.calc=0;
+  if(S.axo===undefined)S.axo=null;
+  if(!S.p4)S.p4={ans:Array(10).fill(null),chk:Array(10).fill(0)};
+  if(!Array.isArray(S.p4.ans))S.p4.ans=Array(10).fill(null);
+  if(!Array.isArray(S.p4.chk))S.p4.chk=Array(10).fill(0);
+}
+
+function viewWelcome(){
+  ensureCustomState();
+  const sv=load();
+  const resume=sv&&sv.started?`<div class="panel row resume"><div><b>Welcome back, ${esc(sv.name)}.</b><div class="muted">Your progress was saved in this browser on this device.</div></div><button class="btn primary" data-act="resume">Resume</button></div>`:'';
+  const periods=[1,2,3,4,5,6,7,8].map(n=>`<option>Period ${n}</option>`).join('');
+  app.innerHTML=`${resume}<div class="stack">
+    <div class="grid2"><div class="stack">
+      <div><div class="eyebrow">The Regeneration Files • Lesson 3.9</div><h1>Mitosis Virtual Lab</h1></div>
+      <p>This asynchronous lab will guide you through mitosis, chromosome movement, a virtual onion-root-tip investigation, data analysis, and an axolotl regeneration connection. Read every direction on the screen before moving on.</p>
+      <div class="submit-alert"><strong>📸 REQUIRED SUBMISSION BEFORE YOU START</strong>
+        When you finish, you will reach a <b>Lab Results</b> page. You must return to the Canvas assignment and <b>upload a screenshot of the top of that final Results page showing your name, score, and check code</b>. Do not close the tab until your screenshot is saved. The final page also includes directions for taking a screenshot and saving the full results as a PDF.
+      </div>
+      <ul class="parts">
+        <li><b>PART 1</b><span><strong>Watch a cell divide.</strong> Predict what happens next, then watch the model. (5 points)</span></li>
+        <li><b>PART 2</b><span><strong>Put the stages in order.</strong> Use chromosome evidence rather than memorizing a picture. (5 points)</span></li>
+        <li><b>PART 3</b><span><strong>Virtual root-tip investigation.</strong> Scan a 40-cell field, tally the stages, then calculate percentages and relative time. (12 points)</span></li>
+        <li><b>PART 4</b><span><strong>Apply the evidence.</strong> Answer three focused questions, examine the axolotl connection, and write a short conclusion. (3 auto-scored points + ${SHORT_PTS} teacher-scored points)</span></li>
+      </ul>
+      <p class="muted"><strong>Estimated working time:</strong> about 25–35 minutes. Your progress is saved in this browser on this device, but it is not automatically submitted to Canvas.</p>
+    </div>
+    <form class="panel" id="startform" novalidate>
+      <h2>Start the lab</h2><p class="muted" style="margin:6px 0 16px">Enter information carefully. Your name and class period appear on the final Results page you must submit.</p>
+      <div class="field"><label for="nm">Your name</label><input id="nm" type="text" autocomplete="name" placeholder="First and last name"></div>
+      <div class="field"><label for="pd">Class period</label><select id="pd"><option value="">Choose your period</option>${periods}<option value="other">Other</option></select></div>
+      <div class="field" id="pdo" hidden><label for="pdt">Type your class or period</label><input id="pdt" type="text"></div>
+      <div class="err" id="err" role="alert"></div>
+      <button class="btn primary" type="submit">Begin Part 1</button>
+    </form></div></div>`;
+  $('#pd').addEventListener('change',e=>{$('#pdo').hidden=e.target.value!=='other';});
+  $('#startform').addEventListener('submit',e=>{e.preventDefault();startLab();});
+}
+
+function sc(){
+  ensureCustomState();
+  const p1=S.p1.ans.reduce((n,a,i)=>n+(a===PRED[i].ok?1:0),0);
+  const cards=p2Cards(),p2=S.p2.done?S.p2.order.reduce((n,k,pos)=>n+(cards[k]===pos+1?1:0),0):0;
+  const c=S.p3.counts.map(v=>parseInt(v,10));
+  const actual=[27,6,3,2,2];
+  const countOK=actual.map((v,i)=>Number.isFinite(c[i])&&c[i]===v);
+  const p3count=S.p3.countChecked?countOK.filter(Boolean).length:0;
+  const pct=actual.map(v=>v/40*100),exp=[...pct,pct[0]/100*1440,pct[2]/100*1440];
+  const got=[...S.p3.pct,...S.p3.mins].map(v=>parseFloat(v));
+  const tol=[1,1,1,1,1,15,15],okc=exp.map((e,i)=>Number.isFinite(got[i])&&Math.abs(got[i]-e)<=tol[i]);
+  const calc=S.p3.calc?okc.filter(Boolean).length:0;
+  const focus=[0,3,4];
+  const p4=focus.reduce((n,i)=>n+(S.p4.chk[i]&&S.p4.ans[i]===QS[i].ok?1:0),0);
+  return{p1,p2,p3count,countOK,actual,pct,exp,got,okc,calc,p4,total:p1+p2+p3count+calc+p4,max:25,cards};
+}
+
+function viewP3(){
+  ensureCustomState();app.className='';
+  const r=sc();
+  const ref=PH.map((n,i)=>`<figure><canvas data-ph="${i}" aria-hidden="true"></canvas><b>${n}</b>${HINTS[i]}</figure>`).join('');
+  const lockCounts=S.p3.countChecked&&r.countOK.every(Boolean);
+  const countRows=PH.map((n,i)=>`<tr><td>${n}</td><td><input id="ct${i}" type="number" min="0" max="40" inputmode="numeric" value="${esc(S.p3.counts[i])}" ${lockCounts?'disabled':''}></td>${S.p3.countChecked?`<td>${r.countOK[i]?'<span class="tag ok">Correct</span>':'<span class="tag bad">Check again</span>'}</td>`:''}</tr>`).join('');
+  const calcRows=PH.map((n,i)=>`<tr><td>${n}</td><td class="num">${r.actual[i]}</td><td><input id="pct${i}" type="number" step="any" inputmode="decimal" value="${esc(S.p3.pct[i])}" ${S.p3.calc?'disabled':''}> %</td>${S.p3.calc?`<td>${r.okc[i]?'<span class="tag ok">Correct</span>':'<span class="tag bad">Expected '+r.exp[i].toFixed(1)+'</span>'}</td>`:''}</tr>`).join('');
+  app.innerHTML=`<div class="stack">
+    <div class="panel"><div class="eyebrow">Part 3 · Virtual microscopy investigation</div><h2 style="margin:4px 0 8px">Tally the onion root-tip cells</h2>
+      <p>The onion root tip is a growing region, so its cells are found in different stages of the cell cycle. Your job is to <strong>scan the entire 40-cell field</strong> and tally how many cells are in each stage. You are not answering 40 separate questions.</p>
+      <div class="submit-alert"><strong>How to work asynchronously</strong>Use the reference strip first. Scan row by row so you do not count a cell twice. Record a tally on paper if that helps, then enter only your final totals below. Your five counts must add to 40.</div>
+      <div class="refstrip">${ref}</div></div>
+    <div class="slidewrap single"><div class="panel" style="padding:10px"><canvas class="scope" id="slidecv" role="img" aria-label="Virtual microscope field of 40 onion root tip cells, five across and eight down"></canvas></div></div>
+    <div class="panel stack"><div><h3>Step A — Enter your tally</h3><p>Count every cell in the field exactly once.</p></div>
+      <div class="scroll"><table class="tbl"><tr><th>Stage</th><th>Your count</th>${S.p3.countChecked?'<th>Check</th>':''}</tr>${countRows}<tr><td><b>Total</b></td><td class="num" id="cttotal">${S.p3.counts.reduce((a,v)=>a+(parseInt(v,10)||0),0)}</td>${S.p3.countChecked?'<td></td>':''}</tr></table></div>
+      ${S.p3.countChecked?`<div class="fb">${r.countOK.every(Boolean)?'<b class="ok">Counts verified.</b> Nice work. Continue to the calculations below.':'<b class="bad">Some counts need another look.</b> Re-scan the stage(s) marked “Check again.” The lab does not reveal the number yet.'}</div>`:''}
+      ${S.p3.countChecked&&r.countOK.every(Boolean)?'':`<div><button class="btn primary" id="checkCountsBtn">Check my tally</button></div>`}
+    </div>
+    ${S.p3.countChecked&&r.countOK.every(Boolean)?`<div class="panel stack"><div><h3>Step B — Calculate from the verified counts</h3><p>Percent = cells in stage ÷ 40 × 100. Assume a full cycle takes 24 hours (1,440 minutes). Estimate minutes in interphase and metaphase from the percentage of cells observed in each stage.</p></div>
+      <div class="scroll"><table class="tbl"><tr><th>Stage</th><th>Verified count</th><th>Percent of 40</th>${S.p3.calc?'<th>Check</th>':''}</tr>${calcRows}</table></div>
+      <div class="scroll"><table class="tbl"><tr><th>Estimate</th><th>Your answer</th>${S.p3.calc?'<th>Check</th>':''}</tr>
+        <tr><td>Minutes in interphase</td><td><input id="min0" type="number" step="any" value="${esc(S.p3.mins[0])}" ${S.p3.calc?'disabled':''}> min</td>${S.p3.calc?`<td>${r.okc[5]?'<span class="tag ok">Correct</span>':'<span class="tag bad">Expected '+r.exp[5].toFixed(1)+'</span>'}</td>`:''}</tr>
+        <tr><td>Minutes in metaphase</td><td><input id="min1" type="number" step="any" value="${esc(S.p3.mins[1])}" ${S.p3.calc?'disabled':''}> min</td>${S.p3.calc?`<td>${r.okc[6]?'<span class="tag ok">Correct</span>':'<span class="tag bad">Expected '+r.exp[6].toFixed(1)+'</span>'}</td>`:''}</tr>
+      </table></div>
+      ${S.p3.calc?`<div class="fb"><b class="${r.okc.every(Boolean)?'ok':'bad'}">${r.okc.filter(Boolean).length} of 7 calculations correct.</b> ${r.okc.every(Boolean)?'Longer-lasting stages are more likely to appear in a random snapshot of many cells.':'Use the formulas above to check any marked calculation.'}</div>`:''}
+      <div class="row">${S.p3.calc?'<button class="btn primary" data-act="to" data-to="p4">Continue to Part 4</button>':'<button class="btn primary" id="checkCalcBtn">Check calculations</button>'}</div>
+    </div>`:''}
+  </div>`;
+  const paint=()=>{const cv=$('#slidecv');if(cv)drawSlide(cv,SL,Array(40).fill(null),-1,true);$$('.refstrip canvas').forEach(c=>{const d=window.devicePixelRatio||1,w=c.clientWidth||100;c.width=c.height=Math.round(w*d);const x=c.getContext('2d');x.clearRect(0,0,c.width,c.height);drawSlideCell(x,c.width/2,c.height/2,c.width*.98,+c.dataset.ph,31+(+c.dataset.ph)*17);});};
+  window.__redraw=paint;paint();
+  for(let i=0;i<5;i++){const el=$('#ct'+i);if(el)el.addEventListener('input',()=>{S.p3.counts[i]=el.value;save();const t=$('#cttotal');if(t)t.textContent=S.p3.counts.reduce((a,v)=>a+(parseInt(v,10)||0),0);});}
+  const cb=$('#checkCountsBtn');if(cb)cb.addEventListener('click',()=>{S.p3.countChecked=1;save();viewP3();window.scrollTo(0,0);});
+  for(let i=0;i<5;i++){const el=$('#pct'+i);if(el)el.addEventListener('input',()=>{S.p3.pct[i]=el.value;save();});}
+  for(let i=0;i<2;i++){const el=$('#min'+i);if(el)el.addEventListener('input',()=>{S.p3.mins[i]=el.value;save();});}
+  const cc=$('#checkCalcBtn');if(cc)cc.addEventListener('click',()=>{if([...S.p3.pct,...S.p3.mins].some(v=>String(v).trim()==='')){alert('Complete all seven calculation boxes before checking.');return;}S.p3.calc=1;save();viewP3();window.scrollTo(0,0);});
+}
+
+function focusedQ(i){return qcard(i);}
+function viewP4(){
+  ensureCustomState();app.className='';
+  app.innerHTML=`<div class="stack"><div class="panel"><div class="eyebrow">Part 4 · Apply the evidence</div><h2 style="margin:4px 0 8px">Connect mitosis to regeneration</h2><p>This section is intentionally shorter than a quiz. Use what you learned in the model and root-tip investigation to answer three focused questions, then connect the evidence to our axolotl case.</p></div>
+    ${focusedQ(0)}${focusedQ(3)}${focusedQ(4)}
+    <div class="panel stack"><div><div class="eyebrow">Authentic axolotl evidence</div><h3 style="margin-top:4px">What does proliferation evidence tell us?</h3></div>
+      <div class="axo-placeholder"><div><b>🦎 AXOLOTL REGENERATION IMAGE / DATA GOES HERE</b><span class="muted">In Canvas, insert the published open-access axolotl proliferation image or teacher-provided evidence figure here.</span></div></div>
+      <p>Imagine the evidence shows substantially more cells entering or moving through the cell cycle in regenerating tissue after injury than in comparable uninjured tissue. Which conclusion is best supported?</p>
+      <div class="opts" id="axoOpts">
+        <label class="opt"><input type="radio" name="axo" value="0"><span>Mitosis alone explains every step required to rebuild an entire limb.</span></label>
+        <label class="opt"><input type="radio" name="axo" value="1"><span>Increased cell proliferation contributes to producing more cells during regeneration.</span></label>
+        <label class="opt"><input type="radio" name="axo" value="2"><span>Every cell near an injury must divide at exactly the same rate.</span></label>
+      </div>
+      <div class="fb" id="axoFb">Choose the claim that matches the evidence without going beyond it.</div>
+    </div>
+    <div class="panel stack"><div><div class="eyebrow">Short conclusion · scored by your teacher (${SHORT_PTS} points)</div><h3 style="margin-top:4px">Use evidence from Part 3 and the axolotl evidence to explain how cell division contributes to regeneration. Also state one thing this evidence does <em>not</em> explain.</h3></div>
+      <div class="field"><label for="short" class="muted" style="font-weight:400">Write at least 2–4 complete sentences.</label><textarea id="short">${esc(S.short)}</textarea></div>
+      <div class="row"><button class="btn primary" data-act="finish" disabled>See my results</button><span class="muted" id="gate"></span></div></div></div>`;
+  if(S.axo!=null){const radio=$(`input[name="axo"][value="${S.axo}"]`);if(radio){radio.checked=true;radio.closest('.opt').classList.add('sel');}const fb=$('#axoFb');if(S.axo===1){fb.innerHTML='<b class="ok">Good evidence boundary.</b> Increased proliferation can help provide more cells for repair, but it does not by itself explain specialization, patterning, or when division stops.';}else{fb.innerHTML='<b class="bad">That claim overreaches.</b> The evidence supports increased proliferation, not the entire regeneration process.';}}
+  $$('input[name="axo"]').forEach(r=>r.addEventListener('change',()=>{S.axo=+r.value;save();$$('#axoOpts .opt').forEach(l=>l.classList.toggle('sel',l.querySelector('input').checked));const fb=$('#axoFb');if(S.axo===1){fb.innerHTML='<b class="ok">Good evidence boundary.</b> Increased proliferation can help provide more cells for repair, but it does not by itself explain specialization, patterning, or when division stops.';}else{fb.innerHTML='<b class="bad">That claim overreaches.</b> The evidence supports increased proliferation, not the entire regeneration process.';}updGates();}));
+  const sa=$('#short');if(sa)sa.addEventListener('input',()=>{S.short=sa.value;save();updGates();});
+  updGates();
+}
+
+function updGates(){
+  const f=$('[data-act="finish"]');
+  if(f){const focus=[0,3,4],allq=focus.every(i=>S.p4.chk[i]),axo=S.axo===1,sa=S.short.trim().length>=40;f.disabled=!(allq&&axo&&sa);const g=$('#gate');if(g)g.textContent=!allq?'Check all three questions first.':!axo?'Complete the axolotl evidence question.':!sa?'Add your 2–4 sentence conclusion.':'';}
+}
+
+function viewReview(){
+  ensureCustomState();app.className='';
+  const r=sc(),when=S.finished?new Date(S.finished).toLocaleString():'',mins=S.finished?Math.max(1,Math.round((S.finished-S.started)/60000)):0,pctTxt=Math.round(r.total/r.max*100);
+  const p1=PRED.map((q,i)=>{const a=S.p1.ans[i],ok=a===q.ok;return item('Part 1 · Prediction '+(i+1),q.q,['Your answer: '+(a==null?'No answer':q.opts[a]),ok?'':'Correct answer: '+q.opts[q.ok],q.why],ok);}).join('');
+  const p2=`<div class="scroll"><table class="tbl"><tr><th>Step</th><th>You picked</th><th>Correct</th><th></th></tr>`+S.p2.order.map((k,pos)=>{const ok=r.cards[k]===pos+1;return `<tr><td class="num">${pos+1}</td><td>Cell ${LET[k]} (${STG[r.cards[k]]})</td><td>${STG[pos+1]}</td><td>${stat(ok)}</td></tr>`;}).join('')+`</table></div>`;
+  const labels=[...PH.map(n=>'Percent in '+n),'Minutes in interphase','Minutes in metaphase'];
+  const p3=`<div class="scroll"><table class="tbl"><tr><th>Phase</th><th>Your tally</th><th>Verified</th><th></th></tr>${PH.map((n,i)=>`<tr><td>${n}</td><td class="num">${esc(S.p3.counts[i])}</td><td class="num">${r.actual[i]}</td><td>${stat(r.countOK[i])}</td></tr>`).join('')}</table></div><div class="scroll" style="margin-top:12px"><table class="tbl"><tr><th>Calculation</th><th>Your answer</th><th>Expected</th><th></th></tr>${labels.map((l,i)=>`<tr><td>${l}</td><td class="num">${Number.isFinite(r.got[i])?r.got[i]:'blank'}</td><td class="num">${r.exp[i].toFixed(1)}</td><td>${stat(r.okc[i])}</td></tr>`).join('')}</table></div>`;
+  const focus=[0,3,4],p4=focus.map(i=>{const q=QS[i],a=S.p4.ans[i],ok=a===q.ok;return item('Part 4 · Focus question',q.q,['Your answer: '+(a==null?'No answer':q.opts[a]),ok?'':'Correct answer: '+q.opts[q.ok],q.why],ok);}).join('');
+  app.innerHTML=`<div class="stack">
+    <div class="panel"><div class="eyebrow">Lab results · REQUIRED SUBMISSION PAGE</div><h1 style="margin:4px 0 12px">${esc(S.name)}</h1>
+      <div class="row" style="gap:18px"><div><div class="score">${r.total} / ${r.max}</div><div class="muted">${pctTxt}% auto-scored, plus ${SHORT_PTS} points to be scored by your teacher</div></div></div>
+      <div class="kv"><div><b>${esc(S.period)}</b><span>Class period</span></div><div><b>${esc(when)}</b><span>Finished</span></div><div><b>${mins} min</b><span>Time on lab</span></div><div><b>${checkCode(r)}</b><span>Check code</span></div></div>
+      <div class="kv"><div><b>${r.p1} / 5</b><span>Part 1 predictions</span></div><div><b>${r.p2} / 5</b><span>Part 2 order</span></div><div><b>${r.p3count} / 5</b><span>Part 3 tally</span></div><div><b>${r.calc} / 7</b><span>Part 3 calculations</span></div><div><b>${r.p4} / 3</b><span>Part 4 focus questions</span></div><div><b>? / ${SHORT_PTS}</b><span>Conclusion (teacher)</span></div></div></div>
+    <div class="panel stack"><div class="submit-alert"><strong>📸 STOP: YOU MUST SUBMIT THIS RESULTS PAGE IN CANVAS</strong>
+      <ol class="stepshot"><li><b>Take a screenshot of the TOP of this Results page</b> so your name, score, class period, finished time, and check code are visible.</li><li>Save the screenshot to your device.</li><li>Return to the <b>3.9 Virtual Lab assignment in Canvas</b>.</li><li>Upload the screenshot as your submission. Do not submit a screenshot from an earlier part of the lab.</li></ol>
+      <p style="margin-top:10px"><b>Windows:</b> press <b>Windows + Shift + S</b>, drag around the top Results section, then save the image from the Snipping Tool notification.</p>
+      <p style="margin-top:6px"><b>Chromebook:</b> press <b>Ctrl + Shift + Show windows</b>, then drag to capture the top Results section.</p>
+      <p style="margin-top:6px"><b>Mac:</b> press <b>Shift + Command + 4</b>, then drag around the top Results section.</p>
+      <p style="margin-top:10px"><b>Want a full copy too?</b> Use the <b>Print / Save as PDF</b> button below. In the print window, choose <b>Save as PDF</b> (or Microsoft Print to PDF) instead of a printer. You may upload the PDF in addition to the required screenshot if your teacher requests it.</p>
+    </div><div class="row turnin-actions"><button class="btn primary" data-act="copy">Copy results as text</button><button class="btn" id="printBtn">Print / Save as PDF</button><button class="btn restart-only" data-act="restart">Start over</button></div><textarea id="copybox" readonly hidden aria-label="Results text"></textarea></div>
+    <div class="panel"><h2>Part 1: Predictions</h2>${p1}</div><div class="panel"><h2>Part 2: Order of the stages</h2><div style="margin-top:8px">${p2}</div></div><div class="panel"><h2>Part 3: Root-tip investigation</h2><div style="margin-top:8px">${p3}</div></div><div class="panel"><h2>Part 4: Focus questions</h2>${p4}</div><div class="panel"><h2>Axolotl evidence</h2><p>${S.axo===1?'You selected the evidence-based conclusion that increased cell proliferation contributes to producing more cells during regeneration.':'Axolotl evidence response incomplete.'}</p></div><div class="panel"><h2>Your conclusion</h2><p style="white-space:pre-wrap">${esc(S.short)}</p></div></div>`;
+  const pb=$('#printBtn');if(pb)pb.addEventListener('click',()=>window.print());
+}
+
+function resultsText(){
+  const r=sc(),L=[];L.push('THE REGENERATION FILES 3.9 — MITOSIS VIRTUAL LAB RESULTS',`Name: ${S.name}`,`Class period: ${S.period}`,`Finished: ${new Date(S.finished).toLocaleString()}`,`Auto-scored total: ${r.total} / ${r.max} (conclusion worth ${SHORT_PTS} points is scored by teacher)`,`Check code: ${checkCode(r)}`,'',`Part 1 predictions: ${r.p1} / 5`,`Part 2 order: ${r.p2} / 5`,`Part 3 tally: ${r.p3count} / 5`,`Part 3 calculations: ${r.calc} / 7`,`Part 4 focus questions: ${r.p4} / 3`,'','Part 3 tally: '+PH.map((n,i)=>`${n} ${S.p3.counts[i]}`).join(', '),'','Conclusion:',S.short);return L.join('\n');
+}
+/* ===== END CUSTOMIZATION ===== */
+
+/* ---------- boot ---------- */
+let rzt=0;
+window.addEventListener('resize',()=>{clearTimeout(rzt);rzt=setTimeout(()=>{if(window.__redraw)window.__redraw();},120);});
+const themeRedraw=()=>{readTokens();if(window.__redraw)window.__redraw();};
+new MutationObserver(themeRedraw).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+if(window.matchMedia){const mq=matchMedia('(prefers-color-scheme: dark)');if(mq.addEventListener)mq.addEventListener('change',themeRedraw);}
+readTokens();render();
+
+</script></body></html>
