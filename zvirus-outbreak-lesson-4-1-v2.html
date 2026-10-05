@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Z-Virus Outbreak: Can You Stop the Spread?</title>
+<style>
+/* =====================================================================
+   STYLES
+   Light instructional interface with dark "emergency response" accents
+   (header, alerts, Evidence Locker, final transmission).
+   ===================================================================== */
+:root{
+  --text:#1f2937;--muted:#4b5563;
+  --green:#174f38;--blue:#234b7c;--plum:#56377b;--gold:#805b12;
+  --pteal:#eef8f4;--pblue:#eef5ff;--plav:#f6f0ff;--pgold:#fff7ed;
+  --white:#ffffff;--page:#f7faf9;--line:#c5d0d8;
+  --dk:#0f1b24;--dk2:#16262f;--dkline:#2c4351;--dktext:#eaf2f6;--acc:#5ee0a0;--amber:#ffc65c;--rose:#ff9d9d
+}
+*{box-sizing:border-box}
+html{scroll-behavior:auto}
+body{margin:0;background:var(--page);color:var(--text);font:17px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;padding-bottom:84px}
+.skip{position:absolute;left:-999px;top:0;background:var(--green);color:#fff;padding:8px 12px;z-index:200}
+.skip:focus{left:8px;top:8px}
+.wrap{max-width:1000px;margin:0 auto;padding:0 18px}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+header.top :focus-visible,#locker :focus-visible,.transmission :focus-visible,.hero :focus-visible{outline-color:#ffd166}
+
+/* ---- dark mission header ---- */
+header.top{background:linear-gradient(180deg,#12242f,#0d1a22);color:var(--dktext);border-bottom:3px solid var(--green)}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:10px;padding-bottom:6px;flex-wrap:wrap}
+.brand{display:flex;gap:10px;align-items:center}
+.logo{font-size:28px}
+.brand-t{font-weight:800;letter-spacing:.08em;font-size:18px}
+.brand-s{color:#c3d3dd;font-size:13.5px}
+.tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.saveind{font-size:13.5px;color:#b9f3d6;margin-right:4px}
+.saveind.bad{color:#ffd166}
+.btn{font:inherit;font-size:15.5px;font-weight:600;min-height:44px;border:2px solid #8fa3b0;background:#fff;color:var(--text);padding:8px 16px;border-radius:10px;cursor:pointer}
+.btn:hover{background:var(--pblue);border-color:var(--blue)}
+.btn.primary{background:var(--green);border-color:var(--green);color:#fff}
+.btn.primary:hover{background:#0f3a28}
+.btn.warn{background:#7a1f1f;border-color:#7a1f1f;color:#fff}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.top .btn,#locker .btn{background:transparent;color:var(--dktext);border-color:#5b7587}
+.top .btn:hover,#locker .btn:hover{background:#1c3442;border-color:var(--acc)}
+.badge{display:inline-block;min-width:22px;text-align:center;background:var(--acc);color:#04231a;border-radius:99px;font-size:13px;padding:0 6px;margin-left:4px}
+
+/* ---- progress ---- */
+#progress ol{list-style:none;margin:0;padding:4px 0 10px;display:flex;gap:6px;overflow-x:auto;align-items:center}
+#progress li{flex:0 0 auto}
+#progress li.partlab{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#9fb6c4;padding:0 4px 0 10px}
+#progress button{display:flex;align-items:center;gap:6px;font:inherit;font-size:13.5px;min-height:36px;color:#cfe0ea;background:transparent;border:1px solid #3c5565;border-radius:99px;padding:3px 12px 3px 4px;cursor:pointer;white-space:nowrap}
+#progress button[disabled]{opacity:.5;cursor:not-allowed}
+#progress .num{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#1c3442;font-weight:700;color:#fff}
+#progress .done button{border-color:#2f8a63}
+#progress .done .num{background:var(--acc);color:#04231a}
+#progress .cur button{border-color:var(--acc);color:#fff;background:#173a2c}
+#progress .cur .num{background:#fff;color:#04231a}
+#previewBanner{background:#fff7ed;color:#5c3f08;border-bottom:1px solid #e3c48a;text-align:center;font-size:14.5px;padding:6px}
+
+main{padding-top:20px;padding-bottom:30px;outline:none}
+h1{font-size:33px;line-height:1.18;margin:.3em 0 .4em;color:var(--green)}
+h2{font-size:23px;margin:0 0 .5em;color:var(--blue)}
+h3{font-size:18.5px;margin:.8em 0 .3em}
+p{margin:.5em 0 .8em}
+.lead{font-size:19px}
+.muted{color:var(--muted)}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin:0 0 20px;box-shadow:0 1px 2px rgba(15,27,36,.05)}
+.partban{border-radius:12px;padding:10px 16px;margin:0 0 14px;border:1px solid var(--line);font-size:15.5px}
+.partban.a{background:var(--pteal);border-color:#a9d3c1}
+.partban.b{background:var(--plav);border-color:#cdb8ec}
+.partban strong{letter-spacing:.04em}
+.partban span{display:block;color:var(--muted);font-size:15px}
+
+/* ---- dark cinematic pieces ---- */
+.hero{background:var(--dk);color:var(--dktext);border-radius:14px;padding:22px 26px;margin-bottom:20px}
+.hero h1{color:#fff}
+.alert-banner{display:inline-flex;align-items:center;gap:10px;background:#3a1717;border:1px solid #a64545;color:#ffd9d9;padding:6px 14px;border-radius:8px;font-weight:700;letter-spacing:.05em;font-size:14px}
+.dot{width:10px;height:10px;border-radius:50%;background:#ff6b6b;display:inline-block;animation:pulse 3.2s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.55}}
+.transmission{background:linear-gradient(180deg,#2a1214,#150f12);color:#f5e8e8;border:1px solid #8a3434;border-radius:14px;padding:22px 26px;margin:0 0 20px}
+.transmission h1,.transmission h2{color:#fff}
+.transmission dl{display:grid;grid-template-columns:150px 1fr;gap:6px 14px;background:#0f0b0d;border:1px solid #6d2a2a;border-radius:10px;padding:12px 16px;margin:12px 0}
+.transmission dt{color:#e6b8b8;font-weight:700}
+.transmission dd{margin:0;font-weight:700;color:#fff}
+.nextinv{background:var(--dk);color:#fff;border-radius:14px;padding:22px 26px;text-align:center;margin:20px 0}
+.nextinv h2{color:#fff;font-size:28px;margin:.2em 0}
+.nextinv .kick{letter-spacing:.14em;color:#ffb3b3;font-weight:800;font-size:15px}
+
+/* ---- notes / boxes ---- */
+.note{border-left:5px solid var(--blue);background:var(--pblue);padding:10px 16px;border-radius:0 10px 10px 0;margin:12px 0}
+.note.fict{border-color:var(--gold);background:var(--pgold)}
+.note.warn{border-color:#9b2c2c;background:#fff1f1}
+.note.rule{border-color:var(--plum);background:var(--plav)}
+.chip{display:inline-block;background:var(--pgold);color:#5c3f08;border:1px solid #d9b777;border-radius:99px;padding:2px 12px;font-size:13.5px;font-weight:700}
+.top .chip{background:#2a2410;color:#ffd98a;border-color:#6e5a22}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media (max-width:760px){.grid2,.grid3{grid-template-columns:1fr}}
+.gloss div{background:var(--pblue);border-radius:10px;padding:10px 14px;font-size:16px}
+.gloss b{color:var(--blue)}
+.gloss .wide{grid-column:1 / -1}
+ol.mission li{margin:.3em 0}
+.stagebox{background:var(--pblue);border:1px solid #b8cde8;border-radius:12px;padding:14px 18px;margin:14px 0}
+.stagebox.lav{background:var(--plav);border-color:#cdb8ec}
+.stagebox.teal{background:var(--pteal);border-color:#a9d3c1}
+.stagebox.gold{background:var(--pgold);border-color:#e3c48a}
+
+/* ---- forms ---- */
+.field{margin:16px 0}
+label.lab,legend{font-weight:700}
+textarea,input[type=text]{width:100%;font:inherit;color:var(--text);background:#fff;border:2px solid #8fa3b0;border-radius:10px;padding:10px 12px}
+textarea{resize:vertical;min-height:96px}
+textarea[readonly]{background:#f1f5f7}
+.hint{color:var(--muted);font-size:15.5px;margin:2px 0 6px}
+.wc{font-size:14px;color:var(--muted);margin-top:3px}
+.wc.ok{color:var(--green);font-weight:700}
+.opts{display:grid;gap:8px;margin:8px 0}
+.opt{display:flex;gap:12px;align-items:flex-start;background:#f4f8fa;border:2px solid var(--line);border-radius:10px;padding:10px 14px;cursor:pointer;min-height:44px}
+.opt input{margin-top:5px;width:20px;height:20px;flex:none;accent-color:var(--green)}
+.opt:has(input:checked){background:var(--pblue);border-color:var(--blue)}
+.opt.right{background:var(--pteal);border-color:var(--green)}
+.opt.right .best{font-weight:800;color:var(--green)}
+fieldset.q{border:1px solid var(--line);border-radius:12px;margin:18px 0;padding:12px 18px;background:#fbfdfe}
+fieldset.q legend{padding:0 8px}
+.fbx{margin-top:12px;padding:10px 14px;border-radius:10px;font-size:16.5px;border:2px solid}
+.fbx.ok{background:var(--pteal);border-color:var(--green)}
+.fbx.retry{background:var(--pgold);border-color:var(--gold)}
+.fbx.reveal{background:var(--pblue);border-color:var(--blue)}
+
+/* ---- tables ---- */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;margin:12px 0;background:#fff}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:16px}
+caption{text-align:left;padding:8px 12px;color:var(--muted);font-size:15px}
+th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left}
+thead th{background:var(--pblue);color:var(--blue)}
+tfoot th,tfoot td{background:var(--pgold);font-weight:700}
+tr.grp td{background:var(--plav);font-weight:700;color:var(--plum)}
+td.num,th.num{text-align:right}
+
+/* ---- evidence cards and pins ---- */
+.evid{display:flex;gap:12px;align-items:center;justify-content:space-between;background:var(--pblue);border:2px dashed #7f9fc7;border-radius:12px;padding:10px 14px;margin:12px 0;flex-wrap:wrap}
+.evid p{margin:0;flex:1 1 360px;font-size:16px}
+.pin{font-size:15px;padding:6px 12px}
+.pin.on{background:var(--pteal);border-color:var(--green)}
+
+/* ---- charts ---- */
+.chartwrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:#fff}
+.chart{display:block;width:100%;min-width:680px;height:auto;background:#fff}
+.chart .grid{stroke:#d9e1e7;stroke-width:1}
+.chart .tick{fill:#374151;font-size:14px}
+.chart .val{fill:#1f2937;font-size:14px;font-weight:700}
+.chart .ghost{fill:none;stroke:#6b7a86;stroke-dasharray:4 4}
+.chart .axis{fill:#374151;font-size:14.5px;font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:15px;color:var(--text);margin:10px 0}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{display:inline-block;width:20px;height:16px;border-radius:3px;border:2px solid #1f2937}
+.sw.early{background:#234b7c;border-color:#234b7c}
+.sw.grow{background:repeating-linear-gradient(45deg,#805b12 0 4px,#fff7ed 4px 8px);border-color:#805b12}
+.sw.surge{background:radial-gradient(#56377b 35%,#f6f0ff 40%) 0 0/8px 8px;border-color:#56377b}
+.sw.indoor{background:#805b12;border-color:#805b12}
+.sw.outdoor{background:repeating-linear-gradient(45deg,#234b7c 0 4px,#eef5ff 4px 8px);border-color:#234b7c}
+.sw.pred{border-style:dashed;background:#fff}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0}
+.node{cursor:pointer}
+.node circle{stroke:#1f2937;stroke-width:2}
+.node.sel circle,.node.sel rect{stroke:#000;stroke-width:5}
+.node text{pointer-events:none;font-weight:700;fill:#111827}
+.node:focus-visible{outline:none}
+.node:focus-visible circle,.node:focus-visible rect{stroke:#234b7c;stroke-width:6}
+.edge{stroke:#4b5563;stroke-width:2.2;fill:none}
+.edge.fit{stroke:#174f38;stroke-width:3.5}
+.edge.nofit{stroke:#9b2c2c;stroke-width:3;stroke-dasharray:8 6}
+.elab{font-size:13.5px;font-weight:800;fill:#111827}
+.detail{background:var(--plav);border:1px solid #cdb8ec;border-radius:12px;padding:12px 18px;margin:14px 0;min-height:110px}
+.detail dl{display:grid;grid-template-columns:170px 1fr;gap:4px 12px;margin:6px 0}
+.detail dt{color:var(--muted)}
+.detail dd{margin:0}
+@media (max-width:600px){.detail dl,.transmission dl{grid-template-columns:1fr}}
+.bars .brow{display:grid;grid-template-columns:240px 1fr 70px;gap:12px;align-items:center;margin:10px 0}
+.bars .nm{font-size:16px}
+.bars .tag{display:block;font-size:14px;color:var(--muted)}
+.bars .track{background:#fff;border:2px solid #8fa3b0;border-radius:6px;height:26px;overflow:hidden}
+.bars .fill{height:100%}
+.bars .fill.indoor{background:#805b12}
+.bars .fill.outdoor{background:repeating-linear-gradient(45deg,#234b7c 0 6px,#eef5ff 6px 12px)}
+.bars .fill.sym{background:#234b7c}
+.bars .pc{font-weight:800;text-align:right}
+@media (max-width:700px){.bars .brow{grid-template-columns:1fr 70px}.bars .track{grid-column:1 / 3}}
+
+/* ---- scenario cards ---- */
+.scen{background:#fff;border:2px solid var(--line);border-radius:14px;padding:14px 18px}
+.scen h3{margin:0 0 6px;color:var(--blue)}
+.scen .lbl{font-weight:700;color:var(--plum)}
+.scen ul{margin:.3em 0 .6em 1.2em;padding:0}
+details{background:var(--pblue);border:1px solid #b8cde8;border-radius:10px;padding:8px 14px;margin:10px 0}
+summary{cursor:pointer;font-weight:700;min-height:32px}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0}
+@media (max-width:760px){.metrics{grid-template-columns:1fr 1fr}}
+.metric{background:var(--pteal);border:1px solid #a9d3c1;border-radius:12px;padding:10px 14px}
+.metric b{display:block;font-size:24px}
+.metric span{font-size:14.5px;color:var(--muted)}
+.modelbox{border-radius:10px;padding:10px 16px;margin:10px 0;border-left:6px solid}
+.modelbox.c{background:var(--pblue);border-color:var(--blue)}
+.modelbox.e{background:var(--pteal);border-color:var(--green)}
+.modelbox.r{background:var(--plav);border-color:var(--plum)}
+.modelbox b.t{display:block;letter-spacing:.06em}
+
+/* ---- gate + nav ---- */
+#gate{margin-top:10px}
+.gatebox{border:2px solid var(--gold);background:var(--pgold);border-radius:12px;padding:12px 18px}
+.gatebox.ok{border-color:var(--green);background:var(--pteal)}
+.gatebox ul{margin:6px 0 0 20px;padding:0}
+.navbar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:2px solid var(--line);z-index:30;box-shadow:0 -4px 14px rgba(15,27,36,.08)}
+.navin{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:10px;padding-bottom:10px}
+.navin .ct{color:var(--muted);font-size:15px;text-align:center}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:82px;background:var(--dk);color:#fff;border-radius:10px;padding:10px 18px;z-index:120;max-width:90vw;font-weight:600}
+#toast[hidden]{display:none}
+
+/* ---- evidence locker (dark) ---- */
+#locker{position:fixed;top:0;right:0;bottom:0;width:min(400px,94vw);background:var(--dk);color:var(--dktext);border-left:3px solid var(--green);z-index:50;padding:18px;overflow:auto;box-shadow:-8px 0 30px #0007}
+#locker[hidden]{display:none}
+#locker h2{color:#fff}
+#locker .hint{color:#b9cad5}
+.litem{background:var(--dk2);border:1px solid var(--dkline);border-radius:10px;padding:10px 14px;margin:10px 0;font-size:15.5px}
+
+/* ---- dialogs ---- */
+.overlay{position:fixed;inset:0;background:rgba(15,27,36,.6);z-index:100;display:grid;place-items:center;padding:16px;overflow:auto}
+.overlay.solid{background:var(--page)}
+.overlay[hidden]{display:none}
+.dialog{background:#fff;border:1px solid var(--line);border-radius:16px;max-width:680px;width:100%;padding:24px 28px;max-height:92vh;overflow:auto;box-shadow:0 10px 40px rgba(15,27,36,.25)}
+.dialog h1,.dialog h2{margin-top:0}
+.dialog dl{display:grid;grid-template-columns:190px 1fr;gap:6px 12px;background:var(--pteal);border-radius:10px;padding:12px 16px}
+.dialog dt{color:var(--muted)}
+.dialog dd{margin:0;font-weight:700}
+.msg{margin-top:10px;font-weight:600}
+.msg.good{color:var(--green)}
+.msg.bad{color:#9b2c2c}
+pre#caseOut{white-space:pre-wrap;word-break:break-word;background:#f4f8fa;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:12px;font:14.5px/1.5 ui-monospace,Menlo,Consolas,monospace;max-height:440px;overflow:auto}
+.final-ok{font-weight:800;color:var(--green)}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+@media print{
+ body{background:#fff;color:#000;padding:0}
+ body *{visibility:hidden}
+ #caseWrap,#caseWrap *{visibility:visible}
+ #caseWrap{position:absolute;left:0;top:0;width:100%;border:none;box-shadow:none}
+ #caseWrap .row,#caseWrap .noprint{display:none}
+ pre#caseOut{max-height:none;overflow:visible;background:#fff;color:#000;border:none}
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to main content</a>
+<noscript><p style="padding:20px">This investigation needs JavaScript. Please enable it in your browser and reload the page.</p></noscript>
+
+<!-- ===== MISSION HEADER (dark) ===== -->
+<header class="top">
+  <div class="wrap bar">
+    <div class="brand"><span class="logo" aria-hidden="true">🦠</span><div><div class="brand-t">Z-VIRUS OUTBREAK</div><div class="brand-s">Can You Stop the Spread? &middot; Lesson 4.1 &middot; <span class="chip">Simplified fictional instructional dataset</span></div></div></div>
+    <div class="tools">
+      <span id="saveInd" class="saveind"></span>
+      <button class="btn" id="lockerBtn" aria-expanded="false" aria-controls="locker">Evidence Locker <span id="lockerCount" class="badge">0</span></button>
+      <button class="btn" id="saveBtn" aria-haspopup="dialog">💾 Save / Restore</button>
+      <button class="btn" id="exitBtn" aria-haspopup="dialog">Save &amp; Exit</button>
+    </div>
+  </div>
+  <div class="wrap"><nav id="progress" aria-label="Investigation progress"></nav></div>
+</header>
+<div id="previewBanner" hidden>Teacher preview: all steps are unlocked and answer checks are not required.</div>
+<main id="main" class="wrap" tabindex="-1"></main>
+<div class="navbar"><div class="wrap navin"><button class="btn" id="backBtn">Back</button><div class="ct" id="stepCt"></div><button class="btn primary" id="nextBtn">Next</button></div></div>
+
+<!-- ===== EVIDENCE LOCKER (dark) ===== -->
+<aside id="locker" aria-label="Evidence Locker" hidden>
+  <div class="row" style="justify-content:space-between"><h2 style="margin:0">Evidence Locker</h2><button class="btn" id="lockerClose">Close</button></div>
+  <p class="hint">Findings you save in Part A and Part B. You will use them in your final case report.</p>
+  <div id="lockerList"></div>
+</aside>
+
+<!-- ===== SAVE / RESTORE PANEL ===== -->
+<div id="savePanel" class="overlay" hidden role="dialog" aria-modal="true" aria-labelledby="spTitle">
+  <div class="dialog">
+    <div class="row" style="justify-content:space-between;margin-top:0"><h2 id="spTitle" style="margin:0">Save or restore your progress</h2><button class="btn" id="spClose">Close</button></div>
+    <div id="spExit" class="note" hidden><strong>Your progress has been saved. Once your progress file finishes downloading, you may close this page.</strong></div>
+    <p>Your work saves automatically on this device. If you might continue on another computer or browser, download a progress file before you leave.</p>
+    <div class="grid2">
+      <div class="stagebox teal"><strong>Save Progress File</strong><br>A backup so you can keep working later. <em>This is not what you submit.</em></div>
+      <div class="stagebox gold"><strong>Download Final Case File</strong><br>Your finished work, submitted to your teacher. You get it at the very end.</div>
+    </div>
+    <div class="row"><button class="btn primary" data-act="saveFile">Save Progress File</button></div>
+    <h3>Restore Progress File</h3>
+    <p class="hint">Choose the progress file (.json) you saved earlier. It is checked before anything is restored, and your current work is not changed unless the file is valid.</p>
+    <label class="lab" for="spFile">Progress file</label>
+    <input type="file" id="spFile" accept=".json,application/json" data-restore-file>
+    <div class="msg restoremsg" role="status"></div>
+    <details><summary>Having trouble? Use progress text instead</summary>
+      <p class="hint">If downloads or file uploads are blocked on this computer, you can copy your progress text and paste it back later.</p>
+      <div class="row"><button class="btn" data-act="showProgText">Show my progress text</button></div>
+      <label class="lab" for="progText">Progress text</label>
+      <textarea id="progText" rows="4" placeholder="Paste progress text here to restore, or press the button above to show yours."></textarea>
+      <div class="row"><button class="btn" data-act="restoreText">Restore from this text</button></div>
+    </details>
+    <h3>Start over</h3>
+    <div id="spStart"></div>
+  </div>
+</div>
+
+<!-- ===== WELCOME BACK (resume screen) ===== -->
+<div id="welcome" class="overlay solid" hidden role="dialog" aria-modal="true" aria-labelledby="wlTitle"></div>
+<div id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+(function(){
+'use strict';
+
+/* =====================================================================
+   1. CONSTANTS AND PAGE LIST
+   Pages 0-4 = Part A (Outbreak!), 5 = Checkpoint, 6-10 = Part B (Containment)
+   ===================================================================== */
+var VERSION='4.1-v2';
+var STORE='zvirus41_v2';
+var PREVIEW=/preview/i.test(location.hash||'');
+var PAGES=[
+ {t:'Mission Briefing',part:'A'},
+ {t:'Initial Prediction',part:'A'},
+ {t:'Outbreak Data',part:'A'},
+ {t:'Epidemic Curve',part:'A'},
+ {t:'Contact Investigation',part:'A'},
+ {t:'Part A Checkpoint',part:'A',cp:true},
+ {t:'Environmental Investigation',part:'B'},
+ {t:'Intervention Decision',part:'B'},
+ {t:'Intervention Results',part:'B'},
+ {t:'CER Case Report',part:'B'},
+ {t:'Final Storyline Transmission',part:'B'}
+];
+var LAST=PAGES.length-1;
+function stepNo(p){return p<5?p+1:p;}
+function pageLabel(p){return PAGES[p].cp?'Checkpoint: end of Part A':'Step '+stepNo(p)+': '+PAGES[p].t;}
+
+/* =====================================================================
+   2. HELPERS
+   ===================================================================== */
+var $=function(s,r){return (r||document).querySelector(s);};
+var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));};
+var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});};
+var wc=function(s){return (s||'').trim().split(/\s+/).filter(Boolean).length;};
+var nums=function(s){return ((s||'').match(/\d+(\.\d+)?/g)||[]).length;};
+var HEDGE=/(consistent with|possible|possibly|likely|supported by|suggests|may have|might have|could have|plausible|appears)/i;
+var LIMITRX=/(fictional|real|simplif|different|communit|interact|model|not tell|cannot|can't|limit)/i;
+var sum=function(a){return a.reduce(function(x,y){return x+y;},0);};
+var f1=function(n){return (Math.round(n*10)/10).toFixed(1);};
+var UI={grp3:false,timing:false,sel:null,filt6:'all',tbl4:false,tbl8:true,gate:null,confirmStart:false,saveOk:true,opener:null,toastT:null};
+
+/* =====================================================================
+   3. FICTIONAL DATA (Simplified fictional instructional dataset)
+   ===================================================================== */
+var DAYS=[2,3,5,7,10,14,20,28,38,50,64,80,98,117];
+var AVG1=sum(DAYS.slice(0,5))/5,AVG2=sum(DAYS.slice(5,10))/5,AVG3=sum(DAYS.slice(10,14))/4;
+var TOT=sum(DAYS);
+var CASES=[
+{id:'Z-01',age:'40s',exp:null,set:'Unknown',on:1,src:null,story:'First case in this interview sample. No source has been identified. Z-01 helped at the Riverside Community Center on Day 1, the day symptoms began.'},
+{id:'Z-02',age:'16-18',exp:1,set:'Riverside Community Center',on:3,src:'Z-01',story:'Volunteered next to Z-01 at the Community Center on Day 1. Symptoms began on Day 3. On Day 1, Z-02 also stood in the same grocery line as Z-12.'},
+{id:'Z-03',age:'13-15',exp:1,set:'Household',on:3,src:'Z-01',story:'Lives in the same household as Z-01 and had a possible exposure on Day 1. Symptoms began on Day 3. On Day 3, Z-03 attended Gym Night while just starting to feel unwell.'},
+{id:'Z-04',age:'13-15',exp:3,set:'Ravenwood Gym',on:4,src:'Z-03',story:'Attended Gym Night on Day 3 near Z-03. Symptoms began on Day 4. Rode the school bus on Day 4 and Day 5.'},
+{id:'Z-05',age:'16-18',exp:3,set:'Ravenwood Gym',on:5,src:'Z-03',story:'Attended Gym Night on Day 3 near Z-03. Symptoms began on Day 5. Ate at Market Street Cafe on Day 5 and attended open gym on Day 6.'},
+{id:'Z-06',age:'20s',exp:3,set:'Ravenwood Gym',on:6,src:'Z-03',story:'Attended Gym Night on Day 3 near Z-03. Symptoms began on Day 6. Attended open gym on Day 6.'},
+{id:'Z-07',age:'30s',exp:4,set:'School bus',on:6,src:'Z-04',story:'School bus driver. Z-04 rode the bus on Day 4, the day Z-04 first had symptoms. Symptoms began on Day 6.'},
+{id:'Z-08',age:'13-15',exp:5,set:'School bus',on:7,src:'Z-04',story:'Rode the school bus on Day 5 with Z-04. Symptoms began on Day 7.'},
+{id:'Z-09',age:'50s',exp:5,set:'Market Street Cafe',on:7,src:'Z-05',story:'Ate lunch at Market Street Cafe on Day 5 near Z-05. Symptoms began on Day 7.'},
+{id:'Z-10',age:'20s',exp:6,set:'Ravenwood Gym',on:8,src:'Z-05',story:'Attended open gym on Day 6. Both Z-05 and Z-06 were there, so either one could be linked to this case. The arrow shows one possible link. Symptoms began on Day 8.'},
+{id:'Z-11',age:'13-15',exp:6,set:'Ravenwood Gym',on:9,src:'Z-06',story:'Attended open gym on Day 6. Both Z-05 and Z-06 were there, so either one could be linked to this case. The arrow shows one possible link. Symptoms began on Day 9.'},
+{id:'Z-12',age:'60s',exp:null,set:'Unknown',on:8,src:null,story:'No known contact with any other case in this sample, and no source has been identified. On Day 1, Z-12 stood in the same grocery line as Z-02, but that was 7 days before symptoms began.'}
+];
+var CASEBY={};CASES.forEach(function(c){CASEBY[c.id]=c;});
+var NODE_IDS=CASES.map(function(c){return c.id;}).concat(['NC']);
+var SETCOL={'Ravenwood Gym':['#f3d38a','G'],'School bus':['#a9c8f0','B'],'Market Street Cafe':['#d3bff2','M'],'Riverside Community Center':['#a8dcc3','C'],'Household':['#f5b9d3','H'],'Unknown':['#d5dde3','?']};
+var POS={'Z-01':[70,230],'Z-02':[270,380],'Z-03':[270,120],'Z-04':[370,40],'Z-05':[470,150],'Z-06':[570,235],'Z-07':[570,40],'Z-08':[670,100],'Z-09':[670,175],'Z-10':[770,250],'Z-11':[870,330],'Z-12':[770,400],'NC':[380,215]};
+var EDGES=[];
+CASES.forEach(function(c){if(c.src){EDGES.push({from:c.src,to:c.id,gap:c.on-c.exp,fit:true});}});
+EDGES.push({from:'Z-02',to:'Z-12',gap:7,fit:false});
+EDGES.push({from:'Z-03',to:'NC',gap:null,fit:null});
+var GATH=[
+{id:'gym',name:'Ravenwood Gym night',where:'Indoors',crowd:'Crowded',air:'Windows closed',att:60,cases:21},
+{id:'bus',name:'School bus rides',where:'Indoors',crowd:'Crowded',air:'Windows closed',att:35,cases:9},
+{id:'cafe',name:'Market Street Cafe lunch rush',where:'Indoors',crowd:'Crowded',air:'Some fresh air',att:45,cases:11},
+{id:'bingo',name:'Community Center bingo night',where:'Indoors',crowd:'Moderately crowded',air:'Some fresh air',att:40,cases:8},
+{id:'class',name:'Classroom (desks spaced, windows open)',where:'Indoors',crowd:'Spread out',air:'Good fresh air',att:28,cases:2},
+{id:'lib',name:'Library quiet hour',where:'Indoors',crowd:'Spread out',air:'Good fresh air',att:30,cases:1},
+{id:'foot',name:'Outdoor football game',where:'Outdoors',crowd:'Crowded',air:'Open air',att:120,cases:6},
+{id:'picnic',name:'Riverside Park picnic',where:'Outdoors',crowd:'Spread out',air:'Open air',att:50,cases:1}
+];
+var pct=function(g){return g.cases/g.att*100;};
+
+/* ---- Intervention outcome data: predefined fictional values, NO calculator ---- */
+var START=DAYS[13];
+var OUT={
+ days:[0,1,2,3,4,5,6,7],
+ A:[START,120,128,139,151,164,178,193],
+ B:[START,116,110,103,96,89,82,76],
+ C:[START,112,101,89,77,66,57,49],
+ D:[START,110,92,73,56,42,32,25]
+};
+var SC=['A','B','C','D'];
+var SCEN={
+ A:{name:'Scenario A: No new action',short:'No new action',pick:'A. No new action',
+    what:'Normal activities continue. This is the comparison condition.',
+    targets:'Nothing new. It shows what the fictional data look like if nothing changes.',
+    limit:'Cases may keep rising. Comparing it with the other scenarios shows whether a response made a difference.',
+    parts:null,remind:['curve','stage']},
+ B:{name:'Scenario B: Isolate symptomatic cases',short:'Isolate symptomatic cases',pick:'B. Isolate symptomatic cases',
+    what:'People who develop symptoms reduce contact with others.',
+    targets:'This targets possible transmission from people who are already showing symptoms.',
+    limit:'It may not prevent exposure that occurs before symptoms are recognized.',
+    parts:null,remind:['symp','incub']},
+ C:{name:'Scenario C: Reduce high-risk indoor contact',short:'Reduce high-risk indoor contact',pick:'C. Reduce high-risk indoor contacts',
+    what:'Temporarily reduce large, crowded indoor gatherings and improve environmental conditions where possible.',
+    targets:'This targets settings associated with higher case percentages in the fictional Ravenwood data.',
+    limit:'Association does not prove that any one environmental condition caused transmission, and people may still have contact elsewhere.',
+    parts:null,remind:['hubgym','envtop','envout','envvent']},
+ D:{name:'Scenario D: Layered response',short:'Layered response',pick:'D. Layered response',
+    what:'Combine several approaches at the same time:',
+    targets:'This uses several approaches aimed at different opportunities for transmission.',
+    limit:'Layered interventions require more resources and make it difficult to determine which individual intervention contributed most to the outcome.',
+    parts:['Isolation of symptomatic cases','A contact-based response: people who were in close contact with a case stay home and are monitored','Reduction of high-risk indoor contacts','Environmental improvements such as increased fresh air when practical'],
+    remind:['symp','incub','hubgym','nocase','unknown','envtop']}
+};
+var STYLE={A:{col:'#805b12',dash:'',m:'circle'},B:{col:'#234b7c',dash:'12 6',m:'square'},C:{col:'#56377b',dash:'3 6',m:'triangle'},D:{col:'#174f38',dash:'14 5 3 5',m:'diamond'}};
+var FICTION_STMT='These numbers are fictional and were designed for this investigation. They do not predict how a real disease would respond to these interventions.';
+function chg(k){return OUT[k][7]-OUT[k][1];}
+function tot(k){return sum(OUT[k].slice(1));}
+function chgTxt(k){var c=chg(k);return (c>0?'+':'-')+Math.abs(c)+(c>0?' (increase)':' (decrease)');}
+
+/* =====================================================================
+   4. EVIDENCE CATALOG (Evidence Locker items)
+   ===================================================================== */
+var EV={
+gym_reg:{text:'Step 3: In the 12 interviewed cases, the Ravenwood Gym was the possible exposure setting for 5 cases, more than any other setting.'},
+incub:{text:'Step 3: For cases with a known possible exposure day, symptoms began 1 to 3 days later. This is consistent with an incubation period of about 1 to 3 days, but it is only an estimate because the exact moment of infection is not known.'},
+curve:{text:'Step 4: New cases per day rose from 2 on Day 1 to 117 on Day 14, and the daily increase kept getting larger instead of staying steady.'},
+stage:{text:'Step 4: Average new cases per day were '+f1(AVG1)+' (Days 1-5), '+f1(AVG2)+' (Days 6-10), and '+f1(AVG3)+' (Days 11-14).'},
+symp:{text:'Step 5: Several possible exposures happened on or just after the day the other person first showed symptoms (for example, Z-03 at Gym Night on Day 3).'},
+hubgym:{text:'Step 5: Z-03 attended Gym Night on Day 3, and three later cases (Z-04, Z-05, Z-06) had a possible exposure there 1 to 3 days before their symptoms began.'},
+nocase:{text:'Step 5: Three gym contacts of Z-03 reported no symptoms through Day 14, so exposure does not always lead to a case.'},
+unknown:{text:'Step 5: Z-01 and Z-12 have no identified source, so contact tracing alone leaves gaps in the picture.'},
+envtop:{text:'Step 6: Crowded indoor gatherings had the highest percents of attendees become cases: gym 35%, school bus 26%, cafe 24%.'},
+envout:{text:'Step 6: Outdoor gatherings had low percents of attendees become cases: football game 5% and park picnic 2%.'},
+envvent:{text:'Step 6: Indoor gatherings that were spread out with good fresh air also had low percents: classroom 7% and library 3%.'},
+resA:{text:'Step 8: Scenario A (no new action): new cases per day kept rising from '+OUT.A[1]+' on Day 1 to '+OUT.A[7]+' on Day 7 in the fictional dataset.'},
+resB:{text:'Step 8: Scenario B (isolate symptomatic cases): new cases per day fell from '+OUT.B[1]+' on Day 1 to '+OUT.B[7]+' on Day 7 in the fictional dataset.'},
+resC:{text:'Step 8: Scenario C (reduce high-risk indoor contact): new cases per day fell from '+OUT.C[1]+' on Day 1 to '+OUT.C[7]+' on Day 7 in the fictional dataset.'},
+resD:{text:'Step 8: Scenario D (layered response): new cases per day fell from '+OUT.D[1]+' on Day 1 to '+OUT.D[7]+' on Day 7, the largest decrease of the four scenarios in the fictional dataset.'},
+resCmp:{text:'Step 8: On Day 7 the fictional dataset shows '+OUT.A[7]+' new cases per day for Scenario A, '+OUT.B[7]+' for B, '+OUT.C[7]+' for C, and '+OUT.D[7]+' for D.'}
+};
+var EVKEYS=Object.keys(EV);
+function pinBtn(id){var on=S.locker.indexOf(id)>-1;return '<button class="btn pin'+(on?' on':'')+'" data-act="pin" data-id="'+id+'" aria-pressed="'+on+'">'+(on?'📌 Saved to Evidence Locker':'📌 Add to Evidence Locker')+'</button>';}
+function evCard(id){return '<div class="evid"><p>'+esc(EV[id].text)+'</p>'+pinBtn(id)+'</div>';}
+
+/* =====================================================================
+   5. QUESTIONS WITH IMMEDIATE FEEDBACK
+   Feedback text is rebuilt from this trusted table (never stored).
+   ===================================================================== */
+var QS={
+q3a:{prompt:'Count the possible exposure settings in the table. Which setting appears most often?',opts:[['gym','Ravenwood Gym'],['bus','School bus'],['cafe','Market Street Cafe'],['house','Household']],ok:'gym',hint:'Use the "Group by exposure setting" button to put matching rows together, then count them.',explain:'The Ravenwood Gym is listed for 5 of the 12 interviewed cases (Z-04, Z-05, Z-06, Z-10, Z-11). This is a pattern worth investigating. It comes from a sample of 12 interviewed cases, so it does not show that the gym caused anything.'},
+q3b:{prompt:'Look at the "Possible exposure day" and "Symptom onset day" columns. For cases with a known possible exposure day, about how many days passed between the possible exposure and the first symptoms?',opts:[['same','Symptoms began the same day'],['13','About 1 to 3 days later'],['week','About 1 week later'],['two','More than 2 weeks later']],ok:'13',hint:'Subtract: onset day minus exposure day. Try Z-02: 3 minus 1 equals what?',explain:'Symptoms began about 1 to 3 days after the possible exposure. That is consistent with an incubation period, the time between infection and the appearance of symptoms, of about 1 to 3 days. It is only an estimate, because investigators know the day of a possible exposure, not the exact moment of infection. Real diseases vary widely, from hours to weeks or longer.'},
+q4a:{prompt:'Which statement best describes the epidemic curve for Days 1 to 14?',opts:[['steady','New cases increased by the same amount every day'],['faster','New cases increased faster and faster as the days passed'],['level','New cases rose and then leveled off'],['random','New cases went up and down with no pattern']],ok:'faster',hint:'Compare how much taller each bar is than the one before it. Is the jump always the same size?',explain:'The daily count rose from 2 to 117, and the day-to-day increase grew from +1 early on to +19 by Day 14. A curve that gets steeper like this shows the outbreak speeding up.'},
+q4b:{prompt:'Days 1-5 averaged '+f1(AVG1)+' new cases per day. Days 11-14 averaged '+f1(AVG3)+'. About how many times larger is the later average?',opts:[['2','About 2 times larger'],['5','About 5 times larger'],['17','About 17 times larger'],['50','About 50 times larger']],ok:'17',hint:'Divide the later average by the earlier average.',explain:f1(AVG3)+' divided by '+f1(AVG1)+' is about 16.6, so roughly 17 times larger in about 10 days.'},
+q5a:{prompt:'Click through the cases. Which case is linked to the largest number of later cases through a single setting?',opts:[['Z-01','Z-01'],['Z-03','Z-03'],['Z-04','Z-04'],['Z-05','Z-05']],ok:'Z-03',hint:'Count the arrows that leave each circle and go to another case.',explain:'Z-03 attended Gym Night on Day 3, and three later cases (Z-04, Z-05, Z-06) had a possible exposure there. The other cases are each linked to two later cases. This is a possible pattern, not proof.'},
+q5b:{prompt:'Z-12 reported standing in the same grocery line as Z-02 on Day 1, but did not have symptoms until Day 8. Which statement is best supported by the evidence?',opts:[['a','Z-02 definitely passed the virus to Z-12.'],['b','The timing does not fit the 1 to 3 day pattern seen in other cases, so this contact is less likely to be the source. Z-12\'s source is still unknown.'],['c','Contacts never matter when investigating an outbreak.'],['d','Z-01 must be the source of Z-12\'s illness.']],ok:'b',hint:'Turn on "Show timing check" and compare the days between contact and symptoms for this link.',explain:'The gap was 7 days, much longer than the 1 to 3 days seen for the other links, and Z-02 had not yet shown symptoms on Day 1. The evidence does not support this contact as the source, and nothing in the data points to Z-01 either.'},
+q5c:{prompt:'Three people at Gym Night on Day 3 were near Z-03 but reported no symptoms through Day 14. What does this suggest?',opts:[['a','Exposure does not always lead to infection or illness.'],['b','Z-Virus is not real.'],['c','Those three people are certainly immune.'],['d','The rest of the data must be wrong.']],ok:'a',hint:'Think about the difference between being exposed and becoming a case.',explain:'Exposure is not the same as infection (exposure does not equal infection). Investigators still watch exposed people, but the data show that not everyone who is exposed becomes a case. We also cannot say those three are immune from this information alone.'},
+q6a:{prompt:'Which kind of gathering had the highest percent of attendees become cases?',opts:[['a','Indoors, crowded, windows closed'],['b','Outdoors, spread out'],['c','Indoors, spread out, good fresh air'],['d','Outdoors, crowded']],ok:'a',hint:'Look at the top three bars in the chart and compare their tags.',explain:'The gym (35%), school bus (26%), and cafe (24%) were all indoors and crowded. The outdoor gatherings were 5% and 2%.'},
+q6b:{prompt:'The outdoor football game was crowded (120 attendees) but only 5% became cases. What does this suggest?',opts:[['a','Crowding is the only thing that matters.'],['b','Conditions such as indoors versus outdoors may matter along with crowding.'],['c','Outdoor gatherings are always safe for every disease.'],['d','The data are meaningless.']],ok:'b',hint:'Compare the crowded outdoor gathering with the crowded indoor ones.',explain:'Crowding alone does not explain the pattern. Where people gather and the air around them may also matter. This is true for this fictional virus only. Other diseases can spread differently.'},
+q6c:{prompt:'A classmate says: "The gym had the highest percent, so being in a gym causes Z-Virus." What is the best response?',opts:[['a','Agree. The data prove it.'],['b','The gym is associated with more cases, but crowding, time together, indoor air, and who attended may explain the pattern. More evidence is needed to know which factor matters.'],['c','Close all gyms forever.'],['d','Ignore the data.']],ok:'b',hint:'Remember that a pattern in data does not automatically show what caused it.',explain:'Correlation does not equal causation. Finding more cases at a place shows a pattern, not a cause. Z-03 attended while just starting to feel ill, and the gym was also indoors and crowded. Scientists look for several kinds of evidence before naming a cause.'},
+q8a:{prompt:'Which scenario showed continued outbreak growth?',opts:[['A','Scenario A: No new action'],['B','Scenario B: Isolate symptomatic cases'],['C','Scenario C: Reduce high-risk indoor contact'],['D','Scenario D: Layered response']],ok:'A',hint:'Find the line or column that keeps going up instead of down.',explain:'In Scenario A, new cases per day rose every day, from '+OUT.A[1]+' on Day 1 to '+OUT.A[7]+' on Day 7.'},
+q8b:{prompt:'Which scenario produced the largest decrease in new cases from Day 1 to Day 7?',opts:[['A','Scenario A: No new action'],['B','Scenario B: Isolate symptomatic cases'],['C','Scenario C: Reduce high-risk indoor contact'],['D','Scenario D: Layered response']],ok:'D',hint:'Subtract the Day 7 value from the Day 1 value for each scenario. The summary row of the table also shows this.',explain:'Scenario D fell from '+OUT.D[1]+' to '+OUT.D[7]+', a decrease of '+Math.abs(chg('D'))+'. Scenario C decreased by '+Math.abs(chg('C'))+' and Scenario B by '+Math.abs(chg('B'))+'.'},
+q8c:{prompt:'How does Scenario B compare with Scenario C in this fictional dataset?',opts:[['a','Scenario C had fewer new cases each day than Scenario B and a larger decrease from Day 1 to Day 7.'],['b','Scenario B and Scenario C produced identical results.'],['c','Scenario B had fewer new cases than Scenario C on Day 7.'],['d','Scenario C continued to grow while Scenario B decreased.']],ok:'a',hint:'Compare the Day 7 values and the Day 1 to Day 7 changes for B and C.',explain:'On Day 7, Scenario C had '+OUT.C[7]+' new cases and Scenario B had '+OUT.B[7]+'. Scenario C decreased by '+Math.abs(chg('C'))+' from Day 1 to Day 7, while Scenario B decreased by '+Math.abs(chg('B'))+'.'},
+qm1:{prompt:'Read the model answer below. Which part is the EVIDENCE?',opts:[['a','Strategy X appears more effective at slowing the fictional outbreak.'],['b','New cases decreased from 18 to 9 under Strategy X, while cases increased from 18 to 22 under Strategy Y.'],['c','An effective intervention should be followed by fewer new cases over time.']],ok:'b',hint:'Evidence uses specific observations or data. Look for the numbers.',explain:'Evidence uses specific data: the numbers 18, 9, and 22 come straight from the practice dataset.'},
+qm2:{prompt:'What makes REASONING different from evidence?',opts:[['a','Reasoning explains why the evidence supports the claim using scientific ideas.'],['b','Reasoning repeats the claim in different words.'],['c','Reasoning is a list of numbers from the data.'],['d','Reasoning is a guess that does not connect to the data.']],ok:'a',hint:'Reasoning is the "because" part that connects the data to the claim.',explain:'Reasoning links the evidence to the claim. In the model, the idea that an effective intervention should be followed by fewer new cases explains why the data support Strategy X.'}
+};
+function optText(id,v){var r='';QS[id].opts.forEach(function(o){if(o[0]===v)r=o[1];});return r;}
+function qFb(id){var st=S.q[id],q=QS[id];if(!st||!st.kind)return '';
+  if(st.kind==='empty')return '<div class="fbx retry"><strong>Choose an answer first.</strong></div>';
+  if(st.kind==='ok')return '<div class="fbx ok"><strong>&#10003; Correct.</strong> '+q.explain+'</div>';
+  if(st.kind==='reveal')return '<div class="fbx reveal"><strong>Not quite.</strong> The best answer is: '+optText(id,q.ok)+' '+q.explain+'</div>';
+  return '<div class="fbx retry"><strong>Not quite.</strong> '+q.hint+' Try again.</div>';}
+function qBlock(id){var q=QS[id],st=S.q[id]||{},done=!!st.done;
+  return '<fieldset class="q"><legend>'+q.prompt+'</legend><div class="opts">'+q.opts.map(function(o){var right=done&&o[0]===q.ok;return '<label class="opt'+(right?' right':'')+'"><input type="radio" name="q_'+id+'" value="'+esc(o[0])+'"'+(st.sel===o[0]?' checked':'')+(done?' disabled':'')+'><span>'+o[1]+(right?' <span class="best">(&#10003; best answer)</span>':'')+'</span></label>';}).join('')+'</div>'+(done?'':'<button class="btn" data-act="check" data-q="'+id+'">Check my answer</button>')+'<div aria-live="polite">'+qFb(id)+'</div></fieldset>';}
+function doCheck(id){var q=QS[id];var st=S.q[id]=S.q[id]||{sel:'',attempts:0,done:false,kind:''};var el=$('input[name="q_'+id+'"]:checked');
+  if(!el){st.kind='empty';}
+  else{st.sel=el.value;st.attempts=(st.attempts||0)+1;
+    if(st.sel===q.ok){st.done=true;st.kind='ok';}
+    else if(st.attempts>=2){st.done=true;st.kind='reveal';}
+    else{st.kind='retry';}}
+  save();show(false);}
+var qd=function(id){return !!(S.q[id]&&S.q[id].done);};
+
+/* =====================================================================
+   6. STATE, AUTOSAVE (Layer 1), VALIDATION
+   ===================================================================== */
+var PREDOPTS=[['same','The number of new cases each day will stay about the same.'],['steady','New cases will increase by about the same amount each day (a steady increase).'],['faster','New cases will increase faster and faster each day.'],['fall','New cases will rise for a few days and then fall on their own, even if no one responds.'],['unsure','I am not sure yet.']];
+var FACTORS=[['contacts','How many people each sick person spends time near'],['place','Where people gather (indoors or outdoors)'],['time','How long people spend close together'],['incub','How long it takes for symptoms to appear after exposure'],['stay','Whether sick people stay away from others'],['crowd','How crowded a place is'],['cloth','The color of the clothes people wear']];
+var BANDS={'5-14':[5,14],'15-29':[15,29],'30-59':[30,59],'60+':[60,140],'<50':[0,49],'50-79':[50,79],'80-139':[80,139],'140+':[135,140]};
+var P10OPTS=[['5-14','5 to 14 new cases'],['15-29','15 to 29 new cases'],['30-59','30 to 59 new cases'],['60+','60 or more new cases']];
+var P14OPTS=[['<50','Fewer than 50'],['50-79','50 to 79'],['80-139','80 to 139'],['140+','140 or more']];
+var REVOPTS=['keep','change','partly'];
+var ABCD=['A','B','C','D'];
+function vals(list){return list.map(function(o){return o[0];});}
+/* Allowed saved text fields. Anything else in a progress file is ignored. */
+var TKEYS={
+ name:{type:'text',max:200},pred2:{type:'enum',vals:vals(PREDOPTS)},fac2:{type:'arr',vals:vals(FACTORS),max:20},why2:{type:'text'},
+ obs3:{type:'text'},p10:{type:'enum',vals:Object.keys(BANDS)},p14:{type:'enum',vals:Object.keys(BANDS)},an4:{type:'text'},chain5:{type:'text'},
+ pick6:{type:'arr',vals:GATH.map(function(g){return g.id;}),max:2},calc6:{type:'text',max:20},obs6:{type:'text'},rev6:{type:'enum',vals:REVOPTS},revtxt:{type:'text'},
+ pred7:{type:'enum',vals:ABCD},why7:{type:'text'},rev8:{type:'enum',vals:REVOPTS},revtxt8:{type:'text'},ans8d:{type:'text'},ans8e:{type:'text'},
+ rec9:{type:'enum',vals:ABCD},claim:{type:'text'},cerE:{type:'text'},cerR:{type:'text'},cerL:{type:'text'},move10:{type:'text'}
+};
+function def(){return {v:VERSION,step:0,max:0,done:[],t:{},q:{},locker:[],viewed:[],reveal:0,env:{revealed:false},committed:false,cerEv:[],cerChecks:[],built:false};}
+function isInt(n,a,b){return typeof n==='number'&&isFinite(n)&&Math.floor(n)===n&&n>=a&&n<=b;}
+function isObj(o){return !!o&&typeof o==='object'&&!Array.isArray(o);}
+/* cleanState returns a brand-new validated state, or null if anything is badly formed */
+function cleanState(st){
+  if(!isObj(st)||!isInt(st.step,0,LAST))return null;
+  var d=def();d.step=st.step;d.max=isInt(st.max,0,LAST)?Math.max(st.max,st.step):st.step;
+  if(Array.isArray(st.done))st.done.forEach(function(n){if(isInt(n,0,LAST)&&d.done.indexOf(n)<0)d.done.push(n);});
+  if(isObj(st.t)){Object.keys(TKEYS).forEach(function(k){var v=st.t[k],r=TKEYS[k];if(v===undefined)return;
+    if(r.type==='text'){if(typeof v==='string'&&v.length<=(r.max||20000))d.t[k]=v;}
+    else if(r.type==='enum'){if(typeof v==='string'&&r.vals.indexOf(v)>-1)d.t[k]=v;}
+    else if(r.type==='arr'){if(Array.isArray(v)){var a=[];v.forEach(function(x){if(typeof x==='string'&&r.vals.indexOf(x)>-1&&a.indexOf(x)<0)a.push(x);});d.t[k]=a.slice(0,r.max);}}});}
+  if(isObj(st.q)){Object.keys(QS).forEach(function(id){var v=st.q[id];if(!isObj(v))return;
+    var sel=typeof v.sel==='string'?v.sel:'';var okSel=sel===''||QS[id].opts.some(function(o){return o[0]===sel;});
+    var kinds=['','ok','retry','reveal','empty'];
+    d.q[id]={sel:okSel?sel:'',attempts:isInt(v.attempts,0,99)?v.attempts:0,done:v.done===true,kind:kinds.indexOf(v.kind)>-1?v.kind:''};});}
+  if(Array.isArray(st.locker))st.locker.forEach(function(x){if(EVKEYS.indexOf(x)>-1&&d.locker.indexOf(x)<0)d.locker.push(x);});
+  if(Array.isArray(st.viewed))st.viewed.forEach(function(x){if(NODE_IDS.indexOf(x)>-1&&d.viewed.indexOf(x)<0)d.viewed.push(x);});
+  d.reveal=isInt(st.reveal,0,2)?st.reveal:0;
+  d.env={revealed:isObj(st.env)&&st.env.revealed===true};
+  d.committed=st.committed===true;
+  if(Array.isArray(st.cerEv))st.cerEv.forEach(function(x){if(EVKEYS.indexOf(x)>-1&&d.cerEv.indexOf(x)<0)d.cerEv.push(x);});
+  if(Array.isArray(st.cerChecks))st.cerChecks.forEach(function(x){if(['0','1','2','3','4'].indexOf(x)>-1&&d.cerChecks.indexOf(x)<0)d.cerChecks.push(x);});
+  d.built=st.built===true;
+  return d;}
+var memStore=null;
+function load(){var raw=null;try{raw=window.localStorage.getItem(STORE);}catch(e){}
+  if(raw){try{var o=JSON.parse(raw);if(isObj(o)&&o.v===VERSION){var c=cleanState(o);if(c)return c;}}catch(e2){}}
+  return def();}
+var S=load();
+function hasProgress(s){return s.max>0||s.step>0||s.done.length>0||Object.keys(s.t).length>0||s.locker.length>0||Object.keys(s.q).length>0||s.reveal>0||s.viewed.length>0||s.committed;}
+var HAD_SAVED=hasProgress(S);
+function updateSaveInd(){var el=$('#saveInd');if(!el)return;el.className='saveind'+(UI.saveOk?'':' bad');el.textContent=UI.saveOk?'✓ Progress saved on this device':'⚠ Not saved on this device. Use Save Progress File.';}
+function save(){var s;try{s=JSON.stringify(S);}catch(e){return;}memStore=s;var ok=false;try{window.localStorage.setItem(STORE,s);ok=true;}catch(e2){}UI.saveOk=ok;updateSaveInd();}
+function testStorage(){try{window.localStorage.setItem('zv_t','1');window.localStorage.removeItem('zv_t');UI.saveOk=true;}catch(e){UI.saveOk=false;}}
+function markDone(p){if(S.done.indexOf(p)<0)S.done.push(p);}
+function lastDone(){var m=-1;S.done.forEach(function(n){if(n>m)m=n;});return m;}
+
+/* =====================================================================
+   7. FORM HELPERS
+   ===================================================================== */
+function ta(key,label,ph,rows,min,hint,ro){return '<div class="field"><label class="lab" for="t_'+key+'">'+label+'</label>'+(hint?'<div class="hint">'+hint+'</div>':'')+'<textarea id="t_'+key+'" data-key="'+key+'" rows="'+(rows||4)+'" placeholder="'+esc(ph||'')+'"'+(ro?' readonly':'')+'>'+esc(S.t[key]||'')+'</textarea><div class="wc" data-wc="'+key+'" data-min="'+(min||0)+'"></div></div>';}
+function radios(key,opts,dis){return '<div class="opts" role="radiogroup">'+opts.map(function(o){return '<label class="opt"><input type="radio" name="'+key+'" value="'+esc(o[0])+'" data-key="'+key+'"'+(S.t[key]===o[0]?' checked':'')+(dis?' disabled':'')+'><span>'+o[1]+'</span></label>';}).join('')+'</div>';}
+function checks(key,opts,max){var cur=S.t[key]||[];return '<div class="opts">'+opts.map(function(o){return '<label class="opt"><input type="checkbox" data-multi data-key="'+key+'"'+(max?' data-max="'+max+'"':'')+' value="'+esc(o[0])+'"'+(cur.indexOf(o[0])>-1?' checked':'')+'><span>'+o[1]+'</span></label>';}).join('')+'</div>';}
+function updateWC(){$$('.wc').forEach(function(el){var n=wc(S.t[el.dataset.wc]);var min=+el.dataset.min;el.textContent=n+' word'+(n===1?'':'s')+(min?' (at least '+min+' needed)':'');el.classList.toggle('ok',!min||n>=min);});}
+function labelOf(list,v){var r=v;list.forEach(function(o){if(o[0]===v)r=o[1];});return r;}
+function partBanner(p){if(p<=5)return '<div class="partban a"><strong>LESSON 4.1A &middot; OUTBREAK!</strong> What is happening in Ravenwood?<span>Big question: How is the Z-Virus outbreak changing, and what patterns might help explain its spread?</span></div>';
+  return '<div class="partban b"><strong>LESSON 4.1B &middot; CONTAINMENT</strong> Can you slow the Z-Virus outbreak?<span>Big question: Which response is best supported by the evidence?</span></div>';}
+var FICT='<span class="chip">Simplified fictional instructional dataset</span>';
+function saveBtns(){return '<div class="row"><button class="btn primary" data-act="saveFile">Save Progress File</button><button class="btn" data-act="openRestore">Restore Progress File</button></div>';}
+
+/* =====================================================================
+   8. PAGE 0: MISSION BRIEFING
+   ===================================================================== */
+function r0(){var G=[
+ ['Epidemiology','The study of patterns, causes, and spread of health conditions in populations. Epidemiologists use data to investigate who is affected, where cases occur, how patterns change over time, and what actions may reduce risk.',true],
+ ['Infectious disease','An illness caused by a pathogen such as a virus, bacterium, fungus, or parasite. Some infectious diseases can spread between hosts, while others are acquired in different ways.',true],
+ ['Outbreak','A sudden increase in cases of a disease in a community.'],
+ ['Case','A person who has the illness.'],
+ ['Exposure','A situation in which a person may have come into contact with a pathogen or source of infection. Exposure does not mean infection definitely occurred.'],
+ ['Contact','A person who spent time near a case.'],
+ ['Transmission','The way a pathogen passes from one host to another.'],
+ ['Incubation period','The time between infection and the appearance of symptoms. In this classroom dataset, investigators know the day of a possible exposure, not the exact moment of infection, so they can only estimate it.'],
+ ['Epidemic curve','A bar graph of new cases per day.'],
+ ['Environmental factor','A condition of the surroundings, such as indoors or outdoors.'],
+ ['Intervention','An action taken to try to slow or stop the spread.']];
+ return '<section class="hero"><div class="alert-banner" role="note"><span class="dot" aria-hidden="true"></span> PRIORITY ALERT &middot; DAY 1 &middot; 06:40 &middot; REGIONAL HEALTH OFFICE</div>'+
+ '<h1>Mission Briefing</h1><p class="lead">An unusual illness has appeared in the community of <strong>Ravenwood</strong>. Doctors at the clinic report patients with <strong>fever, confusion, agitation, and unusually aggressive behavior</strong>. The number of reported cases is rising quickly.</p>'+
+ '<p>Laboratory staff have named the cause <strong>Z-Virus</strong>. Nobody yet knows how it spreads or how to slow it. That is where you come in.</p></section>'+
+ '<section class="card"><h2>Welcome to the Ravenwood Outbreak Response Team</h2><p>You are an <strong>epidemiologist</strong>. Your team has four jobs:</p><ol class="mission"><li>Determine how the outbreak is changing.</li><li>Identify possible transmission patterns.</li><li>Evaluate public-health interventions.</li><li>Recommend the best strategy for slowing the spread.</li></ol>'+
+ '<p>This investigation has <strong>two parts</strong>. <strong>Part A: Outbreak!</strong> (Steps 1 to 5) is about what is happening in Ravenwood, and it ends at a checkpoint where you can stop safely. <strong>Part B: Containment</strong> (Steps 6 to 10) is about what Ravenwood should do.</p>'+
+ '<div class="note fict"><strong>Simplified fictional instructional dataset.</strong> Z-Virus, Ravenwood, and every number in this investigation are made up for learning. They do not come from a real outbreak, and real diseases can behave very differently. The way scientists investigate outbreaks is real.</div></section>'+
+ '<section class="card" aria-labelledby="fin"><h2 id="fin">💾 Need to Finish Later?</h2><p>Your work saves automatically on this device.</p><p>If you might continue on another computer or browser, choose <strong>Save Progress File</strong> before leaving.</p><p>When you return, open the Z-Virus investigation and choose <strong>Restore Progress File</strong>.</p>'+saveBtns()+
+ '<div class="note"><strong>Two different files:</strong> <strong>Save Progress File</strong> is a backup so you can keep working later. <strong>Download Final Case File</strong> (at the very end) is your finished work for your teacher.</div></section>'+
+ '<section class="card"><h2>Field glossary</h2><div class="grid2 gloss">'+G.map(function(g){return '<div'+(g[2]?' class="wide"':'')+'><b>'+g[0]+':</b> '+g[1]+'</div>';}).join('')+'</div>'+
+ '<div class="note rule"><strong>Two rules good investigators follow:</strong> <strong>exposure &ne; infection</strong> (being near a case does not mean someone definitely became infected) and <strong>correlation &ne; causation</strong> (a pattern in data does not automatically show what caused it).</div></section>'+
+ '<section class="card"><h2>How this investigation works</h2><p>This is not a reading assignment. You will <strong>predict</strong>, <strong>reveal evidence</strong>, <strong>analyze data</strong>, <strong>make decisions</strong>, and <strong>revise your thinking</strong>.</p><ul><li>Predictions are not marked right or wrong. Honest thinking is what matters.</li><li>When you see <strong>📌 Add to Evidence Locker</strong>, you can save a finding. You will use these findings in your final case report.</li><li>If you are completing this during a live class, you may also share your reasoning in chat when a question invites it. Always write your answer here too.</li></ul>'+
+ '<div class="field"><label class="lab" for="t_name">Investigator name (first and last)</label><input type="text" id="t_name" data-key="name" autocomplete="name" value="'+esc(S.t.name||'')+'"></div></section>';}
+
+/* =====================================================================
+   9. PAGE 1: INITIAL PREDICTION
+   ===================================================================== */
+function r1(){return '<h1>Initial Prediction</h1><section class="card"><h2>What the team knows so far</h2><div class="grid3"><div class="stagebox"><b>Day 1</b><br>2 new cases reported at the Ravenwood Clinic. Fever, confusion, and restlessness.</div><div class="stagebox"><b>Day 2</b><br>3 new cases reported. Some patients are agitated and act unusually aggressively toward staff.</div><div class="stagebox gold"><b>Still unknown</b><br>How it spreads, how long before symptoms appear, and which actions would help.</div></div><p class="muted">'+FICT+'</p></section>'+
+ '<section class="card"><h2>Make your prediction</h2><p>Write down your thinking before you see the data. You will come back to this later and decide whether to keep or change it.</p><fieldset class="q"><legend>Over the next 14 days, what do you think will happen to the number of <em>new cases per day</em> if nobody responds?</legend>'+radios('pred2',PREDOPTS)+'</fieldset>'+
+ '<fieldset class="q"><legend>Which of these might influence how quickly Z-Virus spreads? Select all that you think could matter. Some may not matter at all.</legend>'+checks('fac2',FACTORS)+'</fieldset>'+
+ ta('why2','Explain your prediction','Write your reasoning here.',4,8,'Write your prediction and reasoning below. If you are completing this during a live class, you may also share your reasoning in chat.')+'</section>';}
+
+/* =====================================================================
+   10. PAGE 2: OUTBREAK DATA
+   ===================================================================== */
+function r2(){var rows=CASES.slice();if(UI.grp3)rows.sort(function(a,b){return a.set.localeCompare(b.set)||a.on-b.on;});
+  var html='',last=null;rows.forEach(function(c){if(UI.grp3&&c.set!==last){last=c.set;var n=CASES.filter(function(x){return x.set===c.set;}).length;html+='<tr class="grp"><td colspan="5">'+c.set+': '+n+' case'+(n>1?'s':'')+'</td></tr>';}
+    html+='<tr><th scope="row">'+c.id+'</th><td>'+c.age+'</td><td>'+c.on+'</td><td>'+(c.exp==null?'Unknown':c.exp)+'</td><td>'+c.set+'</td></tr>';});
+  var symp=[['Fever',12],['Confusion',10],['Agitation or aggressive behavior',9],['Tiredness',7]];
+  return '<h1>Outbreak Data</h1><section class="card"><h2>Case registry: interview sample</h2><p>Investigators completed detailed interviews with <strong>12 of the '+TOT+' cases</strong> reported by Day 14. This is a <em>sample</em>, so it may not match every case in Ravenwood. '+FICT+'</p>'+
+  '<div class="row"><button class="btn" data-act="grp3" aria-pressed="'+UI.grp3+'">'+(UI.grp3?'Show original order':'Group by exposure setting')+'</button></div>'+
+  '<div class="tablewrap"><table><caption>Interview sample of 12 cases. "Possible exposure" means the setting where the person may have been exposed, not a confirmed source.</caption><thead><tr><th>Case</th><th>Age group</th><th>Symptom onset day</th><th>Possible exposure day</th><th>Possible exposure setting</th></tr></thead><tbody>'+html+'</tbody></table></div></section>'+
+  '<section class="card"><h2>Symptoms reported in the 12 interviewed cases</h2><div class="bars">'+symp.map(function(s){return '<div class="brow"><div class="nm">'+s[0]+'</div><div class="track"><div class="fill sym" style="width:'+(s[1]/12*100)+'%"></div></div><div class="pc">'+s[1]+' of 12</div></div>';}).join('')+'</div><p class="muted">Notice that not every case had every symptom.</p></section>'+
+  '<section class="card"><h2>Analyze the registry</h2>'+qBlock('q3a')+evCard('gym_reg')+qBlock('q3b')+evCard('incub')+
+  ta('obs3','What patterns do you notice in the registry?','Look at ages, onset days, and settings.',4,10,'Describe at least two patterns. Remember this is a sample, so use careful wording such as "possible" or "likely". If you are completing this during a live class, you may also share your ideas in chat.')+'</section>';}
+
+/* =====================================================================
+   11. PAGE 3: EPIDEMIC CURVE (progressive reveal)
+   ===================================================================== */
+function curveAlt(sh){return 'Bar graph of new cases per day. '+DAYS.slice(0,sh).map(function(v,i){return 'Day '+(i+1)+': '+v;}).join('; ')+'.';}
+function curveSVG(){var W=900,H=360,L=60,R=14,T=34,B=58,maxY=140,n=14,pw=W-L-R,ph=H-T-B,bw=pw/n;
+  var X=function(i){return L+i*bw;},Y=function(v){return T+ph*(1-v/maxY);};
+  var sh=S.reveal===0?5:S.reveal===1?10:14;
+  var s='<svg class="chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(curveAlt(sh))+'"><defs><pattern id="pGrow" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="#fff7ed"/><rect width="4" height="8" fill="#805b12"/></pattern><pattern id="pSurge" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#f6f0ff"/><circle cx="4" cy="4" r="2.4" fill="#56377b"/></pattern></defs>';
+  for(var v=0;v<=maxY;v+=20){s+='<line class="grid" x1="'+L+'" x2="'+(W-R)+'" y1="'+Y(v)+'" y2="'+Y(v)+'"/><text class="tick" x="'+(L-8)+'" y="'+(Y(v)+5)+'" text-anchor="end">'+v+'</text>';}
+  for(var i=0;i<n;i++){var x=X(i)+bw*0.12,w=bw*0.76;
+    if(i<sh){var val=DAYS[i],fill=i<5?'#234b7c':i<10?'url(#pGrow)':'url(#pSurge)',stroke=i<5?'#234b7c':i<10?'#805b12':'#56377b';s+='<rect x="'+x+'" y="'+Y(val)+'" width="'+w+'" height="'+(Y(0)-Y(val))+'" fill="'+fill+'" stroke="'+stroke+'" stroke-width="2" rx="3"><title>Day '+(i+1)+': '+val+' new cases</title></rect><text class="val" x="'+(x+w/2)+'" y="'+(Y(val)-6)+'" text-anchor="middle">'+val+'</text>';}
+    else{s+='<rect class="ghost" x="'+x+'" y="'+(Y(0)-28)+'" width="'+w+'" height="28" rx="3"/><text class="val" x="'+(x+w/2)+'" y="'+(Y(0)-9)+'" text-anchor="middle">?</text>';}
+    s+='<text class="tick" x="'+(x+w/2)+'" y="'+(Y(0)+20)+'" text-anchor="middle">'+(i+1)+'</text>';}
+  if(S.reveal>=1&&S.t.p10&&BANDS[S.t.p10]){var b=BANDS[S.t.p10];s+='<rect x="'+(X(9)+2)+'" y="'+Y(b[1])+'" width="'+(bw-4)+'" height="'+Math.max(4,Y(b[0])-Y(b[1]))+'" fill="rgba(255,255,255,.25)" stroke="#111827" stroke-width="3" stroke-dasharray="6 4"/>';}
+  if(S.reveal>=2&&S.t.p14&&BANDS[S.t.p14]){var b2=BANDS[S.t.p14];s+='<rect x="'+(X(13)+2)+'" y="'+Y(b2[1])+'" width="'+(bw-4)+'" height="'+Math.max(4,Y(b2[0])-Y(b2[1]))+'" fill="rgba(255,255,255,.25)" stroke="#111827" stroke-width="3" stroke-dasharray="6 4"/>';}
+  s+='<text class="axis" x="'+(L+pw/2)+'" y="'+(H-10)+'" text-anchor="middle">Day of outbreak</text><text class="axis" transform="translate(18 '+(T+ph/2)+') rotate(-90)" text-anchor="middle">New cases per day</text>';
+  s+='<text class="axis" x="'+(X(0)+bw*2.5)+'" y="20" text-anchor="middle" fill="#234b7c">Early</text>';
+  if(sh>=10)s+='<text class="axis" x="'+(X(5)+bw*2.5)+'" y="20" text-anchor="middle" fill="#805b12">Rapid growth</text>';
+  if(sh>=14)s+='<text class="axis" x="'+(X(10)+bw*2)+'" y="20" text-anchor="middle" fill="#56377b">Surge</text>';
+  return s+'</svg>';}
+function r3(){var rv=S.reveal;
+  var tb='';if(UI.tbl4){var sh=rv===0?5:rv===1?10:14;tb='<div class="tablewrap"><table><caption>New cases per day (data table version of the graph)</caption><thead><tr><th>Day</th><th class="num">New cases</th></tr></thead><tbody>'+DAYS.slice(0,sh).map(function(v,i){return '<tr><td>'+(i+1)+'</td><td class="num">'+v+'</td></tr>';}).join('')+'</tbody></table></div>';}
+  var h='<h1>Epidemic Curve</h1><section class="card"><h2>Read the outbreak as it unfolds</h2><p>An <strong>epidemic curve</strong> is a bar graph that shows how many <em>new</em> cases appear each day. Its shape tells investigators whether an outbreak is speeding up, slowing down, or leveling off. You will predict what comes next, then reveal the data. '+FICT+'</p><div class="chartwrap">'+curveSVG()+'</div>'+
+  '<div class="legend"><span><i class="sw early"></i>Early (Days 1-5, solid blue)</span><span><i class="sw grow"></i>Rapid growth (Days 6-10, gold stripes)</span><span><i class="sw surge"></i>Surge (Days 11-14, purple dots)</span>'+(rv>=1?'<span><i class="sw pred"></i>Your prediction (dashed box)</span>':'')+'</div>'+
+  '<div class="row"><button class="btn" data-act="tbl4" aria-pressed="'+UI.tbl4+'">'+(UI.tbl4?'Hide data table':'View as data table')+'</button></div>'+tb+'</section>';
+  if(rv===0){h+='<section class="stagebox"><h2>Stage 1: Days 1 to 5 are shown</h2><p>The first five days are low, with small increases. <strong>Predict:</strong> about how many new cases will be reported on <strong>Day 10</strong>?</p>'+radios('p10',P10OPTS)+'<button class="btn primary" data-act="rev4">Lock in my prediction and reveal Days 6 to 10</button><div id="msg4" class="hint" role="alert"></div></section>';}
+  if(rv>=1){var a10=DAYS[9],ok10=BANDS[S.t.p10]&&a10>=BANDS[S.t.p10][0]&&a10<=BANDS[S.t.p10][1];
+    h+='<section class="stagebox teal"><h2>Day 10 result</h2><p>You predicted <strong>'+labelOf(P10OPTS,S.t.p10)+'</strong>. The actual number on Day 10 was <strong>'+a10+'</strong>. '+(ok10?'Your prediction was in range.':'The outbreak was growing at a different rate than you predicted. That is useful to know.')+'</p></section>';}
+  if(rv===1){h+='<section class="stagebox"><h2>Stage 2: Days 1 to 10 are shown</h2><p><strong>Predict:</strong> about how many new cases will be reported on <strong>Day 14</strong>?</p>'+radios('p14',P14OPTS)+'<button class="btn primary" data-act="rev4b">Lock in my prediction and reveal Days 11 to 14</button><div id="msg4" class="hint" role="alert"></div></section>';}
+  if(rv>=2){var a14=DAYS[13],ok14=BANDS[S.t.p14]&&a14>=BANDS[S.t.p14][0]&&a14<=BANDS[S.t.p14][1];
+    h+='<section class="stagebox teal"><h2>Day 14 result</h2><p>You predicted <strong>'+labelOf(P14OPTS,S.t.p14)+'</strong>. The actual number on Day 14 was <strong>'+a14+'</strong>. '+(ok14?'Your prediction was in range.':'Compare your prediction with the curve and think about what you might have missed.')+'</p></section>'+
+    '<section class="card"><h2>Compare the stages</h2><div class="tablewrap"><table><caption>Average new cases per day in each stage of the outbreak</caption><thead><tr><th>Stage</th><th>Days</th><th class="num">Average new cases per day</th></tr></thead><tbody><tr><td>Early</td><td>1 to 5</td><td class="num">'+f1(AVG1)+'</td></tr><tr><td>Rapid growth</td><td>6 to 10</td><td class="num">'+f1(AVG2)+'</td></tr><tr><td>Surge</td><td>11 to 14</td><td class="num">'+f1(AVG3)+'</td></tr></tbody></table></div><p class="muted">Total reported cases, Days 1 to 14: '+TOT+'. Ravenwood has about 12,000 residents.</p>'+
+    qBlock('q4a')+qBlock('q4b')+evCard('curve')+evCard('stage')+
+    ta('an4','What does the curve suggest about the next two weeks if nothing changes? What can the curve NOT tell you?','Use numbers from the graph or table.',5,15,'Use careful wording such as "suggests" or "likely". A curve shows what already happened and does not by itself explain why.')+'</section>';}
+  return h;}
+
+/* =====================================================================
+   12. PAGE 4: CONTACT INVESTIGATION
+   ===================================================================== */
+function netSVG(){var W=920,H=480,R=26;
+  var s='<svg class="chart" viewBox="0 0 '+W+' '+H+'" role="group" aria-label="Contact investigation diagram. Each circle is a case placed by the day its symptoms began. Arrows show possible exposure links. Use the case list buttons or press Tab and Enter on a circle to read its notes.">';
+  s+='<defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#4b5563"/></marker><marker id="arg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#174f38"/></marker><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#9b2c2c"/></marker></defs>';
+  for(var d=1;d<=9;d++){var x=70+(d-1)*100;s+='<line class="grid" x1="'+x+'" x2="'+x+'" y1="8" y2="432"/><text class="tick" x="'+x+'" y="454" text-anchor="middle">Day '+d+'</text>';}
+  s+='<text class="axis" x="'+(W/2)+'" y="474" text-anchor="middle">Day symptoms began</text>';
+  EDGES.forEach(function(e){var a=POS[e.from],b=POS[e.to],dx=b[0]-a[0],dy=b[1]-a[1],L=Math.sqrt(dx*dx+dy*dy),ux=dx/L,uy=dy/L,r2=e.to==='NC'?32:R;
+    var x1=a[0]+ux*R,y1=a[1]+uy*R,x2=b[0]-ux*(r2+4),y2=b[1]-uy*(r2+4);
+    var cls='edge',mk='ar';if(UI.timing){if(e.fit===true){cls+=' fit';mk='arg';}else if(e.fit===false){cls+=' nofit';mk='arr';}}
+    s+='<line class="'+cls+'" x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" marker-end="url(#'+mk+')"/>';
+    if(UI.timing){var lab=e.fit===null?'no symptoms':(e.fit?'✓ ':'✗ ')+e.gap+(e.gap===1?' day':' days');var mx=(x1+x2)/2,my=(y1+y2)/2;s+='<rect x="'+(mx-(lab.length*3.8+5))+'" y="'+(my-11)+'" width="'+(lab.length*7.6+10)+'" height="21" rx="4" fill="#fff" stroke="#8fa3b0"/><text class="elab" x="'+mx+'" y="'+(my+5)+'" text-anchor="middle">'+lab+'</text>';}});
+  CASES.forEach(function(c){var p=POS[c.id],col=SETCOL[c.set];s+='<g class="node'+(UI.sel===c.id?' sel':'')+'" tabindex="0" role="button" aria-label="'+c.id+', symptoms began Day '+c.on+', possible exposure setting '+c.set+'" data-act="node" data-id="'+c.id+'"><circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+R+'" fill="'+col[0]+'"/><text x="'+p[0]+'" y="'+(p[1]-1)+'" text-anchor="middle" font-size="14">'+c.id+'</text><text x="'+p[0]+'" y="'+(p[1]+14)+'" text-anchor="middle" font-size="12.5">'+col[1]+'</text></g>';});
+  var n=POS.NC;s+='<g class="node'+(UI.sel==='NC'?' sel':'')+'" tabindex="0" role="button" aria-label="Three exposed contacts with no symptoms reported" data-act="node" data-id="NC"><rect x="'+(n[0]-36)+'" y="'+(n[1]-25)+'" width="72" height="50" rx="10" fill="#eef2f5" stroke="#4b5563" stroke-dasharray="5 4" stroke-width="2"/><text x="'+n[0]+'" y="'+(n[1]-3)+'" text-anchor="middle" font-size="13.5">3 contacts</text><text x="'+n[0]+'" y="'+(n[1]+14)+'" text-anchor="middle" font-size="12" style="font-weight:600">no symptoms</text></g>';
+  return s+'</svg>';}
+function nodeDetail(id){if(!id)return '<p class="muted">Select a circle to read the investigator notes for that case. Use the keyboard (Tab, then Enter) if you prefer.</p>';
+  if(id==='NC')return '<h3>3 exposed contacts, no symptoms reported</h3><p>Three people at Gym Night on Day 3 were near Z-03. As of Day 14, none of them reported symptoms. Being exposed does not mean someone was definitely infected.</p>';
+  var c=CASEBY[id],e=c.exp==null?'Unknown, no source identified':'Day '+c.exp+', '+c.set+(c.src?', near '+c.src:'');
+  return '<h3>'+c.id+' <small class="muted">Age group '+c.age+'</small></h3><dl><dt>Symptoms began</dt><dd>Day '+c.on+'</dd><dt>Possible exposure</dt><dd>'+e+'</dd>'+(c.exp!=null?'<dt>Days from possible exposure to symptoms</dt><dd>'+(c.on-c.exp)+'</dd>':'')+'</dl><p>'+c.story+'</p>';}
+function r4(){var legend=Object.keys(SETCOL).map(function(k){return '<span><i class="sw" style="background:'+SETCOL[k][0]+'"></i><strong>'+SETCOL[k][1]+'</strong> = '+k+'</span>';}).join('');
+  var vcount=S.viewed.filter(function(v){return v!=='NC';}).length;
+  return '<h1>Contact Investigation</h1><section class="card"><h2>Who may have been exposed to whom?</h2><p>Each circle is one interviewed case, placed by the day its symptoms began. An arrow shows a <strong>possible exposure link</strong>, which means the two people were together at a time that could fit. It does <em>not</em> show that one person definitely infected the other. Investigators have not confirmed exactly how Z-Virus spreads. '+FICT+'</p>'+
+  '<div class="row"><button class="btn" data-act="timing" aria-pressed="'+UI.timing+'">'+(UI.timing?'Hide timing check':'Show timing check')+'</button></div><p class="hint">The timing check labels each link with the days between the contact and the first symptoms. A &#10003; with a solid green arrow fits the 1 to 3 day pattern from Step 3. A &#10007; with a dashed red arrow does not fit.</p>'+
+  '<div class="chartwrap">'+netSVG()+'</div><div class="legend">'+legend+'</div>'+
+  '<div class="detail" aria-live="polite">'+nodeDetail(UI.sel)+'</div><p class="hint">Cases viewed: '+vcount+' of 12 (view at least 4 to continue).</p></section>'+
+  '<section class="card"><h2>Interpret the evidence</h2>'+qBlock('q5a')+evCard('hubgym')+evCard('symp')+qBlock('q5b')+evCard('unknown')+qBlock('q5c')+evCard('nocase')+
+  ta('chain5','Write one possible transmission chain that is consistent with the evidence.','Example: Z-01 may have ... which is consistent with ...',4,12,'Name at least three cases in order. Because exposure does not prove infection, include careful wording such as "possible", "likely", or "consistent with". If you are completing this during a live class, you may also share your chain in chat.')+'</section>'+
+  '<div class="note"><strong>Next:</strong> when you finish this step you will reach an <strong>Investigation Checkpoint</strong>, a safe place to stop and save.</div>';}
+
+/* =====================================================================
+   13. PAGE 5: INVESTIGATION CHECKPOINT (end of Part A)
+   ===================================================================== */
+function r5(){var lk=S.locker.filter(function(id){return EV[id];});
+  return '<section class="hero" aria-labelledby="cph"><div class="alert-banner" role="note">&#10003; PART A COMPLETE</div><h1 id="cph">INVESTIGATION CHECKPOINT</h1><p class="lead">You have identified important patterns in the Ravenwood outbreak.</p><p>Your next task is to determine what Ravenwood should do about them.</p></section>'+
+  '<section class="card"><div class="note"><strong>Part A is complete.</strong> Your work has been saved on this device. If you will complete Part B later, download a backup now.</div>'+
+  '<div class="row"><button class="btn primary" data-act="saveFile">Save Progress File</button><button class="btn primary" data-act="cont6">Continue to Part B</button></div>'+
+  '<div class="grid2"><div class="stagebox teal"><strong>Save Progress File</strong><br>A backup used to continue working later, even on another computer. Not for submission.</div><div class="stagebox gold"><strong>Download Final Case File</strong><br>Your completed work, submitted to your teacher. You will get it at the end of Part B.</div></div>'+
+  '<p>You can stop here safely. When you return, open the Z-Virus investigation and choose <strong>Resume Investigation</strong> or <strong>Restore Progress File</strong>. You will continue in Part B.</p></section>'+
+  '<section class="card"><h2>Evidence in your locker so far</h2>'+(lk.length?'<ul>'+lk.map(function(id){return '<li>'+esc(EV[id].text)+'</li>';}).join('')+'</ul>':'<p class="muted">Your locker is empty. You can go back and pin findings from Steps 3 to 5 now, or later in Part B.</p>')+'</section>';}
+
+/* =====================================================================
+   14. PAGE 6: ENVIRONMENTAL INVESTIGATION
+   ===================================================================== */
+function r6(){var e=S.env,list=GATH.filter(function(g){return UI.filt6==='all'||g.where===UI.filt6;});
+  var h='<h1>Environmental Investigation</h1><section class="card"><h2>Does the setting matter?</h2><p>Health teams investigated eight gatherings held during Days 1 to 14. For each one they counted how many attendees were later reported as cases. Attendees may also have been exposed elsewhere, so these numbers show patterns, not proof of a cause. '+FICT+'</p>';
+  h+='<div class="row" role="group" aria-label="Filter gatherings">'+[['all','All gatherings'],['Indoors','Indoors only'],['Outdoors','Outdoors only']].map(function(f){return '<button class="btn'+(UI.filt6===f[0]?' primary':'')+'" data-act="filt6" data-v="'+f[0]+'" aria-pressed="'+(UI.filt6===f[0])+'">'+f[1]+'</button>';}).join('')+'</div>';
+  if(!e.revealed){
+    h+='<div class="tablewrap"><table><caption>Investigated gatherings (the percent of attendees who became cases is hidden until you predict)</caption><thead><tr><th>Gathering</th><th>Where</th><th>Crowding</th><th>Air</th><th class="num">Attendees</th><th class="num">Became cases</th></tr></thead><tbody>'+list.map(function(g){return '<tr><th scope="row">'+g.name+'</th><td>'+g.where+'</td><td>'+g.crowd+'</td><td>'+g.air+'</td><td class="num">'+g.att+'</td><td class="num">'+g.cases+'</td></tr>';}).join('')+'</tbody></table></div></section>'+
+    '<section class="card"><h2>Predict, then calculate</h2><fieldset class="q"><legend>Which <strong>two</strong> gatherings do you predict had the highest <em>percent</em> of attendees become cases? (Percent, not the raw number of cases.)</legend>'+checks('pick6',GATH.map(function(g){return [g.id,g.name];}),2)+'</fieldset>'+
+    '<div class="field"><label class="lab" for="t_calc6">Calculate for the Ravenwood Gym night: 21 cases out of 60 attendees. What percent became cases? (cases &divide; attendees &times; 100, rounded to the nearest whole number)</label><input type="text" inputmode="numeric" id="t_calc6" data-key="calc6" value="'+esc(S.t.calc6||'')+'" style="max-width:160px"></div>'+
+    '<button class="btn primary" data-act="rev6">Reveal the percents</button><div id="msg6" class="hint" role="alert"></div></section>';
+    return h;}
+  var sorted=list.slice().sort(function(a,b){return pct(b)-pct(a);});
+  h+='<div class="bars" role="list" aria-label="Percent of attendees who became cases">'+sorted.map(function(g){return '<div class="brow" role="listitem"><div class="nm">'+g.name+'<span class="tag">'+g.where+' &middot; '+g.crowd+' &middot; '+g.air+' &middot; '+g.cases+' of '+g.att+' attendees</span></div><div class="track"><div class="fill '+(g.where==='Indoors'?'indoor':'outdoor')+'" style="width:'+Math.min(100,pct(g)*2.4)+'%"></div></div><div class="pc">'+f1(pct(g))+'%</div></div>';}).join('')+'</div><div class="legend"><span><i class="sw indoor"></i>Indoors (solid)</span><span><i class="sw outdoor"></i>Outdoors (striped)</span></div></section>';
+  var top=GATH.slice().sort(function(a,b){return pct(b)-pct(a);}).slice(0,2).map(function(g){return g.id;});
+  var pk=(S.t.pick6||[]).map(function(id){return GATH.filter(function(g){return g.id===id;})[0].name;}).join(' and ');
+  var hit=(S.t.pick6||[]).filter(function(id){return top.indexOf(id)>-1;}).length;
+  h+='<section class="stagebox teal"><h2>Your prediction</h2><p>You predicted: <strong>'+esc(pk)+'</strong>. The two highest were the <strong>Ravenwood Gym night ('+f1(pct(GATH[0]))+'%)</strong> and the <strong>school bus rides ('+f1(pct(GATH[1]))+'%)</strong>. You matched '+hit+' of 2.</p></section>'+
+  '<section class="card"><h2>Analyze the environment</h2>'+qBlock('q6a')+evCard('envtop')+evCard('envout')+evCard('envvent')+qBlock('q6b')+qBlock('q6c')+
+  ta('obs6','Which environmental conditions seem linked to more spread? Use evidence.','Use specific percentages from the chart.',4,15,'Use at least two numbers from the chart and careful wording such as "linked to" or "consistent with". Remember: correlation does not equal causation.')+'</section>'+
+  '<section class="card"><h2>Revise your thinking</h2><p>Here is what you wrote in Step 2:</p><div class="note"><strong>Prediction:</strong> '+esc(labelOf(PREDOPTS,S.t.pred2||''))+'<br><strong>Reasoning:</strong> '+esc(S.t.why2||'(none)')+'</div><fieldset class="q"><legend>After seeing the data, what do you want to do with your original prediction?</legend>'+radios('rev6',[['keep','Keep it. The evidence supports my thinking.'],['change','Change it. The evidence made me rethink.'],['partly','Keep part of it and change part of it.']])+'</fieldset>'+
+  ta('revtxt','Explain what evidence confirmed or changed your thinking.','Name at least one piece of evidence from Steps 3 to 6.',4,10)+'</section>';
+  return h;}
+
+/* =====================================================================
+   15. PAGE 7: INTERVENTION DECISION (prediction before results)
+   ===================================================================== */
+function r7(){var locked=S.committed&&!PREVIEW;
+  var cards='<div class="grid2">'+SC.map(function(k){var s=SCEN[k];return '<div><div class="scen"><h3>'+s.name+'</h3><p><span class="lbl">What happens:</span> '+s.what+'</p>'+(s.parts?'<ul>'+s.parts.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul>':'')+'<p><span class="lbl">What it targets:</span> '+s.targets+'</p><p><span class="lbl">Limitation:</span> '+s.limit+'</p></div><details><summary>What did my evidence say?</summary>'+s.remind.map(function(r){return '<p style="margin:.4em 0;font-size:15.5px">'+esc(EV[r].text)+'</p>';}).join('')+'</details></div>';}).join('')+'</div>';
+  var form;
+  if(S.committed){form='<section class="card"><h2>Your prediction is locked</h2><div class="note"><strong>You predicted:</strong> '+esc(SCEN[S.t.pred7]?SCEN[S.t.pred7].pick:'(none)')+'<br><strong>Your reason:</strong> '+esc(S.t.why7||'')+'</div><p class="muted">It is locked so you can compare it honestly with the fictional results. You can look at the results in Step 8.</p></section>';}
+  else{form='<section class="card"><h2>Make your prediction</h2><fieldset class="q"><legend>Which response do you predict will slow the outbreak most effectively?</legend>'+radios('pred7',SC.map(function(k){return [k,SCEN[k].pick];}))+'</fieldset>'+
+   ta('why7','Why did you choose this response?','Use evidence from your investigation.',4,10,'Write a short explanation (at least 10 words) and name at least one piece of evidence. Predictions are not marked right or wrong. When you press the button at the bottom, your prediction is locked and the fictional results are revealed. If you are completing this during a live class, you may also share your reasoning in chat.')+'</section>';}
+  return '<h1>Intervention Decision</h1><section class="card"><h2>Four possible responses</h2><p>Ravenwood is considering four responses. For each one, scientists compared what happened in a <strong>fictional instructional dataset</strong>. Read about each response, review your evidence, and then predict which will slow the outbreak most effectively.</p><div class="note fict"><strong>Remember:</strong> '+FICTION_STMT+'</div></section>'+cards+form;}
+
+/* =====================================================================
+   16. PAGE 8: INTERVENTION RESULTS (fixed fictional data, graph + table)
+   ===================================================================== */
+function resultsAlt(){return 'Line graph of new cases per day from Day 0 to Day 7 for four fictional scenarios. All start at '+START+' on Day 0. '+SC.map(function(k){return SCEN[k].name+' goes from '+OUT[k][1]+' on Day 1 to '+OUT[k][7]+' on Day 7.';}).join(' ')+' A data table with every value follows the graph.';}
+function marker(m,x,y,col,r){
+  if(m==='circle')return '<circle cx="'+x+'" cy="'+y+'" r="'+r+'" fill="#fff" stroke="'+col+'" stroke-width="3"/>';
+  if(m==='square')return '<rect x="'+(x-r)+'" y="'+(y-r)+'" width="'+2*r+'" height="'+2*r+'" fill="#fff" stroke="'+col+'" stroke-width="3"/>';
+  if(m==='triangle')return '<polygon points="'+x+','+(y-r-2)+' '+(x+r+2)+','+(y+r)+' '+(x-r-2)+','+(y+r)+'" fill="#fff" stroke="'+col+'" stroke-width="3"/>';
+  return '<polygon points="'+x+','+(y-r-3)+' '+(x+r+3)+','+y+' '+x+','+(y+r+3)+' '+(x-r-3)+','+y+'" fill="#fff" stroke="'+col+'" stroke-width="3"/>';}
+function resultsSVG(){var W=900,H=450,L=78,R=110,T=26,B=66,maxY=200,pw=W-L-R,ph=H-T-B;
+  var X=function(d){return L+d/7*pw;},Y=function(v){return T+ph*(1-v/maxY);};
+  var s='<svg class="chart" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(resultsAlt())+'">';
+  [0,50,100,150,200].forEach(function(v){s+='<line class="grid" x1="'+L+'" x2="'+(L+pw)+'" y1="'+Y(v)+'" y2="'+Y(v)+'"/><text class="tick" x="'+(L-10)+'" y="'+(Y(v)+5)+'" text-anchor="end">'+v+'</text>';});
+  OUT.days.forEach(function(d){s+='<text class="tick" x="'+X(d)+'" y="'+(Y(0)+22)+'" text-anchor="middle">'+d+'</text>';});
+  s+='<text class="axis" x="'+(L+pw/2)+'" y="'+(H-10)+'" text-anchor="middle">Days after the response begins (Day 0 = Day 14 of the outbreak)</text><text class="axis" transform="translate(20 '+(T+ph/2)+') rotate(-90)" text-anchor="middle">New cases per day</text>';
+  SC.forEach(function(k){var st=STYLE[k];s+='<polyline fill="none" stroke="'+st.col+'" stroke-width="3.5" '+(st.dash?'stroke-dasharray="'+st.dash+'" ':'')+'points="'+OUT[k].map(function(v,i){return X(OUT.days[i])+','+Y(v);}).join(' ')+'"/>';});
+  SC.forEach(function(k){var st=STYLE[k];OUT[k].forEach(function(v,i){if(i===0)return;s+=marker(st.m,X(OUT.days[i]),Y(v),st.col,6);});});
+  s+='<circle cx="'+X(0)+'" cy="'+Y(START)+'" r="7" fill="#1f2937"/><text class="val" x="'+(X(0)+12)+'" y="'+(Y(START)-12)+'">'+START+'</text>';
+  SC.forEach(function(k){var st=STYLE[k];s+='<text x="'+(X(7)+14)+'" y="'+(Y(OUT[k][7])+5)+'" font-size="16" font-weight="800" fill="'+st.col+'">'+k+': '+OUT[k][7]+'</text>';});
+  return s+'</svg>';}
+function resultsLegend(){return '<div class="legend">'+SC.map(function(k){var st=STYLE[k];return '<span><svg width="64" height="20" aria-hidden="true"><line x1="2" y1="10" x2="62" y2="10" stroke="'+st.col+'" stroke-width="3.5" '+(st.dash?'stroke-dasharray="'+st.dash+'"':'')+'/>'+marker(st.m,32,10,st.col,5)+'</svg><strong>'+k+':</strong> '+SCEN[k].short+'</span>';}).join('')+'</div>';}
+function resultsTable(){return '<div class="tablewrap"><table><caption>New cases per day in each fictional scenario (the same values shown in the graph). '+FICT+'</caption><thead><tr><th>Day after intervention</th>'+SC.map(function(k){return '<th class="num">'+SCEN[k].name.replace(': ',':<br>')+'</th>';}).join('')+'</tr></thead><tbody>'+OUT.days.map(function(d,i){return '<tr><th scope="row">'+(d===0?'0 (Day 14 of the outbreak)':d)+'</th>'+SC.map(function(k){return '<td class="num">'+OUT[k][i]+'</td>';}).join('')+'</tr>';}).join('')+'</tbody><tfoot><tr><th scope="row">Change, Day 1 to Day 7</th>'+SC.map(function(k){return '<td class="num">'+chgTxt(k)+'</td>';}).join('')+'</tr><tr><th scope="row">Total new cases, Days 1 to 7</th>'+SC.map(function(k){return '<td class="num">'+tot(k)+'</td>';}).join('')+'</tr></tfoot></table></div>';}
+function r8(){
+  if(!S.committed&&!PREVIEW)return '<h1>Intervention Results</h1><section class="card"><div class="note warn"><strong>Make your prediction first.</strong> The fictional results appear after you predict and explain your choice in Step 7.</div><div class="row"><button class="btn primary" data-act="goto" data-n="7">Go to Step 7</button></div></section>';
+  var pr=SCEN[S.t.pred7]?SCEN[S.t.pred7].pick:'(no prediction recorded)';
+  return '<h1>Intervention Results</h1><section class="card"><h2>Your prediction</h2><div class="note"><strong>You predicted:</strong> '+esc(pr)+'<br><strong>Your reason:</strong> '+esc(S.t.why7||'(none)')+'</div><p class="muted">Predictions are not marked right or wrong. Now compare your thinking with the data.</p></section>'+
+  '<section class="card"><h2>Fictional outcomes after the response begins</h2><div class="note fict"><strong>'+FICT+'</strong><br><strong>'+FICTION_STMT+'</strong></div><p>On Day 14 of the outbreak, '+START+' new cases were reported. Day 0 below is that day. Each scenario then shows new cases per day for 7 more days.</p>'+
+  '<div class="chartwrap">'+resultsSVG()+'</div>'+resultsLegend()+'<p class="hint">Each scenario has its own line style and marker shape, and the Day 7 value is written at the end of each line.</p>'+
+  '<div class="row"><button class="btn" data-act="tbl8" aria-pressed="'+UI.tbl8+'">'+(UI.tbl8?'Hide data table':'Show data table')+'</button></div>'+(UI.tbl8?resultsTable():'')+
+  evCard('resA')+evCard('resB')+evCard('resC')+evCard('resD')+evCard('resCmp')+'</section>'+
+  '<section class="card"><h2>Interpret the results</h2>'+qBlock('q8a')+qBlock('q8b')+qBlock('q8c')+
+  ta('ans8d','What evidence supports Scenario D as the strongest response in THIS fictional dataset?','Use numbers from the table or graph.',4,15,'Use at least two numbers and write at least 15 words.')+
+  ta('ans8e','What can these fictional data NOT tell us?','Think about what this simplified model leaves out.',5,20,'Write at least 20 words. Think about it: this is a simplified model, real diseases behave differently, communities differ, and interventions can interact.')+'</section>'+
+  '<section class="card"><h2>Revise your thinking</h2><fieldset class="q"><legend>Now that you have seen the fictional results, what do you want to do with your prediction from Step 7?</legend>'+radios('rev8',[['keep','Keep it. The results supported my prediction.'],['change','Change it. The results made me rethink.'],['partly','Keep part of it and change part of it.']])+'</fieldset>'+
+  ta('revtxt8','Explain how the results confirmed or changed your thinking.','Compare your prediction with at least one number from the data.',4,10)+'</section>';}
+
+/* =====================================================================
+   17. PAGE 9: CER CASE REPORT (model first, then independent CER)
+   ===================================================================== */
+var CHECKS=['My claim clearly recommends a response.','My evidence includes at least two specific pieces of data.','My reasoning explains why the evidence supports my claim.','I used careful scientific wording where the evidence does not prove causation.','I identified at least one limitation or uncertainty.'];
+function r9(){var lk=S.locker.filter(function(id){return EV[id];});
+  var h='<h1>CER Case Report</h1><section class="card"><h2>First, study a model CER</h2><p>A <strong>CER</strong> is a way to support a recommendation: <strong>Claim, Evidence, Reasoning</strong>. Before you write yours, study a model that uses a small <em>practice</em> dataset. This is <strong>not</strong> the Ravenwood data. '+FICT+'</p>'+
+  '<div class="tablewrap"><table><caption>Practice dataset: new cases per day after a fictional response begins</caption><thead><tr><th>Day</th><th class="num">Strategy X</th><th class="num">Strategy Y</th></tr></thead><tbody><tr><th scope="row">0</th><td class="num">18</td><td class="num">18</td></tr><tr><th scope="row">1</th><td class="num">15</td><td class="num">19</td></tr><tr><th scope="row">2</th><td class="num">12</td><td class="num">20</td></tr><tr><th scope="row">3</th><td class="num">9</td><td class="num">22</td></tr></tbody></table></div>'+
+  '<p><strong>Question:</strong> Which strategy appears more effective?</p>'+
+  '<div class="modelbox c"><b class="t">CLAIM</b>Strategy X appears more effective at slowing the fictional outbreak.</div>'+
+  '<div class="modelbox e"><b class="t">EVIDENCE</b>New cases decreased from 18 to 9 under Strategy X, while cases increased from 18 to 22 under Strategy Y.</div>'+
+  '<div class="modelbox r"><b class="t">REASONING</b>An effective intervention should be followed by fewer new cases over time. Because Strategy X was followed by a steady decrease while Strategy Y was followed by continued growth, the data support Strategy X as the more effective intervention in this simplified model.</div>'+
+  '<ul><li><strong>Claim = answer the question.</strong></li><li><strong>Evidence = use specific observations or data.</strong></li><li><strong>Reasoning = explain why the evidence supports the claim using scientific ideas.</strong></li></ul>'+
+  qBlock('qm1')+qBlock('qm2')+'</section>';
+  h+='<section class="card"><h1 style="font-size:28px;margin-top:0">FINAL Z-VIRUS CASE REPORT</h1><p class="lead"><strong>Which response should Ravenwood use to slow the Z-Virus outbreak?</strong></p>'+
+  '<p>Connect what you learned about the outbreak patterns, the transmission evidence, the environmental evidence, and the intervention outcome data. '+FICT+'</p>'+
+  '<h2>Claim</h2><fieldset class="q"><legend>Which response do you recommend?</legend>'+radios('rec9',SC.map(function(k){return [k,SCEN[k].pick];}))+'</fieldset>'+
+  ta('claim','Write your claim','I recommend ...',3,10,'Answer the question in a complete statement (at least 10 words).')+
+  '<h2>Evidence</h2><p>Select at least two pieces of evidence from your locker, then write your evidence in your own words.</p>';
+  if(!lk.length)h+='<div class="note warn">Your Evidence Locker is empty. Open it from the top of the page, or go back to earlier steps and pin findings.</div>';
+  else if(!lk.some(function(id){return id.indexOf('res')===0;}))h+='<div class="note">Tip: your locker has no intervention results yet. Pinning evidence from Step 8 helps support a recommendation.</div>';
+  h+='<fieldset class="q"><legend>Evidence from my locker</legend><div class="opts">'+lk.map(function(id){return '<label class="opt"><input type="checkbox" data-cerev value="'+id+'"'+(S.cerEv.indexOf(id)>-1?' checked':'')+'><span>'+esc(EV[id].text)+'</span></label>';}).join('')+'</div></fieldset>'+
+  ta('cerE','Write your evidence','Use at least two specific numbers from your selected evidence.',5,25,'Write at least 25 words and include at least two numbers. Describe the data in your own words.')+
+  '<h2>Reasoning</h2>'+ta('cerR','Explain why the evidence supports your claim','Connect the data to how the response works.',6,30,'Explain how your evidence supports the recommendation. Connect the outbreak patterns, the possible transmission evidence, the environmental evidence, and the intervention results. Use careful wording where the data do not prove a cause.')+
+  '<details><summary>Need sentence starters?</summary><ul><li>I recommend ... because the data show ...</li><li>For example, ... percent of ... which is consistent with ...</li><li>This evidence suggests that ... because ...</li></ul></details>'+
+  '<h2>Limitation / uncertainty</h2>'+ta('cerL','What is one limitation of this classroom investigation, or one reason these results cannot automatically be applied to every real infectious disease?','One limitation is ...',4,12,'Write at least 12 words.')+
+  '<fieldset class="q"><legend>Self-check before you continue</legend><div class="opts">'+CHECKS.map(function(c,i){return '<label class="opt"><input type="checkbox" data-cerchk value="'+i+'"'+(S.cerChecks.indexOf(String(i))>-1?' checked':'')+'><span>'+c+'</span></label>';}).join('')+'</div></fieldset></section>';
+  return h;}
+
+/* =====================================================================
+   18. PAGE 10: FINAL STORYLINE TRANSMISSION + FINAL CASE FILE
+   ===================================================================== */
+function r10(){var h='<section class="transmission" aria-labelledby="nch"><div class="alert-banner"><span class="dot" aria-hidden="true"></span> INCOMING TRANSMISSION &middot; DAY 29</div>'+
+  '<h1 id="nch" style="color:#fff">🚨 NEW CASE UPDATE</h1><p>Your intervention appears to be slowing the outbreak.</p><p>But the Ravenwood medical team has reported something they cannot explain.</p>'+
+  '<h2>PATIENT Z-01</h2><dl><dt>Heartbeat:</dt><dd>none detected</dd><dt>Breathing:</dt><dd>none observed</dd><dt>Movement:</dt><dd>continuous</dd></dl>'+
+  '<p>Patient Z-01 has continued moving through the isolation room for more than three hours.</p>'+
+  '<h2>NEW INVESTIGATION QUESTION</h2><p style="font-size:20px"><strong>How is a body that should not be functioning still able to move?</strong></p></section>'+
+  '<section class="card"><h2>Your First Idea</h2>'+ta('move10','What do you think a muscle cell would need in order to keep a body moving for hours?','Write your best idea.',4,6,'There is no correct answer expected yet. Write at least 6 words. If you are completing this during a live class, you may also share your idea in chat.')+
+  '<div class="note"><strong>To continue later:</strong> use <strong>Save Progress File</strong>. <strong>To submit completed work:</strong> build your Final Case File below, then use <strong>Copy Final Case File</strong> or <strong>Download Final Case File</strong>, according to your teacher\'s directions.</div>'+
+  (S.built?'<p class="final-ok">Your Final Case File is built. You can edit any answer in earlier steps and rebuild it.</p><button class="btn" data-act="build">Rebuild my Final Case File</button>':'<button class="btn primary" data-act="build">Build my Final Case File</button>')+'<div id="msg10" class="hint" role="alert"></div></section>';
+  if(S.built){h+='<section class="card" id="caseWrap"><h2>Your Final Case File</h2><p class="noprint"><strong>To submit:</strong> press <strong>Copy Final Case File</strong> and paste it into your assignment submission box, or press <strong>Download Final Case File</strong> and upload the file, according to your teacher\'s directions. You can also print or save as a PDF.</p><p class="noprint muted">This is your <em>submission</em>. It is different from <strong>Save Progress File</strong>, which is only a backup for continuing later.</p><div class="row"><button class="btn primary" data-act="copy">Copy Final Case File</button><button class="btn primary" data-act="download">Download Final Case File (.txt)</button><button class="btn" data-act="print">Print / Save as PDF</button><span id="copyMsg" class="hint" role="status"></span></div><pre id="caseOut" tabindex="0"></pre><textarea id="caseText" readonly aria-label="Final Case File text for copying" style="position:absolute;left:-9999px"></textarea></section>'+
+   '<section class="card noprint"><h2>Backup your work too</h2><p>Your Final Case File is separate from your progress backup. If you want a backup, save a progress file.</p>'+saveBtns()+'</section>';}
+  h+='<section class="nextinv" aria-label="Next investigation"><div class="kick">NEXT INVESTIGATION</div><h2>🧟 The Walking Dead Problem</h2></section>';
+  return h;}
+function buildCase(){var T=S.t,L=[];var hr=function(t){L.push('');L.push('=== '+t+' ===');};
+  L.push('Z-VIRUS OUTBREAK: FINAL CASE FILE (Lesson 4.1)');L.push('Investigator: '+(T.name||''));L.push('Date: '+new Date().toLocaleDateString());L.push('Note: Simplified fictional instructional dataset.');
+  hr('STEP 2: INITIAL PREDICTION');L.push('Prediction: '+labelOf(PREDOPTS,T.pred2||''));L.push('Factors I thought might matter: '+((T.fac2||[]).map(function(f){return labelOf(FACTORS,f);}).join('; ')||'(none)'));L.push('Reasoning: '+(T.why2||''));
+  hr('STEP 3: OUTBREAK OBSERVATIONS');L.push(T.obs3||'');
+  hr('STEP 4: EPIDEMIC CURVE ANALYSIS');L.push('Day 10 prediction: '+labelOf(P10OPTS,T.p10||'')+' (actual: '+DAYS[9]+')');L.push('Day 14 prediction: '+labelOf(P14OPTS,T.p14||'')+' (actual: '+DAYS[13]+')');L.push('My analysis: '+(T.an4||''));
+  hr('STEP 5: CONTACT INVESTIGATION (possible transmission chain)');L.push(T.chain5||'');
+  hr('STEP 6: ENVIRONMENTAL ANALYSIS');L.push(T.obs6||'');L.push('Revision of my Step 2 prediction ('+(T.rev6||'')+'): '+(T.revtxt||''));
+  hr('STEP 7: INTERVENTION PREDICTION');L.push('Predicted most effective response: '+(SCEN[T.pred7]?SCEN[T.pred7].pick:''));L.push('Why: '+(T.why7||''));
+  hr('STEP 8: INTERVENTION OUTCOME ANALYSIS (fictional data)');
+  SC.forEach(function(k){L.push(SCEN[k].name+': Day 1 = '+OUT[k][1]+', Day 7 = '+OUT[k][7]+', change = '+chgTxt(k));});
+  L.push('Evidence that supports Scenario D in this fictional dataset: '+(T.ans8d||''));L.push('What these fictional data cannot tell us: '+(T.ans8e||''));L.push('Revision of my Step 7 prediction ('+(T.rev8||'')+'): '+(T.revtxt8||''));
+  hr('FINAL Z-VIRUS CASE REPORT (CER)');L.push('RECOMMENDED RESPONSE: '+(SCEN[T.rec9]?SCEN[T.rec9].pick:''));L.push('CLAIM: '+(T.claim||''));L.push('');L.push('EVIDENCE: '+(T.cerE||''));
+  var ev=S.cerEv.filter(function(id){return EV[id];}).map(function(id){return '- '+EV[id].text;});if(ev.length){L.push('Evidence I selected from my locker:');ev.forEach(function(x){L.push(x);});}
+  L.push('');L.push('REASONING: '+(T.cerR||''));L.push('');L.push('LIMITATION / UNCERTAINTY: '+(T.cerL||''));
+  hr('FIRST IDEA ABOUT THE NEW MOVEMENT MYSTERY');L.push('What a muscle cell might need to keep a body moving for hours: '+(T.move10||''));
+  L.push('');L.push('(Intervention numbers in this file are fictional and were designed for this investigation. They do not predict how a real disease would respond.)');
+  return L.join('\n');}
+
+/* =====================================================================
+   19. PAGE RENDER TABLE, VALIDATION (gating), NAVIGATION
+   ===================================================================== */
+var RENDER=[r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10];
+function missing(n){var m=[],t=S.t;
+  if(n===0){if((t.name||'').trim().length<2)m.push('Type your name in the Investigator box.');}
+  if(n===1){if(!t.pred2)m.push('Choose a prediction.');if(!(t.fac2||[]).length)m.push('Select at least one factor.');if(wc(t.why2)<8)m.push('Explain your prediction in at least 8 words.');}
+  if(n===2){if(!qd('q3a'))m.push('Answer the question about the most common exposure setting.');if(!qd('q3b'))m.push('Answer the question about the time from exposure to symptoms.');if(wc(t.obs3)<10)m.push('Describe the patterns you notice in at least 10 words.');}
+  if(n===3){if(S.reveal<2)m.push('Make your predictions and reveal all 14 days.');if(!qd('q4a')||!qd('q4b'))m.push('Answer both epidemic curve questions.');if(wc(t.an4)<15)m.push('Write your analysis in at least 15 words.');}
+  if(n===4){var v=S.viewed.filter(function(x){return x!=='NC';}).length;if(v<4)m.push('View the notes for at least 4 cases (you have viewed '+v+').');if(!qd('q5a')||!qd('q5b')||!qd('q5c'))m.push('Answer all three contact investigation questions.');if(wc(t.chain5)<12)m.push('Write your transmission chain in at least 12 words.');else if(!HEDGE.test(t.chain5||''))m.push('Use careful wording in your chain, such as "possible", "likely", or "consistent with".');}
+  if(n===6){if(!S.env.revealed)m.push('Make your prediction, do the calculation, and reveal the percents.');else{if(!qd('q6a')||!qd('q6b')||!qd('q6c'))m.push('Answer all three environment questions.');if(wc(t.obs6)<15||nums(t.obs6)<2)m.push('Write at least 15 words and use at least 2 numbers from the chart.');if(!t.rev6)m.push('Choose whether to keep or change your original prediction.');if(wc(t.revtxt)<10)m.push('Explain what evidence confirmed or changed your thinking (10 words).');}}
+  if(n===7){if(!S.committed){if(!t.pred7)m.push('Choose which response you predict will slow the outbreak most effectively.');if(wc(t.why7)<10)m.push('Explain your choice in at least 10 words.');}}
+  if(n===8){if(!S.committed)m.push('Go back to Step 7 and make your prediction first.');if(!qd('q8a')||!qd('q8b')||!qd('q8c'))m.push('Answer all three results questions.');if(wc(t.ans8d)<15||nums(t.ans8d)<2)m.push('Write at least 15 words that include at least 2 numbers about what supports Scenario D.');if(wc(t.ans8e)<20)m.push('Write at least 20 words about what the fictional data cannot tell us.');else if(!LIMITRX.test(t.ans8e||''))m.push('Mention at least one limit (for example: it is fictional, real diseases differ, communities differ, or the measures interact).');if(!t.rev8)m.push('Choose whether to keep or change your prediction.');if(wc(t.revtxt8)<10)m.push('Explain how the results confirmed or changed your thinking (10 words).');}
+  if(n===9){if(!qd('qm1')||!qd('qm2'))m.push('Answer both questions about the model CER.');if(!t.rec9)m.push('Choose the response you recommend.');if(wc(t.claim)<10)m.push('Write your claim in at least 10 words.');if(S.cerEv.length<2)m.push('Select at least 2 pieces of evidence from your locker.');if(wc(t.cerE)<25||nums(t.cerE)<2)m.push('Write at least 25 words of evidence that include at least 2 numbers.');if(wc(t.cerR)<30)m.push('Write your reasoning in at least 30 words.');if(wc(t.cerL)<12)m.push('Write your limitation or uncertainty in at least 12 words.');if(!HEDGE.test((t.cerE||'')+' '+(t.cerR||'')+' '+(t.cerL||'')))m.push('Use careful wording such as "consistent with", "likely", or "suggests" where the data do not prove a cause.');if(S.cerChecks.length<CHECKS.length)m.push('Complete every box in the self-check.');}
+  return m;}
+function renderGate(){var g=$('#gate');if(!g)return;if(UI.gate===null){g.innerHTML='';return;}
+  var m=missing(S.step);
+  g.innerHTML=m.length?'<div class="gatebox"><strong>Almost there. Finish these to continue:</strong><ul>'+m.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul></div>':'<div class="gatebox ok"><strong>All set.</strong> Press the button at the bottom to continue.</div>';}
+function showGate(){UI.gate=true;renderGate();var g=$('#gate');if(g&&g.scrollIntoView)g.scrollIntoView({block:'center'});}
+function show(top){var y=window.scrollY||0,p=S.step,main=$('#main');
+  main.innerHTML=partBanner(p)+RENDER[p]()+'<div id="gate" role="alert" aria-live="assertive"></div>';
+  if(p===10&&S.built){var txt=buildCase();$('#caseOut').textContent=txt;$('#caseText').value=txt;}
+  renderProgress();updateNav();updateWC();updateLocker();renderGate();
+  if(top){UI.gate=null;window.scrollTo(0,0);main.focus({preventScroll:true});}else{window.scrollTo(0,y);}}
+function renderProgress(){var h='<ol aria-label="Investigation steps">',lastPart='';
+  PAGES.forEach(function(pg,i){if(pg.part!==lastPart){lastPart=pg.part;h+='<li class="partlab" aria-hidden="true">Part '+pg.part+'</li>';}
+    var cur=i===S.step,done=S.done.indexOf(i)>-1,can=PREVIEW||i<=S.max;
+    var num=pg.cp?'&#9670;':(done&&!cur?'&#10003;':stepNo(i));
+    h+='<li class="'+(cur?'cur':done?'done':'')+'"><button data-act="goto" data-n="'+i+'"'+(can?'':' disabled')+(cur?' aria-current="step"':'')+' aria-label="'+esc(pageLabel(i))+(done?' (completed)':'')+'" title="'+esc(pageLabel(i))+'"><span class="num">'+num+'</span>'+(cur?'<span class="lbl">'+esc(pg.cp?'Checkpoint':pg.t)+'</span>':'')+'</button></li>';});
+  $('#progress').innerHTML=h+'</ol>';}
+function updateNav(){var p=S.step;$('#backBtn').disabled=p===0;var nb=$('#nextBtn');nb.hidden=p===LAST;
+  nb.textContent=p===0?'Accept mission':p===4?'Finish Part A':p===5?'Continue to Part B':p===7?'Lock in prediction and reveal results':p===9?'Continue to final transmission':'Next';
+  $('#stepCt').textContent=PAGES[p].cp?'Checkpoint: end of Part A':'Step '+stepNo(p)+' of 10: '+PAGES[p].t;}
+function updateLocker(){$('#lockerCount').textContent=S.locker.length;var l=$('#lockerList');l.innerHTML=S.locker.length?S.locker.filter(function(id){return EV[id];}).map(function(id){return '<div class="litem">'+esc(EV[id].text)+'<div style="margin-top:8px"><button class="btn pin" data-act="unpin" data-id="'+id+'">Remove</button></div></div>';}).join(''):'<p class="hint">Nothing saved yet. Look for the 📌 buttons as you investigate.</p>';
+  $$('[data-act="pin"]').forEach(function(b){var on=S.locker.indexOf(b.dataset.id)>-1;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on);b.textContent=on?'📌 Saved to Evidence Locker':'📌 Add to Evidence Locker';});}
+function go(n){S.step=n;S.max=Math.max(S.max,n);UI.gate=null;save();show(true);}
+function next(){var p=S.step;if(p===LAST)return;var m=missing(p);if(m.length&&!PREVIEW){showGate();return;}
+  if(p===7)S.committed=true;markDone(p);go(p+1);}
+
+/* =====================================================================
+   20. SAVE LAYERS 2 AND 3: RESUME SCREEN, EXPORT, IMPORT, SAVE & EXIT
+   ===================================================================== */
+function toast(msg){var t=$('#toast');t.textContent=msg;t.hidden=false;clearTimeout(UI.toastT);UI.toastT=setTimeout(function(){t.hidden=true;},6000);}
+function safeName(){var n=(S.t.name||'').trim().replace(/[^A-Za-z0-9]+/g,'_').replace(/^_+|_+$/g,'');return n||'Student';}
+function exportObj(){return {app:'zvirus-outbreak',activityVersion:VERSION,exportedAt:new Date().toISOString(),studentName:S.t.name||'',state:S};}
+function downloadText(name,text,mime){try{var b=new Blob([text],{type:mime});var a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},800);return true;}catch(e){return false;}}
+function saveFile(){save();var ok=downloadText('ZVirus_Progress_'+safeName()+'.json',JSON.stringify(exportObj(),null,2),'application/json');
+  var m=ok?'✓ Progress file downloaded. Keep it safe. Choose Restore Progress File to use it later.':'The download was blocked by your browser. Open Save / Restore and use "progress text" instead.';
+  toast(m);return ok;}
+var RESTORE_ERR={
+ version:'This progress file was created with a different version of the Z-Virus investigation and cannot be restored safely.',
+ bad:'This file could not be restored. It does not look like a Z-Virus progress file, or it may be damaged. Your current work was not changed.'};
+function restoreFromText(text){
+  var o;try{o=JSON.parse(text);}catch(e){return {ok:false,msg:RESTORE_ERR.bad};}
+  if(!isObj(o)||o.app!=='zvirus-outbreak'||typeof o.activityVersion!=='string')return {ok:false,msg:RESTORE_ERR.bad};
+  if(o.activityVersion!==VERSION)return {ok:false,msg:RESTORE_ERR.version};
+  var c=cleanState(o.state);if(!c)return {ok:false,msg:RESTORE_ERR.bad};
+  S=c;UI.sel=null;UI.timing=false;UI.grp3=false;UI.filt6='all';save();return {ok:true,msg:'✓ Progress restored successfully.'};}
+function report(r){$$('.restoremsg').forEach(function(el){el.textContent=r.msg;el.className='msg restoremsg '+(r.ok?'good':'bad');});if(r.ok){toast(r.msg);}}
+function handleRestoreFile(input){var f=input.files&&input.files[0];if(!f)return;
+  if(f.size>2000000){report({ok:false,msg:RESTORE_ERR.bad});input.value='';return;}
+  var fr=new FileReader();fr.onload=function(){var r=restoreFromText(String(fr.result||''));report(r);if(r.ok){closeDialog($('#welcome'));hideWelcomeFlags();show(false);window.scrollTo(0,0);}input.value='';};
+  fr.onerror=function(){report({ok:false,msg:RESTORE_ERR.bad});};fr.readAsText(f);}
+function hideWelcomeFlags(){var w=$('#welcome');w.hidden=true;}
+/* ---- dialogs with focus handling ---- */
+function openDialog(el,opener){UI.opener=opener||document.activeElement;el.hidden=false;var f=$('button,[href],input,textarea',el);if(f)f.focus();}
+function closeDialog(el){if(el.hidden)return;el.hidden=true;if(UI.opener&&UI.opener.focus){try{UI.opener.focus();}catch(e){}}}
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){var sp=$('#savePanel');if(!sp.hidden){closeDialog(sp);return;}var lk=$('#locker');if(!lk.hidden){lk.hidden=true;$('#lockerBtn').setAttribute('aria-expanded','false');$('#lockerBtn').focus();}}
+  if(e.key==='Tab'){var d=!$('#welcome').hidden?$('#welcome'):(!$('#savePanel').hidden?$('#savePanel'):null);if(!d)return;
+    var f=$$('button:not([disabled]),input:not([disabled]),textarea,summary,[href]',d).filter(function(x){return x.offsetParent!==null;});if(!f.length)return;
+    var first=f[0],last=f[f.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}
+  if((e.key==='Enter'||e.key===' ')&&e.target.matches&&e.target.matches('g.node')){e.preventDefault();e.target.dispatchEvent(new MouseEvent('click',{bubbles:true}));}});
+function startOverHtml(){return UI.confirmStart?'<div class="note warn"><strong>Erase all saved work on this device?</strong> This cannot be undone. If you might want it later, save a progress file first.</div><div class="row"><button class="btn" data-act="saveFile">Save Progress File first</button><button class="btn warn" data-act="confirmStart">Yes, erase my work and start over</button><button class="btn" data-act="cancelStart">Cancel</button></div>':'<div class="row"><button class="btn" data-act="askStart">Start Over</button></div>';}
+function renderStart(){var a=$('#spStart');if(a)a.innerHTML=startOverHtml();var w=$('#wlStart');if(w)w.innerHTML=startOverHtml();}
+function openSave(opener,exitMode){$('#spExit').hidden=!exitMode;UI.confirmStart=false;renderStart();openDialog($('#savePanel'),opener);}
+function showWelcome(){var last=lastDone(),w=$('#welcome');
+  var lastTxt=last<0?'None yet':(PAGES[last].cp?'Part A Checkpoint':'Step '+stepNo(last)+': '+PAGES[last].t);
+  var partTxt=S.step<=5?'Part A: Outbreak!'+(S.step===5?' (at the checkpoint)':''):'Part B: Containment';
+  w.innerHTML='<div class="dialog"><h1 id="wlTitle">WELCOME BACK</h1><p class="lead">Saved Z-Virus investigation progress was found.</p><dl><dt>Student name</dt><dd>'+esc(S.t.name||'(not entered yet)')+'</dd><dt>Last completed section</dt><dd>'+esc(lastTxt)+'</dd><dt>Current investigation part</dt><dd>'+esc(partTxt)+'</dd></dl>'+
+   '<div class="row"><button class="btn primary" data-act="resume">Resume Investigation</button></div><div id="wlStart"></div>'+
+   '<h2 style="font-size:19px;margin-top:18px">On a different computer or browser?</h2><label class="lab" for="wlFile">Restore Progress File</label><input type="file" id="wlFile" accept=".json,application/json" data-restore-file><div class="msg restoremsg" role="status"></div></div>';
+  w.hidden=false;UI.opener=null;renderStart();var b=$('button',w);if(b)b.focus();}
+
+/* =====================================================================
+   21. EVENTS
+   ===================================================================== */
+document.addEventListener('click',function(e){var el=e.target.closest('[data-act]');if(!el)return;var a=el.dataset.act;
+  if(a==='goto'){var n=+el.dataset.n;if(PREVIEW||n<=S.max)go(n);}
+  else if(a==='check')doCheck(el.dataset.q);
+  else if(a==='pin'){var id=el.dataset.id,i=S.locker.indexOf(id);if(i>-1)S.locker.splice(i,1);else S.locker.push(id);save();updateLocker();if(S.step===5)show(false);}
+  else if(a==='unpin'){var j=S.locker.indexOf(el.dataset.id);if(j>-1)S.locker.splice(j,1);S.cerEv=S.cerEv.filter(function(x){return x!==el.dataset.id;});save();updateLocker();if(S.step===9||S.step===5)show(false);}
+  else if(a==='grp3'){UI.grp3=!UI.grp3;show(false);}
+  else if(a==='tbl4'){UI.tbl4=!UI.tbl4;show(false);}
+  else if(a==='tbl8'){UI.tbl8=!UI.tbl8;show(false);}
+  else if(a==='timing'){UI.timing=!UI.timing;show(false);}
+  else if(a==='filt6'){UI.filt6=el.dataset.v;show(false);}
+  else if(a==='rev4'){if(!S.t.p10){$('#msg4').textContent='Choose a prediction first.';return;}S.reveal=1;save();show(false);}
+  else if(a==='rev4b'){if(!S.t.p14){$('#msg4').textContent='Choose a prediction first.';return;}S.reveal=2;save();show(false);}
+  else if(a==='node'){var nid=el.dataset.id;UI.sel=nid;if(S.viewed.indexOf(nid)<0)S.viewed.push(nid);save();show(false);var nf=$('.node.sel');if(nf)nf.focus({preventScroll:true});}
+  else if(a==='rev6'){var msg=$('#msg6');if((S.t.pick6||[]).length!==2){msg.textContent='Choose exactly two gatherings.';return;}var cv=parseFloat((S.t.calc6||'').replace('%',''));if(isNaN(cv)||Math.abs(cv-35)>0.6){msg.textContent='Check your math: divide 21 by 60, then multiply by 100.';return;}S.env.revealed=true;save();show(false);}
+  else if(a==='cont6'){markDone(5);go(6);}
+  else if(a==='build'){if(wc(S.t.move10)<6&&!PREVIEW){$('#msg10').textContent='Write your first idea (at least 6 words) before building your Final Case File.';return;}S.built=true;markDone(10);save();show(false);var cw=$('#caseWrap');if(cw)cw.scrollIntoView();}
+  else if(a==='copy')copyText();
+  else if(a==='download'){var ok=downloadText('ZVirus_FinalCaseFile_'+safeName()+'.txt',buildCase(),'text/plain');var cm=$('#copyMsg');if(cm)cm.textContent=ok?'Final Case File downloaded.':'Download was blocked. Use Copy Final Case File instead.';}
+  else if(a==='print'){try{window.print();}catch(err){}}
+  else if(a==='saveFile')saveFile();
+  else if(a==='openRestore')openSave(el,false);
+  else if(a==='showProgText'){$('#progText').value=JSON.stringify(exportObj());}
+  else if(a==='restoreText'){var r=restoreFromText($('#progText').value||'');report(r);if(r.ok)show(false);}
+  else if(a==='askStart'){UI.confirmStart=true;renderStart();}
+  else if(a==='cancelStart'){UI.confirmStart=false;renderStart();}
+  else if(a==='confirmStart'){UI.confirmStart=false;S=def();UI.sel=null;UI.timing=false;UI.grp3=false;UI.filt6='all';save();$('#welcome').hidden=true;$('#savePanel').hidden=true;show(true);}
+  else if(a==='resume'){$('#welcome').hidden=true;show(true);}
+});
+function copyText(){var txt=buildCase();var done=function(ok){var el=$('#copyMsg');if(el)el.textContent=ok?'Copied. Paste it into your submission box.':'Copy was blocked by your browser. Click inside the box below, press Ctrl+A (Cmd+A on Mac), then Ctrl+C (Cmd+C).';};
+  function fallback(){var ta=$('#caseText');var ok=false;try{ta.style.left='0';ta.select();ok=document.execCommand('copy');ta.style.left='-9999px';}catch(e){}done(ok);}
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(function(){done(true);},function(){fallback();});}else{fallback();}}
+document.addEventListener('input',function(e){var el=e.target;if(el.dataset&&el.dataset.key&&(el.tagName==='TEXTAREA'||el.type==='text')){S.t[el.dataset.key]=el.value;save();updateWC();if(UI.gate!==null)renderGate();}});
+document.addEventListener('change',function(e){var el=e.target;if(!el||!el.type)return;
+  if(el.hasAttribute('data-restore-file')){handleRestoreFile(el);return;}
+  if(el.name&&el.name.indexOf('q_')===0){var id=el.name.slice(2);if(QS[id]){S.q[id]=S.q[id]||{sel:'',attempts:0,done:false,kind:''};S.q[id].sel=el.value;save();}return;}
+  if(el.hasAttribute('data-cerev')){S.cerEv=$$('input[data-cerev]:checked').map(function(x){return x.value;});save();if(UI.gate!==null)renderGate();return;}
+  if(el.hasAttribute('data-cerchk')){S.cerChecks=$$('input[data-cerchk]:checked').map(function(x){return x.value;});save();if(UI.gate!==null)renderGate();return;}
+  if(!el.dataset||!el.dataset.key)return;
+  if(el.type==='radio'){S.t[el.dataset.key]=el.value;}
+  else if(el.type==='checkbox'){var arr=$$('input[data-key="'+el.dataset.key+'"]:checked').map(function(x){return x.value;});var mx=+el.dataset.max;if(mx&&arr.length>mx){el.checked=false;return;}S.t[el.dataset.key]=arr;}
+  save();if(UI.gate!==null)renderGate();});
+$('#nextBtn').addEventListener('click',next);
+$('#backBtn').addEventListener('click',function(){if(S.step>0)go(S.step-1);});
+$('#lockerBtn').addEventListener('click',function(){var l=$('#locker');l.hidden=!l.hidden;this.setAttribute('aria-expanded',!l.hidden);if(!l.hidden){updateLocker();$('#lockerClose').focus();}});
+$('#lockerClose').addEventListener('click',function(){$('#locker').hidden=true;$('#lockerBtn').setAttribute('aria-expanded','false');$('#lockerBtn').focus();});
+$('#saveBtn').addEventListener('click',function(){save();openSave(this,false);});
+$('#exitBtn').addEventListener('click',function(){save();saveFile();openSave(this,true);});
+$('#spClose').addEventListener('click',function(){closeDialog($('#savePanel'));});
+
+/* =====================================================================
+   22. START
+   ===================================================================== */
+testStorage();updateSaveInd();
+if(PREVIEW)$('#previewBanner').hidden=false;
+show(true);
+if(HAD_SAVED&&!PREVIEW)showWelcome();
+})();
+</script>
+</body>
+</html>
