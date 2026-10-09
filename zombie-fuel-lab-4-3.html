@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4.3 Zombie Fuel Lab: Follow the Energy</title>
+<style>
+  /* ============================================================
+     Zombie Files palette and base tokens
+     ============================================================ */
+  :root {
+    --navy: #0f1b24;
+    --green: #174f38;
+    --blue: #234b7c;
+    --purple: #56377b;
+    --bg: #f3f6f8;
+    --panel: #ffffff;
+    --text: #14232e;
+    --muted: #3d4f5c;
+    --line: #c5d0d8;
+    --green-tint: #e2f1e9;
+    --blue-tint: #e3ecf7;
+    --purple-tint: #eee7f6;
+    --focus: #b35c00;
+  }
+
+  * { box-sizing: border-box; }
+
+  html { font-size: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    line-height: 1.45;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Visible focus indicators for every interactive control */
+  :focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  /* ============================================================
+     Header
+     ============================================================ */
+  /* Keep focused controls from hiding under the sticky header */
+  html { scroll-padding-top: 150px; }
+
+  header.lab-header {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--navy);
+    color: #ffffff;
+    padding: 10px 20px;
+    border-bottom: 4px solid var(--green);
+  }
+  /* On very short viewports, do not let the header take over the screen */
+  @media (max-height: 600px) {
+    header.lab-header { position: static; }
+    html { scroll-padding-top: 0; }
+  }
+  .lab-header .inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    align-items: flex-start;
+  }
+  .lab-header .titles { flex: 1 1 380px; min-width: 0; }
+
+  /* Read-aloud toolbar */
+  .lab-header .tts { flex: 0 1 auto; max-width: 100%; }
+  .tts-bar { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; }
+  .tts-bar[hidden] { display: none; }
+  .tts-bar button {
+    min-height: 36px;
+    padding: 5px 12px;
+    font-size: 0.9rem;
+    background: transparent;
+    color: #ffffff;
+    border: 2px solid #ffffff;
+  }
+  .tts-bar button:hover:not(:disabled) { background: rgba(255, 255, 255, 0.18); }
+  .tts-bar button:disabled { opacity: 0.55; cursor: not-allowed; }
+  .tts-bar button.tts-read {
+    background: #ffffff;
+    color: var(--navy);
+    font-size: 0.95rem;
+  }
+  .tts-bar button.tts-read:hover:not(:disabled) { background: #dfe9ef; }
+  .tts-speed { display: inline-flex; align-items: center; gap: 6px; font-size: 0.9rem; }
+  .tts-speed select {
+    font: inherit;
+    min-height: 36px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    border: 2px solid #ffffff;
+    background: #ffffff;
+    color: var(--navy);
+  }
+  .tts-status { margin: 4px 0 0; font-size: 0.85rem; color: #cfdbe4; min-height: 1.2em; }
+  .tts-note { margin: 0; font-size: 0.85rem; color: #ffffff; max-width: 340px; }
+  .lab-header :focus-visible { outline: 3px solid #ffd37a; outline-offset: 2px; }
+  .lab-header h1 { margin: 0; font-size: 1.5rem; line-height: 1.2; }
+  .lab-header .sub { margin: 2px 0 0; font-size: 0.9rem; color: #cfdbe4; letter-spacing: 0.02em; }
+  .lab-header .question { margin: 8px 0 0; font-size: 1rem; font-weight: 600; }
+
+  /* ============================================================
+     Layout
+     ============================================================ */
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 14px 16px 24px;
+    display: grid;
+    gap: 14px;
+  }
+
+  .row-two {
+    display: grid;
+    gap: 14px;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 900px) {
+    .row-two { grid-template-columns: 1fr 1fr; }
+  }
+
+  section.card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-top: 4px solid var(--blue);
+    border-radius: 6px;
+    padding: 14px 16px;
+  }
+  section.card.purple { border-top-color: var(--purple); }
+  section.card.green { border-top-color: var(--green); }
+
+  section.card h2 {
+    margin: 0 0 8px;
+    font-size: 1.1rem;
+    color: var(--navy);
+  }
+
+  p { margin: 0 0 8px; }
+  p:last-child { margin-bottom: 0; }
+
+  /* ============================================================
+     Mission and variables
+     ============================================================ */
+  .vars { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 6px; }
+  .vars li {
+    padding: 6px 10px;
+    border-radius: 4px;
+    background: var(--blue-tint);
+    border-left: 5px solid var(--blue);
+  }
+  .vars li.measure { background: var(--purple-tint); border-left-color: var(--purple); }
+  .vars li.constant { background: var(--green-tint); border-left-color: var(--green); }
+  .vars strong { color: var(--navy); }
+
+  .model-note {
+    margin-top: 10px;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: #f7f9fa;
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+  .model-note strong { color: var(--navy); }
+
+  /* ============================================================
+     Radio option cards (prediction and glucose conditions)
+     ============================================================ */
+  fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+  legend { padding: 0; margin-bottom: 8px; font-weight: 600; }
+
+  .options { display: grid; gap: 8px; }
+  .options.three { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+
+  .option {
+    position: relative;
+    display: block;
+    border: 2px solid var(--line);
+    border-radius: 6px;
+    padding: 8px 10px 8px 36px;
+    background: #ffffff;
+    cursor: pointer;
+  }
+  .option:hover { border-color: var(--blue); }
+  .option input {
+    position: absolute;
+    left: 10px;
+    top: 11px;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    accent-color: var(--blue);
+  }
+  .option:focus-within { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .option.is-selected { border-color: var(--blue); background: var(--blue-tint); }
+  .option .name { display: block; font-weight: 600; color: var(--navy); }
+  .option .detail { display: block; font-size: 0.85rem; color: var(--muted); }
+
+  .fixed-box {
+    margin: 10px 0;
+    padding: 8px 10px;
+    border-radius: 4px;
+    background: var(--green-tint);
+    border-left: 5px solid var(--green);
+  }
+  .fixed-box ul { margin: 4px 0 0; padding-left: 18px; }
+
+  /* ============================================================
+     Buttons
+     ============================================================ */
+  .btn-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 10px; }
+
+  button {
+    font: inherit;
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 9px 18px;
+    cursor: pointer;
+    min-height: 40px;
+  }
+  button.primary {
+    background: var(--green);
+    color: #ffffff;
+    border: 2px solid var(--green);
+  }
+  button.primary:hover { background: #0f3a28; border-color: #0f3a28; }
+  button.secondary {
+    background: #ffffff;
+    color: var(--navy);
+    border: 2px solid var(--navy);
+  }
+  button.secondary:hover { background: #e8eef2; }
+
+  .inline-msg { margin: 0; font-size: 0.9rem; color: var(--muted); }
+  .inline-msg.warn { color: #7a3d00; font-weight: 600; }
+
+  /* ============================================================
+     Results area
+     ============================================================ */
+  .result-summary {
+    display: grid;
+    gap: 6px;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    margin-bottom: 10px;
+  }
+  .stat {
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 6px 10px;
+    background: #f7f9fa;
+  }
+  .stat .k { display: block; font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .stat .v { display: block; font-size: 1.05rem; font-weight: 700; color: var(--navy); }
+
+  .verdict {
+    display: block;
+    padding: 8px 10px;
+    border-radius: 4px;
+    border: 2px solid;
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  .verdict .tag { font-weight: 800; }
+  .verdict.surplus { background: var(--green-tint); border-color: var(--green); color: #0f3a28; }
+  .verdict.balanced { background: var(--blue-tint); border-color: var(--blue); color: #183558; }
+  .verdict.deficit { background: var(--purple-tint); border-color: var(--purple); color: #3f2760; border-style: dashed; }
+  .verdict .fine { display: block; font-weight: 400; font-size: 0.9rem; margin-top: 2px; }
+
+  /* Bar chart (HTML and CSS only) */
+  .bars { margin: 0; }
+  .bar-item { margin-bottom: 10px; }
+  .bar-label { display: flex; justify-content: space-between; gap: 8px; font-weight: 600; font-size: 0.95rem; margin-bottom: 3px; }
+  .bar-track {
+    position: relative;
+    height: 26px;
+    background: #e6ecf0;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .bar-fill { height: 100%; width: 0; }
+  .bar-fill.regen { background: var(--blue); }
+  .bar-fill.demand {
+    background: repeating-linear-gradient(45deg, var(--purple) 0, var(--purple) 8px, #7a5aa3 8px, #7a5aa3 16px);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .bar-fill { transition: width 0.4s ease; }
+  }
+  .scale { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--muted); margin-top: 2px; }
+  .empty { color: var(--muted); font-style: italic; }
+
+  /* Results table */
+  .table-wrap { margin-top: 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+  caption { text-align: left; font-weight: 700; color: var(--navy); padding-bottom: 4px; }
+  th, td { border: 1px solid var(--line); padding: 5px 8px; text-align: left; vertical-align: top; }
+  thead th { background: var(--navy); color: #ffffff; }
+  tbody th { background: #eef2f5; font-weight: 600; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+  /* Narrow Canvas content areas: stack each table row, no horizontal scroll */
+  @media (max-width: 600px) {
+    table, thead, tbody, tr, th, td { display: block; }
+    thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); }
+    tbody tr { margin-bottom: 8px; border: 1px solid var(--line); border-radius: 4px; }
+    tbody th, tbody td { border: 0; border-bottom: 1px solid var(--line); }
+    tbody td { text-align: left; }
+    tbody td::before {
+      content: attr(data-label) ": ";
+      font-weight: 700;
+      color: var(--navy);
+    }
+    td.num { text-align: left; }
+  }
+
+  .complete {
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-radius: 4px;
+    background: var(--green);
+    color: #ffffff;
+    font-weight: 700;
+  }
+
+  /* ============================================================
+     Analyze, Canvas directions, hints
+     ============================================================ */
+  .question-box {
+    border: 1px solid var(--line);
+    border-left: 5px solid var(--purple);
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    background: #fbfafd;
+  }
+  .question-box h3 { margin: 0 0 4px; font-size: 0.95rem; color: var(--purple); }
+  .question-box p { margin: 0; }
+
+  .directions {
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-radius: 4px;
+    background: var(--blue-tint);
+    border: 1px solid var(--blue);
+  }
+  .directions h3 { margin: 0 0 4px; font-size: 0.95rem; color: var(--navy); }
+
+  details.hint {
+    margin-top: 10px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: #ffffff;
+  }
+  details.hint summary {
+    cursor: pointer;
+    padding: 8px 12px;
+    font-weight: 600;
+    color: var(--navy);
+  }
+  details.hint .hint-body { padding: 0 12px 10px; }
+  details.hint ul { margin: 4px 0 0; padding-left: 18px; }
+
+  /* ============================================================
+     Revision additions: instructions, submit steps, reminders, completion
+     ============================================================ */
+  .steps {
+    list-style: none;
+    margin: 8px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    counter-reset: step;
+  }
+  .steps li {
+    counter-increment: step;
+    position: relative;
+    padding: 8px 10px 8px 44px;
+    border-radius: 4px;
+    background: var(--blue-tint);
+    border-left: 5px solid var(--blue);
+  }
+  .steps li::before {
+    content: counter(step);
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--navy);
+    color: #ffffff;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .steps li strong { color: var(--navy); }
+
+  .submit-steps { margin: 6px 0 8px; padding-left: 24px; }
+  .submit-steps li { margin-bottom: 3px; }
+
+  .submit-reminder,
+  .keep-note {
+    margin-top: 10px;
+    padding: 8px 10px;
+    border-left: 5px solid var(--purple);
+    border-radius: 4px;
+    background: var(--purple-tint);
+    color: #3f2760;
+  }
+  .keep-note { font-size: 0.9rem; }
+
+  .complete .complete-title { display: block; font-size: 1.1rem; font-weight: 800; }
+  .complete p { margin: 2px 0 0; font-weight: 400; }
+
+  footer { max-width: 1100px; margin: 0 auto; padding: 0 16px 16px; font-size: 0.85rem; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<header class="lab-header">
+  <div class="inner">
+    <div class="titles">
+      <h1>4.3 Zombie Fuel Lab: Follow the Energy</h1>
+      <p class="sub">Ravenwood Biological Investigation | Subject Z-02</p>
+      <p class="question">How does glucose availability affect a muscle cell's ability to meet ATP demand?</p>
+    </div>
+
+    <!-- Read-aloud controls (excluded from the text that gets read) -->
+    <div class="tts" data-tts-skip>
+      <div class="tts-bar" id="ttsBar" role="group" aria-label="Read aloud controls">
+        <button type="button" class="tts-read" id="ttsRead"><span aria-hidden="true">&#128266;</span> Read This Page Aloud</button>
+        <button type="button" id="ttsPause" disabled>Pause</button>
+        <button type="button" id="ttsResume" disabled>Resume</button>
+        <button type="button" id="ttsStop" disabled>Stop</button>
+        <label class="tts-speed" for="ttsSpeed">Speed
+          <select id="ttsSpeed">
+            <option value="0.75">Slow (0.75x)</option>
+            <option value="1" selected>Normal (1x)</option>
+            <option value="1.25">Fast (1.25x)</option>
+            <option value="1.5">Faster (1.5x)</option>
+          </select>
+        </label>
+      </div>
+      <p class="tts-status" id="ttsStatus"></p>
+      <p class="tts-note" id="ttsNote" hidden></p>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- Visually hidden live region: one concise announcement per action -->
+  <div id="announcer" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <div class="row-two">
+    <!-- 2. MISSION AND VARIABLES -->
+    <section class="card green" aria-labelledby="mission-h">
+      <h2 id="mission-h">Mission and Variables</h2>
+      <p>Subject Z-02 keeps moving even though its body is badly damaged. Your job is to test a simplified model of a muscle cell and see how fuel availability changes the cell's ability to regenerate ATP. You will compare each result to the cell's ATP demand.</p>
+      <ul class="vars">
+        <li><strong>Change:</strong> glucose availability</li>
+        <li class="measure"><strong>Measure:</strong> ATP regeneration rate</li>
+        <li class="constant"><strong>Keep constant:</strong> oxygen, ATP demand, and trial duration</li>
+      </ul>
+      <p class="model-note"><strong>Simplified educational model.</strong> These values are invented simulation units, not real physiological measurements. Real cells can also use other fuels, such as fatty acids. This model deliberately isolates glucose availability so you can study one variable at a time.</p>
+    </section>
+
+    <!-- 3. PREDICTION -->
+    <section class="card purple" aria-labelledby="predict-h">
+      <h2 id="predict-h">Your Prediction</h2>
+      <fieldset>
+        <legend>As glucose availability decreases, what do you predict will happen to modeled ATP regeneration?</legend>
+        <div class="options three" id="predictionOptions">
+          <label class="option"><input type="radio" name="prediction" value="increase"><span class="name">Increase</span></label>
+          <label class="option"><input type="radio" name="prediction" value="decrease"><span class="name">Decrease</span></label>
+          <label class="option"><input type="radio" name="prediction" value="same"><span class="name">Stay the same</span></label>
+        </div>
+      </fieldset>
+      <p class="inline-msg" id="predictionMsg" style="margin-top:8px;">Predictions are not graded. Compare your prediction to your evidence after you run the trials.</p>
+    </section>
+  </div>
+
+  <!-- HOW TO COMPLETE YOUR INVESTIGATION -->
+  <section class="card green" aria-labelledby="howto-h">
+    <h2 id="howto-h"><span aria-hidden="true">&#129514;</span> How to Complete Your Investigation</h2>
+    <ol class="steps" role="list">
+      <li><strong>Predict:</strong> Choose what you think will happen as glucose availability decreases.</li>
+      <li><strong>Experiment:</strong> Select High glucose and click Run Trial.</li>
+      <li><strong>Repeat:</strong> Run trials using Medium and Low glucose.</li>
+      <li><strong>Analyze:</strong> Compare the ATP regeneration results in your Trial Log.</li>
+      <li><strong>Submit:</strong> Return to Canvas and answer the two questions in the assignment's Text Entry box.</li>
+    </ol>
+  </section>
+
+  <div class="row-two">
+    <!-- 4. INTERACTIVE EXPERIMENT -->
+    <section class="card" aria-labelledby="exp-h">
+      <h2 id="exp-h" tabindex="-1">Experiment</h2>
+      <fieldset>
+        <legend>Choose a glucose condition, then run a trial.</legend>
+        <div class="options three" id="conditionOptions">
+          <label class="option"><input type="radio" name="glucose" value="high"><span class="name">High glucose availability</span></label>
+          <label class="option"><input type="radio" name="glucose" value="medium"><span class="name">Medium glucose availability</span></label>
+          <label class="option"><input type="radio" name="glucose" value="low"><span class="name">Low glucose availability</span></label>
+        </div>
+      </fieldset>
+
+      <div class="fixed-box">
+        <strong>Held constant for every trial:</strong>
+        <ul>
+          <li>Oxygen availability: Adequate</li>
+          <li>ATP demand: 60 model ATP units per trial</li>
+          <li>Trial duration: the same simulated duration each time</li>
+        </ul>
+      </div>
+
+      <div class="btn-row">
+        <button type="button" class="primary" id="runBtn">Run Trial</button>
+        <button type="button" class="secondary" id="resetBtn" aria-describedby="resetHelp">Reset Experiment</button>
+      </div>
+      <p class="inline-msg" id="runMsg" style="margin-top:8px;" aria-hidden="false">You can run the three conditions in any order and rerun any of them.</p>
+      <p class="inline-msg" id="resetHelp">Reset clears your prediction, selected condition, bar comparison, and all trial results.</p>
+      <p class="keep-note"><strong>Your results are temporary.</strong> Refreshing or closing this page will clear your Trial Log. Complete your analysis before leaving the simulation.</p>
+    </section>
+
+    <!-- 5. RESULTS VISUALIZATION -->
+    <section class="card" aria-labelledby="res-h">
+      <h2 id="res-h">Latest Trial Results</h2>
+      <div id="noTrial" class="empty">No trial has been run yet. Choose a glucose condition and select Run Trial.</div>
+
+      <div id="trialDisplay" hidden>
+        <div class="result-summary">
+          <div class="stat"><span class="k">Glucose condition</span><span class="v" id="rCondition"></span></div>
+          <div class="stat"><span class="k">ATP regenerated</span><span class="v" id="rRegen"></span></div>
+          <div class="stat"><span class="k">ATP demand (fixed)</span><span class="v" id="rDemand"></span></div>
+          <div class="stat"><span class="k">Regenerated minus demand</span><span class="v" id="rDiff"></span></div>
+        </div>
+
+        <div class="verdict" id="verdictBox">
+          <span class="tag" id="verdictTag"></span> <span id="verdictText"></span>
+          <span class="fine" id="verdictFine"></span>
+        </div>
+
+        <figure class="bars" style="margin:0;">
+          <figcaption class="sr-only">Bar comparison of ATP regenerated and ATP demand for the latest trial, in model ATP units.</figcaption>
+          <div class="bar-item">
+            <div class="bar-label"><span>ATP regenerated (solid blue bar)</span><span id="barRegenVal"></span></div>
+            <div class="bar-track"><div class="bar-fill regen" id="barRegen"></div></div>
+          </div>
+          <div class="bar-item">
+            <div class="bar-label"><span>ATP demand (striped purple bar)</span><span id="barDemandVal"></span></div>
+            <div class="bar-track"><div class="bar-fill demand" id="barDemand"></div></div>
+          </div>
+          <div class="scale" aria-hidden="true"><span>0</span><span>50</span><span>100 model ATP units</span></div>
+        </figure>
+      </div>
+    </section>
+  </div>
+
+  <!-- Accumulated results table + 6. COMPLETION -->
+  <section class="card" aria-labelledby="table-h">
+    <h2 id="table-h">Trial Log</h2>
+    <p id="noRows" class="empty">Your trials will appear here.</p>
+    <div class="table-wrap" id="tableWrap" hidden>
+      <table>
+        <caption>Accumulated trial results (model ATP units per trial)</caption>
+        <thead>
+          <tr>
+            <th scope="col">Trial</th>
+            <th scope="col">Glucose condition</th>
+            <th scope="col">ATP regenerated</th>
+            <th scope="col">ATP demand</th>
+            <th scope="col">Regenerated minus demand</th>
+            <th scope="col">Result</th>
+          </tr>
+        </thead>
+        <tbody id="resultsBody"></tbody>
+      </table>
+    </div>
+    <div class="complete" id="completeMsg" hidden>
+      <strong class="complete-title"><span aria-hidden="true">&#10003;</span> Investigation Complete!</strong>
+      <p>You tested all three glucose conditions. Review your results, then answer Questions 1 and 2 in Canvas.</p>
+    </div>
+  </section>
+
+  <!-- 7. ANALYZE YOUR EVIDENCE -->
+  <section class="card purple" aria-labelledby="analyze-h">
+    <h2 id="analyze-h">Analyze Your Evidence</h2>
+
+    <div class="question-box">
+      <h3>Question 1 (3 points)</h3>
+      <p>What happened to modeled ATP regeneration as glucose availability decreased? Use at least two results from your trials as evidence.</p>
+    </div>
+    <div class="question-box">
+      <h3>Question 2 (2 points)</h3>
+      <p>Based on your results, explain why Z-02 could not sustain high-intensity movement indefinitely without an adequate supply of usable fuel. Include ATP demand and ATP regeneration in your explanation.</p>
+    </div>
+
+    <!-- 9. OPTIONAL SUPPORT -->
+    <details class="hint">
+      <summary>Need a Hint?</summary>
+      <div class="hint-body">
+        <ul>
+          <li><strong>Question 1:</strong> Look at your trial log. Describe the direction of change from High to Low, and quote the ATP regenerated for at least two conditions.</li>
+          <li><strong>Question 2:</strong> Compare ATP regenerated to the ATP demand of 60. Think about what the model shows when regeneration is lower than demand, and what that means for a cell that keeps working.</li>
+        </ul>
+      </div>
+    </details>
+
+    <!-- 8. CANVAS SUBMISSION DIRECTIONS -->
+    <div class="directions">
+      <h3><span aria-hidden="true">&#128187;</span> How to Submit Your Lab</h3>
+      <p>You will answer TWO questions worth 5 points total.</p>
+      <ol class="submit-steps">
+        <li>Complete all three glucose trials.</li>
+        <li>Review your Trial Log.</li>
+        <li>Return to your Canvas assignment.</li>
+        <li>Click Start Assignment or Submit Assignment.</li>
+        <li>Type your answers to Questions 1 and 2 in the Text Entry box.</li>
+        <li>Click Submit Assignment.</li>
+      </ol>
+      <p class="submit-reminder"><strong>Important:</strong> Running the simulation does not submit your assignment. You must submit your two answers in Canvas to receive credit.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p>The Zombie Files | Lesson 4.3. Fictional storyline and simplified teaching model. All values are arbitrary simulation units.</p>
+  <p>Read aloud uses speech voices built into your device and browser. No text or data is sent to an external service.</p>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ------------------------------------------------------------
+     Model constants (fictional teaching values, arbitrary units)
+     ------------------------------------------------------------ */
+  var ATP_DEMAND = 60;      // fixed, model ATP units per trial
+  var SCALE_MAX = 100;      // bar chart scale maximum
+
+  var CONDITIONS = {
+    high:   { label: 'High glucose availability',   regen: 90 },
+    medium: { label: 'Medium glucose availability', regen: 60 },
+    low:    { label: 'Low glucose availability',    regen: 25 }
+  };
+
+  /* ------------------------------------------------------------
+     State (kept only in memory; nothing is stored or sent)
+     ------------------------------------------------------------ */
+  var trials = [];
+  var tested = { high: false, medium: false, low: false };
+  var completionAnnounced = false;
+
+  /* ------------------------------------------------------------
+     Element references
+     ------------------------------------------------------------ */
+  function $(id) { return document.getElementById(id); }
+
+  var announcer = $('announcer');
+  var runBtn = $('runBtn');
+  var resetBtn = $('resetBtn');
+  var runMsg = $('runMsg');
+  var noTrial = $('noTrial');
+  var trialDisplay = $('trialDisplay');
+  var noRows = $('noRows');
+  var tableWrap = $('tableWrap');
+  var resultsBody = $('resultsBody');
+  var completeMsg = $('completeMsg');
+  var DEFAULT_RUN_MSG = 'You can run the three conditions in any order and rerun any of them.';
+
+  /* ------------------------------------------------------------
+     Helpers
+     ------------------------------------------------------------ */
+  function announce(text) {
+    // Clear first so repeated identical messages are still announced once.
+    announcer.textContent = '';
+    window.setTimeout(function () { announcer.textContent = text; }, 50);
+  }
+
+  function formatDiff(d) {
+    if (d > 0) { return '+' + d; }
+    if (d < 0) { return '\u2212' + Math.abs(d); }
+    return '0';
+  }
+
+  function classify(diff) {
+    if (diff > 0) {
+      return {
+        key: 'surplus',
+        tag: 'Surplus (+)',
+        text: 'Regeneration is above demand under the model assumptions.',
+        fine: 'In this model, the cell regenerates more ATP than it uses in the trial.'
+      };
+    }
+    if (diff === 0) {
+      return {
+        key: 'balanced',
+        tag: 'Balanced (=)',
+        text: 'Regeneration matches demand under the model assumptions.',
+        fine: 'In this model, the cell regenerates about as much ATP as it uses in the trial.'
+      };
+    }
+    return {
+      key: 'deficit',
+      tag: 'Deficit (\u2212)',
+      text: 'Regeneration is below demand. This is an ATP supply deficit under the model assumptions.',
+      fine: 'This is not an exact prediction of cell death or muscle failure. Real cells can use other fuels.'
+    };
+  }
+
+  function getChecked(name) {
+    var el = document.querySelector('input[name="' + name + '"]:checked');
+    return el ? el.value : null;
+  }
+
+  // Highlight the selected option card (visual support in addition to the radio dot)
+  function syncSelectedStyles(groupId) {
+    var labels = document.querySelectorAll('#' + groupId + ' .option');
+    for (var i = 0; i < labels.length; i++) {
+      var input = labels[i].querySelector('input');
+      if (input.checked) { labels[i].classList.add('is-selected'); }
+      else { labels[i].classList.remove('is-selected'); }
+    }
+  }
+
+  function setMsg(text, isWarning) {
+    runMsg.textContent = text;
+    if (isWarning) { runMsg.classList.add('warn'); }
+    else { runMsg.classList.remove('warn'); }
+  }
+
+  /* ------------------------------------------------------------
+     Rendering
+     ------------------------------------------------------------ */
+  function renderLatest(trial) {
+    var verdict = classify(trial.diff);
+
+    $('rCondition').textContent = trial.label;
+    $('rRegen').textContent = trial.regen + ' model ATP units';
+    $('rDemand').textContent = trial.demand + ' model ATP units';
+    $('rDiff').textContent = formatDiff(trial.diff) + ' model ATP units';
+
+    var box = $('verdictBox');
+    box.className = 'verdict ' + verdict.key;
+    $('verdictTag').textContent = verdict.tag;
+    $('verdictText').textContent = verdict.text;
+    $('verdictFine').textContent = verdict.fine;
+
+    $('barRegen').style.width = Math.min(100, (trial.regen / SCALE_MAX) * 100) + '%';
+    $('barDemand').style.width = Math.min(100, (trial.demand / SCALE_MAX) * 100) + '%';
+    $('barRegenVal').textContent = trial.regen + ' units';
+    $('barDemandVal').textContent = trial.demand + ' units';
+
+    noTrial.hidden = true;
+    trialDisplay.hidden = false;
+  }
+
+  function addRow(trial, number) {
+    var verdict = classify(trial.diff);
+    var tr = document.createElement('tr');
+
+    var th = document.createElement('th');
+    th.scope = 'row';
+    th.textContent = String(number);
+    tr.appendChild(th);
+
+    function cell(label, value, isNum) {
+      var td = document.createElement('td');
+      td.setAttribute('data-label', label);
+      if (isNum) { td.className = 'num'; }
+      td.textContent = value;
+      tr.appendChild(td);
+    }
+
+    cell('Glucose condition', trial.label, false);
+    cell('ATP regenerated', String(trial.regen), true);
+    cell('ATP demand', String(trial.demand), true);
+    cell('Regenerated minus demand', formatDiff(trial.diff), true);
+    cell('Result', verdict.tag, false);
+
+    resultsBody.appendChild(tr);
+    noRows.hidden = true;
+    tableWrap.hidden = false;
+  }
+
+  function allTested() {
+    return tested.high && tested.medium && tested.low;
+  }
+
+  /* ------------------------------------------------------------
+     Event handlers
+     ------------------------------------------------------------ */
+  function runTrial() {
+    var key = getChecked('glucose');
+    if (!key || !CONDITIONS[key]) {
+      setMsg('Choose a glucose condition first, then select Run Trial.', true);
+      announce('Choose a glucose condition first, then select Run Trial.');
+      return;
+    }
+    setMsg(DEFAULT_RUN_MSG, false);
+
+    var cond = CONDITIONS[key];
+    var trial = {
+      key: key,
+      label: cond.label,
+      regen: cond.regen,
+      demand: ATP_DEMAND,
+      diff: cond.regen - ATP_DEMAND
+    };
+
+    trials.push(trial);
+    tested[key] = true;
+
+    renderLatest(trial);
+    addRow(trial, trials.length);
+
+    var verdict = classify(trial.diff);
+    var message = 'Trial ' + trials.length + ': ' + trial.label + '. ATP regenerated ' + trial.regen +
+      ', ATP demand ' + trial.demand + ', difference ' + formatDiff(trial.diff) + '. ' + verdict.tag + '.';
+
+    if (allTested()) {
+      completeMsg.hidden = false;
+      if (!completionAnnounced) {
+        completionAnnounced = true;
+        message += ' Investigation complete. You tested all three glucose conditions. Review your results, then answer Questions 1 and 2 in Canvas.';
+      }
+    }
+    announce(message);
+  }
+
+  function resetExperiment() {
+    trials = [];
+    tested = { high: false, medium: false, low: false };
+    completionAnnounced = false;
+
+    var inputs = document.querySelectorAll('input[type="radio"]');
+    for (var i = 0; i < inputs.length; i++) { inputs[i].checked = false; }
+    syncSelectedStyles('predictionOptions');
+    syncSelectedStyles('conditionOptions');
+
+    while (resultsBody.firstChild) { resultsBody.removeChild(resultsBody.firstChild); }
+    tableWrap.hidden = true;
+    noRows.hidden = false;
+    completeMsg.hidden = true;
+    trialDisplay.hidden = true;
+    noTrial.hidden = false;
+    $('barRegen').style.width = '0';
+    $('barDemand').style.width = '0';
+    setMsg(DEFAULT_RUN_MSG, false);
+
+    announce('Experiment reset. Prediction, condition, and all trial results were cleared.');
+    $('exp-h').focus();
+  }
+
+  runBtn.addEventListener('click', runTrial);
+  resetBtn.addEventListener('click', resetExperiment);
+
+  $('predictionOptions').addEventListener('change', function () { syncSelectedStyles('predictionOptions'); });
+  $('conditionOptions').addEventListener('change', function () {
+    syncSelectedStyles('conditionOptions');
+    setMsg(DEFAULT_RUN_MSG, false);
+  });
+})();
+</script>
+
+<script>
+/* ==============================================================
+   Read aloud (browser Web Speech API, speechSynthesis)
+   - Never starts on its own; only after the student presses the button.
+   - Reads only what is currently visible in the header titles and main area.
+   - Uses ONLY on-device voices (voice.localService === true), because some
+     browsers offer network voices that would send text to an outside service.
+   - Speaks one short chunk at a time so Pause, Resume, Stop and speed
+     changes behave consistently and long text is not cut off.
+   - Does not add live-region announcements, so it will not talk over a
+     screen reader. Existing semantics are left untouched.
+   ============================================================== */
+(function () {
+  'use strict';
+
+  function $(id) { return document.getElementById(id); }
+
+  var bar = $('ttsBar');
+  var readBtn = $('ttsRead');
+  var pauseBtn = $('ttsPause');
+  var resumeBtn = $('ttsResume');
+  var stopBtn = $('ttsStop');
+  var speedSel = $('ttsSpeed');
+  var statusEl = $('ttsStatus');
+  var noteEl = $('ttsNote');
+
+  var NOTE_UNSUPPORTED = 'Read aloud is not available in this browser. You can use your device or browser\u2019s built-in read-aloud or screen-reader tools.';
+  var NOTE_NO_VOICE = 'Read aloud could not start on this device. You can use your device or browser\u2019s built-in read-aloud or screen-reader tools.';
+
+  /* ---------- Feature detection ---------- */
+  var supported = ('speechSynthesis' in window) && ('SpeechSynthesisUtterance' in window);
+  if (!supported) {
+    bar.hidden = true;
+    noteEl.textContent = NOTE_UNSUPPORTED;
+    noteEl.hidden = false;
+    return;
+  }
+
+  var synth = window.speechSynthesis;
+  var state = 'idle';            // 'idle' | 'speaking' | 'paused'
+  var session = 0;               // bumps on every start/stop so stale callbacks are ignored
+  var chunks = [];
+  var idx = 0;
+  var voice = null;
+  var currentUtterance = null;   // keep a reference (avoids early garbage collection in some browsers)
+  var rateChangedWhilePaused = false;
+
+  // Nudge browsers that load voices lazily
+  try { synth.getVoices(); } catch (e) { /* ignore */ }
+
+  /* ---------- Voice selection (on-device English voices only) ---------- */
+  function findLocalVoice() {
+    var list = synth.getVoices() || [];
+    var best = null;
+    for (var i = 0; i < list.length; i++) {
+      var v = list[i];
+      if (!v.localService) { continue; }
+      var lang = (v.lang || '').toLowerCase().replace('_', '-');
+      if (lang.indexOf('en') !== 0) { continue; }
+      if (lang === 'en-us') { return v; }
+      if (!best) { best = v; }
+    }
+    return best;
+  }
+
+  function getLocalVoice(cb) {
+    var found = findLocalVoice();
+    if (found || (synth.getVoices() || []).length > 0) { cb(found); return; }
+    // Voice list is still loading; wait briefly for it.
+    var done = false;
+    function finish(v) {
+      if (done) { return; }
+      done = true;
+      synth.removeEventListener('voiceschanged', onChange);
+      cb(v);
+    }
+    function onChange() {
+      var v = findLocalVoice();
+      if (v || (synth.getVoices() || []).length > 0) { finish(v); }
+    }
+    synth.addEventListener('voiceschanged', onChange);
+    window.setTimeout(function () { finish(findLocalVoice()); }, 1500);
+  }
+
+  /* ---------- Build the text to read from what is visible right now ---------- */
+  function collectChunks() {
+    var out = [];
+    var buf = '';
+
+    function flush() {
+      var t = buf.replace(/\s+/g, ' ').trim();
+      buf = '';
+      if (t) { out.push(t); }
+    }
+
+    // Table rows read as "Trial 1. Glucose condition: ... . ATP regenerated: ..."
+    function rowText(tr) {
+      var parts = [];
+      for (var i = 0; i < tr.children.length; i++) {
+        var c = tr.children[i];
+        var text = c.textContent.replace(/\s+/g, ' ').trim();
+        if (c.tagName === 'TH') { parts.push('Trial ' + text); }
+        else { parts.push((c.getAttribute('data-label') || '') + ': ' + text); }
+      }
+      out.push(parts.join('. '));
+    }
+
+    function walk(node) {
+      if (node.nodeType === 3) { buf += node.nodeValue; return; }
+      if (node.nodeType !== 1) { return; }
+      var tag = node.tagName;
+
+      if (node.hidden || node.hasAttribute('data-tts-skip') ||
+          node.getAttribute('aria-hidden') === 'true' ||
+          node.classList.contains('sr-only')) { return; }
+      if (/^(SCRIPT|STYLE|BUTTON|SELECT|INPUT|TEXTAREA|THEAD)$/.test(tag)) { return; }
+
+      var cs = window.getComputedStyle(node);
+      if (cs.display === 'none' || cs.visibility === 'hidden') { return; }
+
+      if (tag === 'TR') { flush(); rowText(node); return; }
+
+      var isBlock = cs.display.indexOf('inline') !== 0 && cs.display !== 'contents';
+      if (isBlock) { flush(); }
+
+      var kids = node.childNodes;
+      for (var i = 0; i < kids.length; i++) {
+        var k = kids[i];
+        // A closed "Need a Hint?" section reads only its summary
+        if (tag === 'DETAILS' && !node.open && !(k.nodeType === 1 && k.tagName === 'SUMMARY')) { continue; }
+        walk(k);
+      }
+      if (isBlock) { flush(); }
+    }
+
+    var roots = [document.querySelector('.lab-header .inner'), document.getElementById('main')];
+    for (var r = 0; r < roots.length; r++) {
+      if (roots[r]) { walk(roots[r]); flush(); }
+    }
+    return out;
+  }
+
+  // Make text sound right when spoken, then split into short sentences
+  function toSpeakable(text) {
+    return text
+      .replace(/(Surplus|Balanced|Deficit)\s*\([+=\u2212]\)\s*/g, '$1. ')
+      .replace(/\s*\([+=\u2212]\)/g, '')
+      .replace(/\+(\d)/g, 'plus $1')
+      .replace(/\u2212(\d)/g, 'minus $1')
+      .replace(/\bATP\b/g, 'A T P')
+      .replace(/\bZ-02\b/g, 'Z zero two')
+      .replace(/\s*\|\s*/g, ', ');
+  }
+
+  function buildSpeechChunks() {
+    var final = [];
+    var raw = collectChunks();
+    for (var i = 0; i < raw.length; i++) {
+      var t = toSpeakable(raw[i]).trim();
+      if (!t) { continue; }
+      if (!/[.!?:]$/.test(t)) { t += '.'; }
+      var sentences = t.replace(/([.!?])\s+/g, '$1\u0001').split('\u0001');
+      for (var j = 0; j < sentences.length; j++) {
+        var s = sentences[j].trim();
+        if (s) { final.push(s); }
+      }
+    }
+    return final;
+  }
+
+  /* ---------- UI state ---------- */
+  function updateUI() {
+    pauseBtn.disabled = (state !== 'speaking');
+    resumeBtn.disabled = (state !== 'paused');
+    stopBtn.disabled = (state === 'idle');
+    if (state === 'speaking') { statusEl.textContent = 'Reading aloud...'; }
+    else if (state === 'paused') { statusEl.textContent = 'Paused'; }
+    // The 'idle' status text is set by the caller (finished, stopped, or blank)
+  }
+
+  function showNote(text) {
+    noteEl.textContent = text;
+    noteEl.hidden = false;
+  }
+  function hideNote() { noteEl.hidden = true; noteEl.textContent = ''; }
+
+  /* ---------- Speech engine ---------- */
+  function speakNext(mySession) {
+    if (mySession !== session) { return; }
+    if (idx >= chunks.length) {
+      state = 'idle';
+      statusEl.textContent = 'Finished reading.';
+      updateUI();
+      return;
+    }
+    var u = new SpeechSynthesisUtterance(chunks[idx]);
+    u.voice = voice;
+    u.lang = voice.lang || 'en-US';
+    u.rate = parseFloat(speedSel.value) || 1;
+    u.onend = function () {
+      if (mySession !== session) { return; }
+      idx += 1;
+      speakNext(mySession);
+    };
+    u.onerror = function (e) {
+      if (mySession !== session) { return; }
+      if (e && (e.error === 'canceled' || e.error === 'interrupted')) { return; }
+      stopSpeech('');
+      showNote(NOTE_NO_VOICE);
+    };
+    currentUtterance = u;
+    synth.speak(u);
+  }
+
+  function stopSpeech(message) {
+    session += 1;                 // invalidates any pending callbacks
+    try {
+      synth.cancel();
+      synth.resume();             // clears a stuck paused state in some browsers
+    } catch (e) { /* ignore */ }
+    currentUtterance = null;
+    state = 'idle';
+    rateChangedWhilePaused = false;
+    statusEl.textContent = message || '';
+    updateUI();
+  }
+
+  function startReading() {
+    stopSpeech('');
+    hideNote();
+    var list = buildSpeechChunks();
+    if (!list.length) { return; }
+    getLocalVoice(function (v) {
+      if (!v) { showNote(NOTE_NO_VOICE); return; }
+      voice = v;
+      chunks = list;
+      idx = 0;
+      session += 1;
+      state = 'speaking';
+      updateUI();
+      speakNext(session);
+    });
+  }
+
+  /* ---------- Controls ---------- */
+  readBtn.addEventListener('click', startReading);
+
+  pauseBtn.addEventListener('click', function () {
+    if (state !== 'speaking') { return; }
+    synth.pause();
+    state = 'paused';
+    updateUI();
+    resumeBtn.focus();            // keep keyboard focus on an enabled control
+  });
+
+  resumeBtn.addEventListener('click', function () {
+    if (state !== 'paused') { return; }
+    state = 'speaking';
+    if (rateChangedWhilePaused) {
+      // Restart the current sentence at the new speed
+      rateChangedWhilePaused = false;
+      session += 1;
+      synth.cancel();
+      synth.resume();
+      updateUI();
+      speakNext(session);
+    } else {
+      synth.resume();
+      updateUI();
+    }
+    pauseBtn.focus();
+  });
+
+  stopBtn.addEventListener('click', function () {
+    stopSpeech('Stopped.');
+    readBtn.focus();
+  });
+
+  speedSel.addEventListener('change', function () {
+    if (state === 'speaking') {
+      // Apply the new speed right away by restarting the current sentence
+      session += 1;
+      synth.cancel();
+      synth.resume();
+      speakNext(session);
+    } else if (state === 'paused') {
+      rateChangedWhilePaused = true;
+    }
+  });
+
+  /* ---------- Stop speech when the student leaves or changes the investigation ---------- */
+  // This lab is a single page, so the "step" changes when the experiment is reset
+  // or when the page is closed or navigated away from (including inside Canvas).
+  $('resetBtn').addEventListener('click', function () { stopSpeech(''); });
+  window.addEventListener('pagehide', function () { try { synth.cancel(); } catch (e) { /* ignore */ } });
+  window.addEventListener('beforeunload', function () { try { synth.cancel(); } catch (e) { /* ignore */ } });
+
+  updateUI();
+})();
+</script>
+</body>
+</html>
