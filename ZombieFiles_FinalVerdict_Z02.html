@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Zombie Files: Final Case Verdict: Could Z-02 Really Survive?</title>
+<style>
+:root{
+  --bg:#0a1424; --panel:#122238; --panel2:#17293f; --line:#2d4764; --text:#e9f0f7; --muted:#b7c6d6;
+  --green:#8fcf9f; --green-d:#1f4a33; --green-line:#4f8f63; --warn:#f0b955; --warn-bg:#2d2412;
+  --bad:#ffaa9b; --bad-bg:#33181a; --focus:#ffd166; --ink:#0a1424; --char:#1b232c;
+}
+*{box-sizing:border-box}
+html{font-size:100%}
+html.size-1{font-size:112.5%}
+html.size-2{font-size:125%}
+body{
+  margin:0;background-color:var(--bg);
+  background-image:linear-gradient(rgba(143,207,159,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(143,207,159,.045) 1px,transparent 1px);
+  background-size:32px 32px;color:var(--text);
+  font-family:"Segoe UI",Roboto,"Helvetica Neue",Arial,system-ui,sans-serif;
+  font-size:1.0625rem;line-height:1.55;
+}
+html.easy body{font-family:Verdana,Tahoma,"Trebuchet MS",sans-serif;letter-spacing:.02em;word-spacing:.08em;line-height:1.8}
+h1,h2,h3,h4{line-height:1.25;margin:0 0 .5rem}
+p{margin:0 0 .75rem}
+ul,ol{margin:0 0 .75rem;padding-left:1.3rem}
+li{margin-bottom:.25rem}
+a{color:var(--green)}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px;box-shadow:0 0 0 2px var(--ink)}
+[tabindex="-1"]:focus{outline:none;box-shadow:none}
+[hidden]{display:none !important}
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.skip-link{position:absolute;left:.5rem;top:-4rem;background:var(--focus);color:var(--ink);padding:.5rem .8rem;z-index:100;font-weight:700}
+.skip-link:focus{top:.5rem}
+
+/* header */
+#app-header{background:linear-gradient(180deg,#0b1830,#09121f);border-width:0 0 4px;border-style:solid;border-image:repeating-linear-gradient(135deg,#b8923f 0 12px,#101a2a 12px 24px) 1;z-index:50}
+@media (min-height:680px){#app-header{position:sticky;top:0}}
+.hdr-top{display:flex;flex-wrap:wrap;gap:.25rem 1.25rem;align-items:center;justify-content:space-between;padding:.35rem 1rem .1rem;max-width:1400px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:.75rem;min-width:0}
+.stamp{border:2px solid var(--warn);color:var(--warn);font-family:ui-monospace,Consolas,Menlo,monospace;font-size:.7rem;letter-spacing:.12em;padding:.15rem .4rem;transform:rotate(-3deg);white-space:nowrap}
+.division{font-family:ui-monospace,Consolas,Menlo,monospace;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--green);margin:0}
+#app-header h1{font-size:1.25rem;letter-spacing:.06em;margin:0}
+.title-line{display:flex;flex-wrap:wrap;align-items:baseline;gap:0 .8rem}
+.subtitle{margin:0;font-size:.95rem;color:var(--muted)}
+.hdr-right{display:flex;flex-wrap:wrap;gap:.4rem 1rem;align-items:center;font-size:.92rem}
+.student-badge{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:.2rem .6rem}
+.save-status{color:var(--green);font-weight:600}
+.save-status.warn{color:var(--warn)}
+.toolbar{display:flex;flex-wrap:wrap;gap:.25rem 1rem;align-items:center;padding:.15rem 1rem;max-width:1400px;margin:0 auto}
+.tool-group{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center}
+.tool-group .grp-label{font-size:.82rem;color:var(--muted)}
+#tts-msg{padding:0 1rem .25rem;max-width:1400px;margin:0 auto;font-size:.9rem;color:var(--warn)}
+
+/* buttons */
+.btn{font:inherit;font-size:.9rem;font-weight:600;color:var(--text);background:var(--char);border:2px solid #5b7794;border-radius:6px;padding:.15rem .6rem;min-height:2.1rem;cursor:pointer}
+.btn:hover:not(:disabled){background:#26364a}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-primary{background:var(--green);color:var(--ink);border-color:var(--green)}
+.btn-primary:hover:not(:disabled){background:#a6dcb4}
+.btn-lg{font-size:1.05rem;min-height:2.9rem;padding:.55rem 1.1rem}
+.btn[aria-pressed="true"]{background:var(--green-d);border-color:var(--green)}
+select.speed{font:inherit;font-size:.9rem;min-height:2.25rem;background:#f4f7fa;color:var(--ink);border:2px solid #5b7794;border-radius:6px;padding:.2rem .3rem}
+
+/* stepper */
+#stepper{max-width:1400px;margin:0 auto;padding:.15rem 1rem .4rem;display:flex;flex-wrap:wrap;gap:.3rem 1rem;align-items:center}
+#stepper ol{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:.3rem}
+#stepper li{margin:0}
+.step-btn{font:inherit;font-size:.86rem;color:var(--text);background:var(--panel);border:2px solid var(--line);border-radius:6px;padding:.1rem .5rem;min-height:2.1rem;cursor:pointer;display:flex;gap:.4rem;align-items:center}
+.step-btn:disabled{opacity:.55;cursor:not-allowed}
+.step-btn[aria-current="step"]{border-color:var(--green);background:var(--green-d);font-weight:700}
+.step-btn .num{display:inline-grid;place-items:center;width:1.4rem;height:1.4rem;border-radius:50%;border:2px solid currentColor;font-size:.78rem;font-weight:700}
+.step-btn .st{font-size:.78rem;color:var(--muted)}
+.step-btn.done .st{color:var(--green);font-weight:700}
+.progress-wrap{display:flex;flex-wrap:wrap;gap:.25rem .75rem;align-items:center;font-size:.9rem}
+progress{width:min(8rem,100%);height:.8rem;accent-color:var(--green)}
+
+/* main layout */
+main{max-width:1000px;margin:0 auto;padding:1rem 1rem 2rem}
+.banner{border:2px solid var(--line);background:var(--panel);border-radius:8px;padding:.6rem .9rem;margin-bottom:.9rem}
+.banner.warn{border-color:var(--warn);background:var(--warn-bg)}
+.banner .btn{margin:.25rem .4rem 0 0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:.9rem 1.1rem;margin-bottom:1rem}
+.panel h3{color:var(--green);font-size:1.08rem}
+.part-h{font-size:1.6rem;margin-bottom:.25rem}
+.part-tag{display:block;font-family:ui-monospace,Consolas,Menlo,monospace;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--green)}
+.part-meta{color:var(--muted);margin-bottom:1rem}
+
+.casefile,.reminder{background:var(--char);border:1px solid var(--line);border-left:6px solid var(--warn);border-radius:8px;padding:.9rem 1.1rem;margin-bottom:1rem}
+.casefile h3,.reminder h3{color:var(--warn);font-size:1.08rem}
+.cf-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:.5rem 1.5rem}
+.cf-grid h4{font-size:.98rem;color:var(--green)}
+.hyp{background:var(--char);border:1px solid var(--line);border-left:6px solid var(--green-line);border-radius:8px;padding:.7rem 1rem;margin-bottom:.75rem}
+.hyp h3{font-size:1.08rem;margin-bottom:.15rem}
+.hyp .who{font-size:.9rem;color:var(--muted);margin-bottom:.4rem}
+.hyp blockquote{margin:0;font-size:1.05rem;font-weight:600}
+dl.defs{margin:0}
+dl.defs dt{font-weight:700;color:var(--green)}
+dl.defs dd{margin:0 0 .5rem 0}
+
+/* questions */
+.q{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:.9rem 1.1rem;margin-bottom:1rem}
+.q-title{font-size:1.1rem;display:flex;flex-wrap:wrap;gap:.4rem;align-items:center}
+.qnum{background:var(--green);color:var(--ink);font-weight:800;border-radius:5px;padding:0 .45rem;font-size:.95rem}
+.pts{border:1px solid var(--muted);color:var(--muted);border-radius:12px;padding:0 .55rem;font-size:.8rem;font-weight:600}
+.q-prompt{margin-bottom:.6rem}
+fieldset{border:0;margin:0;padding:0;min-width:0}
+legend{padding:0;margin-bottom:.4rem;font-weight:600}
+fieldset.sub{border-top:1px solid var(--line);padding:.55rem 0 .35rem;margin:0}
+.item-n{color:var(--green);font-weight:800}
+.choice{display:flex;gap:.6rem;align-items:flex-start;padding:.5rem .7rem;margin:0 0 .4rem;border:2px solid var(--line);border-radius:6px;background:var(--panel2);cursor:pointer}
+.choice input{margin:.3rem 0 0;width:1.15rem;height:1.15rem;flex:none;accent-color:#2f9e5e}
+.choice:has(input:checked){border-color:var(--green);background:var(--green-d)}
+.inline-choices{display:flex;flex-wrap:wrap;gap:.4rem}
+.inline-choices .choice{margin:0}
+fieldset.field.inline{margin-bottom:.7rem}
+.field{margin-bottom:.8rem}
+.field label,.match-row label{display:block;font-weight:600;margin-bottom:.25rem}
+textarea,.q select,.id-input,#id-form select{
+  width:100%;font:inherit;color:var(--ink);background:#f4f7fa;border:2px solid #7d93ab;border-radius:6px;padding:.55rem .65rem;line-height:1.5}
+textarea{resize:vertical;min-height:4.5rem}
+.match-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(16rem,1fr));gap:.6rem 1.2rem;margin-top:.5rem}
+.match-row select{max-width:100%}
+.choice-list{list-style:none;padding:0;margin:.4rem 0 .7rem;border:1px dashed var(--line);border-radius:6px;padding:.5rem .8rem}
+.fgroup{border-top:1px solid var(--line);padding-top:.6rem;margin-top:.5rem}
+.fgroup h4{color:var(--green);font-size:1rem}
+.starters{display:flex;flex-wrap:wrap;gap:.35rem;align-items:center;margin:-.3rem 0 .8rem;font-size:.9rem}
+.starters .st-label{color:var(--muted)}
+.starter{font:inherit;font-size:.85rem;color:var(--text);background:transparent;border:1px dashed #7d93ab;border-radius:14px;padding:.15rem .65rem;cursor:pointer}
+.starter:hover{background:#26364a}
+.note-small{font-size:.9rem;color:var(--muted)}
+.len-hint{font-size:.88rem;color:var(--green);margin:-.1rem 0 .3rem;font-weight:600}
+
+/* data tables and bars */
+.data-wrap{overflow-x:auto}
+table.data{border-collapse:collapse;width:100%;background:var(--char)}
+table.data caption{text-align:left;font-weight:700;padding:.4rem 0;color:var(--green)}
+table.data th,table.data td{border:1px solid var(--line);padding:.45rem .6rem;text-align:left;vertical-align:top}
+table.data thead th{background:var(--panel2)}
+.bars{margin:.8rem 0}
+.bar-row{display:grid;grid-template-columns:minmax(8rem,14rem) 1fr 4.5rem;gap:.5rem;align-items:center;margin-bottom:.35rem;font-size:.92rem}
+.bar{display:block;height:1.1rem;background:var(--green);border-radius:3px;min-width:4px}
+.bar.low{background:var(--warn)}
+.bar-val{font-weight:700}
+.databrief{margin:0 0 1rem;background:var(--char);border:1px solid var(--line);border-left:6px solid var(--green-line);border-radius:8px;padding:.9rem 1.1rem}
+.databrief h3{color:var(--green);font-size:1.08rem}
+
+/* pathway */
+.pathway-fig{margin:0 0 1rem;background:var(--char);border:1px solid var(--line);border-radius:8px;padding:.9rem 1.1rem}
+.pathway-fig figcaption{font-weight:700;color:var(--green);margin-bottom:.6rem}
+.pathway{list-style:none;padding:0;margin:0 0 .6rem;display:grid;grid-template-columns:repeat(5,1fr);gap:1.6rem}
+.pathway li{background:var(--panel2);border:2px solid var(--green-line);border-radius:8px;padding:.6rem .5rem;text-align:center;position:relative;margin:0}
+.pathway li strong{display:block;font-size:1.02rem}
+.pathway li span{display:block;font-size:.85rem;color:var(--muted)}
+.pathway li:not(:last-child)::after{content:"\2192";content:"\2192" / "";position:absolute;right:-1.45rem;top:50%;transform:translateY(-50%);color:var(--warn);font-weight:800;font-size:1.4rem}
+@media (max-width:760px){
+  .pathway{grid-template-columns:1fr;gap:1.7rem}
+  .pathway li:not(:last-child)::after{content:"\2193";content:"\2193" / "";right:auto;left:50%;top:auto;bottom:-1.75rem;transform:translateX(-50%)}
+}
+
+/* checklist, nav */
+.checklist{background:var(--char);border:1px solid var(--line);border-radius:8px;padding:.8rem 1.1rem;margin:1.2rem 0 1rem}
+.checklist h3{font-size:1.02rem;color:var(--green)}
+.checklist ul{list-style:none;padding:0;margin:0}
+.checklist li{display:flex;gap:.5rem;margin-bottom:.2rem}
+.checklist .mark{font-weight:800;width:1.2rem;flex:none}
+.checklist li.done .state{color:var(--green);font-weight:700}
+.checklist li.todo .state{color:var(--warn)}
+.step-nav{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;justify-content:space-between;margin-top:1rem}
+.nav-note{font-size:.9rem;color:var(--muted)}
+#validation{border:3px solid var(--warn);background:var(--warn-bg);border-radius:8px;padding:.8rem 1.1rem;margin:1rem 0}
+#validation ul{list-style:none;padding:0}
+#validation li{margin-bottom:.35rem}
+.linkbtn{font:inherit;color:var(--green);background:none;border:0;padding:0;text-decoration:underline;cursor:pointer}
+.err{color:var(--bad);font-weight:600;margin:.25rem 0 0}
+.id-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));gap:.8rem 1.2rem;margin-bottom:.9rem}
+.id-row label{display:block;font-weight:600;margin-bottom:.25rem}
+.hint{font-size:.9rem;color:var(--muted);margin:.2rem 0 0}
+.status-ok{border-left:6px solid var(--green);background:var(--green-d);border-radius:8px;padding:.7rem 1rem;margin-bottom:1rem;font-weight:700}
+.status-no{border-left:6px solid var(--warn);background:var(--warn-bg);border-radius:8px;padding:.7rem 1rem;margin-bottom:1rem;font-weight:700}
+.callout-stop{border:3px solid var(--warn);background:var(--warn-bg);border-radius:8px;padding:.7rem 1rem;margin:1rem 0;font-weight:700}
+.fname{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;margin:.5rem 0}
+.fname input{flex:1 1 18rem;font:inherit;font-family:ui-monospace,Consolas,Menlo,monospace;padding:.45rem .6rem;border:2px solid #7d93ab;border-radius:6px;background:#f4f7fa;color:var(--ink)}
+footer{max-width:1000px;margin:0 auto;padding:0 1rem 2rem;color:var(--muted);font-size:.88rem}
+
+/* report (screen preview) */
+#report{display:none;max-width:900px;margin:0 auto 2rem;padding:1.25rem;background:#fff;color:#111;border-radius:8px;font-size:1rem;line-height:1.5}
+body[data-step="6"] #report{display:block}
+#report h2,#report h3,#report h4{color:#111}
+.rp-preview-note{background:#eef2f6;border:1px solid #9aa8b6;padding:.4rem .7rem;margin-bottom:1rem;font-size:.9rem}
+.rp-org{font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;margin:0;color:#333}
+.rp-title{font-size:1.6rem;margin:0;letter-spacing:.05em}
+.rp-sub{font-size:1.1rem;margin:0 0 .75rem;font-weight:600}
+.rp-table{border-collapse:collapse;width:100%;margin:.5rem 0 1rem}
+.rp-table th,.rp-table td{border:1px solid #555;padding:.3rem .5rem;text-align:left;vertical-align:top;font-size:.95rem}
+.rp-table caption{text-align:left;font-weight:700;padding:.2rem 0}
+.rp-table thead th{background:#e6ebf0}
+.rp-note{font-size:.9rem;margin:.25rem 0 1rem}
+.rp-part{margin-top:1.4rem}
+.rp-part-h{font-size:1.25rem;border-bottom:2px solid #111;padding-bottom:.2rem;margin-bottom:.3rem}
+.rp-status{font-size:.9rem;margin:0 0 .6rem}
+.rq{border:1px solid #777;border-radius:4px;padding:.5rem .7rem;margin:.6rem 0}
+.rq-h{font-size:1rem;margin:0 0 .1rem}
+.rq-meta{font-size:.82rem;color:#333;margin:0 0 .3rem}
+.rq-prompt{margin:0 0 .4rem;font-size:.95rem}
+.rq-lead{font-style:italic;margin:0 0 .4rem;font-size:.95rem}
+.rq-lbl{font-weight:700;font-size:.9rem;margin:.4rem 0 .1rem}
+.answer{border:1px solid #444;padding:.35rem .55rem;white-space:pre-wrap;overflow-wrap:anywhere;background:#fff;font-size:.95rem;break-inside:avoid;page-break-inside:avoid}
+.noresp{font-style:italic;margin:0;font-size:.95rem}
+
+@media (prefers-reduced-motion:reduce){*{animation:none !important;transition:none !important;scroll-behavior:auto !important}}
+
+/* print */
+@page{size:letter portrait;margin:0.7in}
+@media print{
+  html,html.size-1,html.size-2{font-size:12pt !important}
+  body{background:#fff !important;color:#000 !important;font-family:Georgia,"Times New Roman",serif !important;letter-spacing:normal !important;word-spacing:normal !important;line-height:1.4 !important}
+  #app-header,main,footer,.skip-link,#sr-status,.no-print,.rp-preview-note{display:none !important}
+  #report{display:block !important;max-width:none !important;margin:0 !important;padding:0 !important;border-radius:0 !important;background:#fff !important;color:#000 !important}
+  #report *{color:#000 !important;background:transparent !important}
+  .rp-table thead th{background:#e6ebf0 !important}
+  .rq{break-inside:avoid;page-break-inside:avoid}
+  .rp-part-h,.rp-status,.rq-h,.rq-meta{break-after:avoid;page-break-after:avoid}
+  .rp-part-h{break-before:auto}
+  .rp-table tr{break-inside:avoid;page-break-inside:avoid}
+  .answer{border:1px solid #000 !important}
+}
+</style>
+</head>
+<body data-step="0">
+<a class="skip-link" href="#main">Skip to main content</a>
+<noscript><p style="padding:1rem;background:#fff;color:#000">This assessment needs JavaScript. Please enable JavaScript in your browser to continue.</p></noscript>
+
+<header id="app-header" class="no-print">
+  <div class="hdr-top">
+    <div class="brand">
+      <span class="stamp" aria-hidden="true">CASE FILE Z-02</span>
+      <div>
+        <p class="division">Ravenwood Research Division</p>
+        <div class="title-line"><h1>THE ZOMBIE FILES</h1>
+        <p class="subtitle">Final Case Verdict: Could Z-02 Really Survive?</p></div>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <span class="student-badge" id="student-badge" hidden>
+        <span id="student-text"></span>
+        <button type="button" class="linkbtn" id="edit-student">Edit</button>
+      </span>
+      <span class="save-status" id="save-status">Progress saves automatically after you begin</span>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="tool-group" role="group" aria-label="Read aloud controls">
+      <button type="button" class="btn btn-primary" id="tts-play"><span aria-hidden="true">🔊</span> Read This Page Aloud</button>
+      <button type="button" class="btn" id="tts-pause" disabled>Pause</button>
+      <button type="button" class="btn" id="tts-resume" disabled>Resume</button>
+      <button type="button" class="btn" id="tts-stop" disabled>Stop</button>
+      <label class="grp-label" for="tts-speed">Speed</label>
+      <select class="speed" id="tts-speed">
+        <option value="0.75">0.75x</option>
+        <option value="0.9">0.9x</option>
+        <option value="1" selected>1x</option>
+        <option value="1.1">1.1x</option>
+        <option value="1.25">1.25x</option>
+      </select>
+    </div>
+    <div class="tool-group" role="group" aria-label="Display settings">
+      <button type="button" class="btn" id="size-down" aria-label="Make text smaller">A-</button>
+      <button type="button" class="btn" id="size-up" aria-label="Make text larger">A+</button>
+      <button type="button" class="btn" id="easy-toggle" aria-pressed="false">Easy-read text</button>
+    </div>
+    <div class="tool-group" role="group" aria-label="Progress backup file">
+      <button type="button" class="btn" id="save-file">Save Progress File</button>
+      <button type="button" class="btn" id="load-file">Load Progress File</button>
+      <input type="file" id="file-input" accept=".json,application/json" class="sr-only" tabindex="-1" aria-label="Choose a progress file to load">
+    </div>
+  </div>
+  <div id="tts-msg" role="status" hidden></div>
+
+  <nav id="stepper" aria-label="Investigation sections" hidden>
+    <ol>
+      <li><button type="button" class="step-btn" data-step="1"><span class="num" aria-hidden="true">1</span><span class="lbl">Evidence</span><span class="st"></span></button></li>
+      <li><button type="button" class="step-btn" data-step="2"><span class="num" aria-hidden="true">2</span><span class="lbl">Energy</span><span class="st"></span></button></li>
+      <li><button type="button" class="step-btn" data-step="3"><span class="num" aria-hidden="true">3</span><span class="lbl">Systems</span><span class="st"></span></button></li>
+      <li><button type="button" class="step-btn" data-step="4"><span class="num" aria-hidden="true">4</span><span class="lbl">Explanations</span><span class="st"></span></button></li>
+      <li><button type="button" class="step-btn" data-step="5"><span class="num" aria-hidden="true">5</span><span class="lbl">Verdict</span><span class="st"></span></button></li>
+      <li><button type="button" class="step-btn" data-step="6"><span class="num" aria-hidden="true">6</span><span class="lbl">Case File</span><span class="st"></span></button></li>
+    </ol>
+    <div class="progress-wrap">
+      <progress id="prog" max="5" value="0" aria-label="Sections completed out of five"></progress>
+      <span id="prog-text"></span>
+    </div>
+  </nav>
+</header>
+
+<div id="sr-status" class="sr-only" role="status" aria-live="polite"></div>
+
+<main id="main" tabindex="-1">
+  <div id="storage-warning" class="banner warn" role="alert" hidden></div>
+  <div id="notice" class="banner" hidden></div>
+
+  <!-- STEP 0: identification -->
+  <section id="step-0" class="step" aria-labelledby="h-0">
+    <h2 id="h-0" class="part-h" tabindex="-1"><span class="part-tag">Ravenwood Research Division</span> Case File Check-In</h2>
+    <div class="panel">
+      <h3>Final investigation</h3>
+      <p>You have completed seven connected Zombie Files investigations about the Ravenwood outbreak. The Research Division now needs a final scientific verdict on Subject Z-02. Use the evidence and biology you have already studied. This assessment does not introduce a new subject.</p>
+      <p>This is a 50-point summative assessment with five parts worth 10 points each. There is no time limit. You can go back and revise earlier parts at any time before you create your Final Case File.</p>
+    </div>
+
+    <div id="resume-box" class="panel" hidden>
+      <h3>Saved work found on this device</h3>
+      <p id="resume-text"></p>
+      <div id="resume-actions">
+        <button type="button" class="btn btn-primary btn-lg" id="resume-yes">Resume my saved work</button>
+        <button type="button" class="btn btn-lg" id="resume-new">Start over</button>
+      </div>
+      <div id="resume-confirm" hidden>
+        <p><strong>Starting over erases the saved work on this device.</strong> Erase it and start over?</p>
+        <button type="button" class="btn btn-lg" id="resume-new-yes">Yes, erase saved work</button>
+        <button type="button" class="btn btn-lg" id="resume-new-no">Cancel</button>
+      </div>
+    </div>
+
+    <form id="id-form" class="panel" novalidate>
+      <h3>Investigator identification</h3>
+      <div class="id-row">
+        <div>
+          <label for="id-first">First name</label>
+          <input class="id-input" id="id-first" name="first" type="text" autocomplete="off" maxlength="40" aria-describedby="err-first">
+          <p class="err" id="err-first" hidden></p>
+        </div>
+        <div>
+          <label for="id-last">Last name</label>
+          <input class="id-input" id="id-last" name="last" type="text" autocomplete="off" maxlength="40" aria-describedby="err-last">
+          <p class="err" id="err-last" hidden></p>
+        </div>
+        <div>
+          <label for="id-period">Class period</label>
+          <select id="id-period" name="period" aria-describedby="err-period">
+            <option value="">Choose your period</option>
+            <option value="1">Period 1</option>
+            <option value="2">Period 2</option>
+            <option value="3">Period 3</option>
+            <option value="5">Period 5</option>
+            <option value="6">Period 6</option>
+          </select>
+          <p class="err" id="err-period" hidden></p>
+        </div>
+      </div>
+      <p class="hint">Use your real first and last name. Do not enter an email address or any other personal information.</p>
+      <button type="submit" class="btn btn-primary btn-lg" id="id-submit">Begin the Final Investigation</button>
+    </form>
+
+    <div class="panel">
+      <h3>How saving works</h3>
+      <ul>
+        <li>Your work saves automatically in this browser on this device. Look for "Progress saved on this device" at the top of the page.</li>
+        <li>Browser saving is device-specific. It may not work on another device, in a private or incognito window, or in browsers that block storage.</li>
+        <li><strong>Save Progress File</strong> downloads a backup you can restore later with <strong>Load Progress File</strong>. This backup file is only for restoring your work.</li>
+        <li><strong>The backup file is not your final submission.</strong> Your final submission is the PDF you create at the end.</li>
+      </ul>
+      <p id="embed-note" hidden>You are viewing this assessment inside another page. For the best results with saving, file downloads, and printing, <a id="embed-link" href="#" target="_blank" rel="noopener">open it in its own tab</a>.</p>
+    </div>
+
+    <div class="panel">
+      <h3>The five parts</h3>
+      <p>Most questions are choice, matching, or evidence-interpretation items. You will write one short explanation (2 to 3 sentences) in each of Parts 1 to 4. Part 5 is the main writing task: a Claim, Evidence, and Reasoning response.</p>
+      <ol>
+        <li>Review the Ravenwood Evidence (10 points)</li>
+        <li>Investigate the Energy Problem (10 points)</li>
+        <li>Analyze Body System Failures (10 points)</li>
+        <li>Evaluate Competing Explanations (10 points)</li>
+        <li>Deliver the Final Scientific Verdict (10 points)</li>
+      </ol>
+      <p class="note-small">Need the page read to you? Use the Read This Page Aloud button at the top. It never starts on its own.</p>
+    </div>
+  </section>
+
+  <!-- STEPS 1-5 are built by script -->
+  <section id="step-1" class="step" aria-labelledby="h-1" hidden></section>
+  <section id="step-2" class="step" aria-labelledby="h-2" hidden></section>
+  <section id="step-3" class="step" aria-labelledby="h-3" hidden></section>
+  <section id="step-4" class="step" aria-labelledby="h-4" hidden></section>
+  <section id="step-5" class="step" aria-labelledby="h-5" hidden></section>
+
+  <!-- STEP 6: final case file controls -->
+  <section id="step-6" class="step" aria-labelledby="h-6" hidden>
+    <h2 id="h-6" class="part-h" tabindex="-1"><span class="part-tag">Final Case File</span> Review and Submit</h2>
+    <div id="final-status"></div>
+
+    <div class="panel">
+      <h3>Scoring summary</h3>
+      <ul id="final-scores"></ul>
+      <p>No final grade is calculated here. Your teacher will review your written and structured responses and decide those points.</p>
+    </div>
+
+    <div class="panel">
+      <h3>HOW TO SUBMIT</h3>
+      <ol>
+        <li>Complete all five sections.</li>
+        <li>Select Print / Save Final Case File as PDF.</li>
+        <li>Choose Save as PDF in the print window.</li>
+        <li>Save the file to your device.</li>
+        <li>Return to the Canvas assignment.</li>
+        <li>Upload your completed PDF.</li>
+        <li>Click Submit Assignment.</li>
+      </ol>
+      <p class="callout-stop">Do not submit your JSON Save Progress File. The final PDF is the required submission.</p>
+      <p><button type="button" class="btn btn-primary btn-lg" id="print-btn"><span aria-hidden="true">📄</span> Print / Save Final Case File as PDF</button></p>
+      <p>Suggested filename:</p>
+      <div class="fname">
+        <input type="text" id="fname" readonly aria-label="Suggested PDF filename">
+        <button type="button" class="btn" id="fname-copy">Copy filename</button>
+      </div>
+      <p class="note-small">Your browser may not fill in this name automatically. If it does not, type or paste it into the filename box in the Save as PDF window. The PDF is not saved until you finish saving it in that window. If the print window does not open while this page is embedded, open the assessment in its own tab and try again.</p>
+      <p id="embed-note-final" hidden><a id="embed-link-final" href="#" target="_blank" rel="noopener">Open this assessment in its own tab</a></p>
+    </div>
+
+    <div class="panel">
+      <h3>Need to change something?</h3>
+      <p>Your earlier sections are not locked. Go back, revise, and return to this page to print again.</p>
+      <p id="goto-parts"></p>
+    </div>
+    <p class="rp-preview-note-screen note-small">Below is a preview of your Final Case File. The printed version uses a plain white page.</p>
+  </section>
+</main>
+
+<section id="report" aria-label="Final Case File report"></section>
+
+<footer class="no-print">
+  <p>Ravenwood Research Division is a fictional organization created for this class. Your responses stay in your browser. Nothing you type is sent to any server.</p>
+</footer>
+
+<script>
+(function(){
+'use strict';
+
+/* ================= constants ================= */
+var STORAGE_KEY='zombiefiles.ravenwood.finalverdict.z02.v2';
+var PREFS_KEY='zombiefiles.ravenwood.finalverdict.z02.prefs.v1';
+var APP_ID='zombiefiles-final-verdict-z02';
+var APP_VERSION=2;
+var PERIODS=['1','2','3','5','6'];
+var MAXLEN=4000;
+var PART_SHORT=['Evidence','Energy','Systems','Explanations','Verdict'];
+/* Objective key. Stored encoded so it is not casually visible in the page source. */
+var KEY=JSON.parse(atob('eyJxMWFfMSI6ICJvYnMiLCAicTFhXzIiOiAicGh5cyIsICJxMWFfMyI6ICJwaHlzIiwgInExYV80IjogIm9icyIsICJxMWFfNSI6ICJvYnMiLCAicTFhXzYiOiAicGh5cyIsICJxMWJfMSI6ICJ5ZXMiLCAicTFiXzIiOiAibm8iLCAicTFiXzMiOiAieWVzIiwgInExYl80IjogIm5vIiwgInExYyI6ICJiIiwgInEyYSI6ICJjIiwgInEyYiI6ICJhIiwgInEyY18xIjogIkIiLCAicTJjXzIiOiAiRCIsICJxMmNfMyI6ICJBIiwgInEyY180IjogIkMiLCAicTJkIjogImMiLCAicTJlIjogImQiLCAicTJmIjogImIiLCAicTNhXzEiOiAiQiIsICJxM2FfMiI6ICJBIiwgInEzYV8zIjogIkMiLCAicTNhXzQiOiAiRCIsICJxM2IiOiAiYSIsICJxM2MiOiAiZCIsICJxM2QiOiAiYiIsICJxM2UiOiAiYyIsICJxNGEiOiAiYiIsICJxNGIiOiAiYyIsICJxNGNfMSI6ICJBIiwgInE0Y18yIjogIm5vbmUiLCAicTRjXzMiOiAiQyIsICJxNGNfNCI6ICJCIiwgInE0Y181IjogIkMiLCAicTRjXzYiOiAiQiJ9'));
+
+/* ================= helpers ================= */
+function $(s,r){return (r||document).querySelector(s);}
+function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s));}
+function hasOwn(o,k){return Object.prototype.hasOwnProperty.call(o,k);}
+function isObj(o){return o!==null&&typeof o==='object'&&!Array.isArray(o);}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function h(tag,cls,text){var e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e;}
+function fmt(n){return Number.isInteger(n)?String(n):n.toFixed(1);}
+function ptsLabel(n){return fmt(n)+(n===1?' pt':' pts');}
+function toInt(v,def,min,max){var n=parseInt(v,10);if(isNaN(n))return def;return Math.min(max,Math.max(min,n));}
+
+/* ================= content ================= */
+var AREA_OPTS=[
+  {v:'energy',t:'Cellular energy (ATP, glycolysis, respiration, fermentation)'},
+  {v:'resp_circ',t:'Respiratory and circulatory systems'},
+  {v:'muscular',t:'Muscular system'},
+  {v:'nervous',t:'Nervous system'},
+  {v:'epi',t:'Disease outbreaks and epidemiology'}
+];
+var RATING_OPTS=[{v:'plausible',t:'Plausible'},{v:'temporary',t:'Temporarily plausible'},{v:'unsupported',t:'Unsupported'}];
+
+var CASE_LISTS='<div class="cf-grid"><div><h4>Observed behaviors</h4><ul><li>Sprinting and rapid pursuit.</li><li>Tracking moving targets.</li><li>Navigating obstacles.</li><li>Coordinating complex movements.</li></ul></div>'+
+  '<div><h4>Reported physiological conditions</h4><ul><li>Severely disrupted breathing.</li><li>Severely disrupted blood circulation.</li><li>Suspected major neurological damage.</li></ul></div></div>';
+var CASE_FILE='<article class="casefile" aria-labelledby="cf-title"><h3 id="cf-title">Case File: Subject Z-02, Ravenwood outbreak</h3>'+CASE_LISTS+'</article>';
+var CASE_REMINDER='<aside class="reminder" aria-label="Case reminder"><h3>Case reminder: Subject Z-02</h3>'+CASE_LISTS+'</aside>';
+
+function hypCard(letter,title,who,statement){
+  return '<article class="hyp"><h3>Hypothesis '+letter+': '+title+'</h3><p class="who">Proposed by '+who+'</p><blockquote><p>'+statement+'</p></blockquote></article>';
+}
+
+var PARTS=[
+/* ---------------- PART 1 ---------------- */
+{title:'Review the Ravenwood Evidence',skill:'Skills: separate observations from physiological evidence, identify contradictions, and explain why more investigation is needed.',blocks:[
+ {t:'html',html:'<div class="panel"><h3>Section purpose</h3><p>Start like a scientist: separate what was <strong>observed</strong> from what is <strong>happening inside the body</strong>.</p></div>'+CASE_FILE+'<div class="panel"><h3>What this section requires</h3><ul><li>Sort six statements by type of evidence.</li><li>Decide which statements are genuine biological contradictions.</li><li>Choose the best next step.</li><li>Write one short explanation (2 to 3 sentences).</li></ul></div>'},
+ {t:'sort',id:'q1a',num:'1A',title:'Sort the evidence',pts:3,auto:true,
+  prompt:'For each statement, choose whether it is an observed behavior (what Z-02 does) or physiological evidence (what is happening inside the body).',
+  items:[
+   {id:'q1a_1',text:'Z-02 keeps moving at high speed for several minutes.'},
+   {id:'q1a_2',text:"Monitoring data show that Z-02's breathing is severely disrupted."},
+   {id:'q1a_3',text:"Scans suggest major damage to Z-02's nervous system."},
+   {id:'q1a_4',text:'Z-02 steered around a fallen fence and a parked car.'},
+   {id:'q1a_5',text:'Z-02 changed direction to follow a moving target.'},
+   {id:'q1a_6',text:"Z-02's blood circulation is reported to be severely disrupted."}],
+  opts:[{v:'obs',t:'Observed behavior'},{v:'phys',t:'Physiological evidence'}]},
+ {t:'sort',id:'q1b',num:'1B',title:'Find the contradictions',pts:2,auto:true,
+  prompt:'Decide whether each statement describes a genuine biological contradiction in the Z-02 case.',
+  items:[
+   {id:'q1b_1',text:'Z-02 sprints continuously, but sustained sprinting normally depends on oxygen delivered by breathing and circulation, and both are reported as severely disrupted.'},
+   {id:'q1b_2',text:'Z-02 was seen sprinting in the morning, while the monitoring scans were taken in the afternoon.'},
+   {id:'q1b_3',text:'Z-02 coordinates complex movements, but coordination normally depends on a working nervous system, and major neurological damage is suspected.'},
+   {id:'q1b_4',text:'Z-02 is part of a fictional outbreak, so it cannot be compared with real biology.'}],
+  opts:[{v:'yes',t:'Genuine biological contradiction'},{v:'no',t:'Not a genuine biological contradiction'}]},
+ {t:'radio',id:'q1c',num:'1C',title:'Choose the best next step',pts:1,auto:true,
+  prompt:"Investigators notice that Z-02's behavior conflicts with its reported physiological condition. Which next step is most scientific?",
+  opts:[
+   {v:'a',t:'Treat the behavior reports as true and discard the physiological reports because behavior is easier to see.'},
+   {v:'b',t:'Keep both sets of evidence and test which explanations fit known biology.'},
+   {v:'c',t:'Treat the physiological reports as true and conclude the behaviors never happened.'},
+   {v:'d',t:'Wait until more outbreaks happen before comparing the evidence.'}]},
+ {t:'text',id:'q1d',num:'1D',title:'Explain one contradiction',pts:4,rows:4,len:'2 to 3 sentences',label:'Your explanation',
+  prompt:'Choose one genuine contradiction from 1B. Explain why it conflicts with biology and why it calls for further investigation.',
+  starters:['These two claims conflict because ...','Normally, this behavior requires ... but the report says ...','More investigation is needed because ...']}
+]},
+
+/* ---------------- PART 2 ---------------- */
+{title:'Investigate the Energy Problem',skill:'Skills: interpret data, compare energy pathways, and apply cellular energy ideas to sustained sprinting.',blocks:[
+ {t:'html',html:'<div class="panel"><h3>Section purpose</h3><p>Sprinting demands a constant supply of usable energy in muscle cells. Use what you know about ATP, glucose, and energy pathways to test the Z-02 energy reports.</p></div>'+
+  '<div class="databrief"><h3>Data brief: ATP yield from one glucose molecule</h3><div class="data-wrap"><table class="data"><caption>Approximate ATP yield per glucose molecule</caption><thead><tr><th scope="col">Pathway</th><th scope="col">Oxygen required?</th><th scope="col">Net ATP per glucose</th></tr></thead><tbody>'+
+  '<tr><th scope="row">Glycolysis alone</th><td>No</td><td>2</td></tr>'+
+  '<tr><th scope="row">Glycolysis plus fermentation</th><td>No</td><td>2 (fermentation adds 0)</td></tr>'+
+  '<tr><th scope="row">Aerobic cellular respiration (includes glycolysis)</th><td>Yes</td><td>About 30 to 32</td></tr></tbody></table></div>'+
+  '<div class="bars" aria-hidden="true"><div class="bar-row"><span>Glycolysis alone</span><span class="bar low" style="width:6.25%"></span><span class="bar-val">2</span></div><div class="bar-row"><span>Glycolysis plus fermentation</span><span class="bar low" style="width:6.25%"></span><span class="bar-val">2</span></div><div class="bar-row"><span>Aerobic respiration</span><span class="bar" style="width:100%"></span><span class="bar-val">30 to 32</span></div></div>'+
+  '<p class="note-small">Fermentation does not make additional ATP. In the glycolysis plus fermentation row, the 2 net ATP come from glycolysis. Values are approximate and vary by cell type.</p></div>'+
+  '<div class="panel"><h3>What this section requires</h3><ul><li>Answer six choice and matching questions about ATP, glucose, and energy pathways. Two use the data brief.</li><li>Write one short application response (2 to 3 sentences).</li></ul></div>'},
+ {t:'radio',id:'q2a',num:'2A',title:'ATP and muscle contraction',pts:1,auto:true,
+  prompt:'What is the main role of ATP in muscle contraction?',
+  opts:[
+   {v:'a',t:'ATP carries oxygen from the lungs to the muscle fibers.'},
+   {v:'b',t:'ATP stores the genetic instructions for building muscle proteins.'},
+   {v:'c',t:'ATP releases usable energy that powers the movement of muscle proteins such as myosin.'},
+   {v:'d',t:'ATP is converted into glucose when a muscle contracts.'}]},
+ {t:'radio',id:'q2b',num:'2B',title:'Glucose as fuel',pts:1,auto:true,
+  prompt:'What is the main role of glucose in a muscle cell?',
+  opts:[
+   {v:'a',t:'Its stored chemical energy is released in steps and used to regenerate ATP.'},
+   {v:'b',t:'It powers myosin directly, so muscle cells do not need ATP.'},
+   {v:'c',t:'It carries oxygen to the mitochondria.'},
+   {v:'d',t:'It is turned into ATP in a single step with no other products.'}]},
+ {t:'match',id:'q2c',num:'2C',title:'Match the process to its role',pts:2,auto:true,
+  prompt:'Choose the letter of the description that best matches each process.',
+  choices:[
+   {v:'A',t:'Rebuilds ATP from ADP and phosphate using energy released from food molecules.'},
+   {v:'B',t:'Uses oxygen to release most of the energy stored in glucose.'},
+   {v:'C',t:'Regenerates NAD+ so glycolysis can keep running, with no additional ATP made.'},
+   {v:'D',t:'Splits glucose into pyruvate and makes a small net gain of ATP.'}],
+  items:[
+   {id:'q2c_1',label:'Aerobic cellular respiration'},
+   {id:'q2c_2',label:'Glycolysis'},
+   {id:'q2c_3',label:'ATP regeneration'},
+   {id:'q2c_4',label:'Fermentation'}]},
+ {t:'radio',id:'q2d',num:'2D',title:'Interpret the data',pts:1,auto:true,
+  prompt:'Use the data brief. About how many times more ATP does one glucose molecule yield through aerobic respiration than through glycolysis plus fermentation?',
+  opts:[{v:'a',t:'About 2 times'},{v:'b',t:'About 5 times'},{v:'c',t:'About 15 to 16 times'},{v:'d',t:'About 30 to 32 times'}]},
+ {t:'radio',id:'q2e',num:'2E',title:'Use the data to evaluate a claim',pts:1,auto:true,
+  prompt:'A muscle cell has plenty of glucose but almost no oxygen. Which statement is best supported by the data brief?',
+  opts:[
+   {v:'a',t:'ATP production stops immediately because glycolysis requires oxygen.'},
+   {v:'b',t:'ATP production increases because fermentation adds more ATP.'},
+   {v:'c',t:'The cell makes about 30 to 32 ATP per glucose because glycolysis alone is enough.'},
+   {v:'d',t:'The cell can still make ATP, but only about 2 net ATP per glucose.'}]},
+ {t:'radio',id:'q2f',num:'2F',title:"Evaluate a classmate's statement",pts:1,auto:true,
+  prompt:'A classmate says: "Fermentation makes the ATP that lets muscles keep sprinting." Which response is most accurate?',
+  opts:[
+   {v:'a',t:'Correct. Fermentation is the main source of ATP in sprinting muscle.'},
+   {v:'b',t:'Not accurate. Fermentation makes no additional ATP. It regenerates NAD+ so glycolysis can continue.'},
+   {v:'c',t:'Not accurate. Fermentation needs oxygen, so it cannot happen during sprinting.'},
+   {v:'d',t:'Correct. Fermentation yields about 30 to 32 ATP per glucose.'}]},
+ {t:'text',id:'q2g',num:'2G',title:'Apply it to continuous sprinting',pts:3,rows:4,len:'2 to 3 sentences',label:'Your explanation',
+  prompt:"Z-02 is reported to sprint continuously. Suppose a muscle cell's oxygen supply drops sharply. Explain how the cell would try to meet its ATP demand and what limits how long that can work.",
+  starters:['When oxygen is limited, the cell ...','This is limited because ...']}
+]},
+
+/* ---------------- PART 3 ---------------- */
+{title:'Analyze Body System Failures',skill:'Skills: trace a pathway across body systems, predict the effects of failures, and connect cellular processes to whole-body function.',blocks:[
+ {t:'html',html:'<div class="panel"><h3>Section purpose</h3><p>Movement depends on several body systems working together. Follow the pathway below, then investigate what happens when parts of it fail.</p></div>'+
+  '<figure class="pathway-fig"><figcaption>Figure: The pathway that supports movement. Read it from left to right, or from top to bottom on a narrow screen.</figcaption>'+
+  '<ol class="pathway" role="list"><li><strong>Lungs</strong><span>Respiratory system</span></li><li><strong>Bloodstream</strong><span>Circulatory system</span></li><li><strong>Muscle Cells</strong><span>Muscular system</span></li><li><strong>ATP Production</strong><span>Cellular process</span></li><li><strong>Movement</strong><span>Muscle contraction</span></li></ol>'+
+  '<p class="note-small">Text version: Lungs, then Bloodstream, then Muscle Cells, then ATP Production, then Movement. The nervous system is also part of this investigation. It is not drawn in the pathway.</p></figure>'+
+  '<div class="panel"><h3>What this section requires</h3><ul><li>Answer five choice and matching questions about failures in the pathway.</li><li>Write one short explanation (2 to 3 sentences) that connects at least two body systems.</li></ul></div>'},
+ {t:'match',id:'q3a',num:'3A',title:'Match each failure to its effect',pts:2,auto:true,
+  prompt:'Choose the letter of the effect that each failure disrupts first.',
+  choices:[
+   {v:'A',t:'Muscle fibers do not receive the signal to contract.'},
+   {v:'B',t:'Oxygen cannot be delivered from the blood to the cells that need it.'},
+   {v:'C',t:'Less oxygen enters the blood at the lungs.'},
+   {v:'D',t:'Aerobic ATP production in the mitochondria slows down.'}],
+  items:[
+   {id:'q3a_1',label:'Circulation fails (the lungs still work)'},
+   {id:'q3a_2',label:'Nerve signals to the muscles are lost'},
+   {id:'q3a_3',label:'Breathing fails'},
+   {id:'q3a_4',label:'Muscle cells receive too little oxygen'}]},
+ {t:'radio',id:'q3b',num:'3B',title:'Where oxygen is used',pts:1,auto:true,
+  prompt:'Where is oxygen used in aerobic cellular respiration?',
+  opts:[
+   {v:'a',t:'At the end of the electron transport chain in the mitochondria, where it accepts electrons.'},
+   {v:'b',t:'During glycolysis in the cytoplasm, where it splits glucose.'},
+   {v:'c',t:'During fermentation, where it regenerates NAD+.'},
+   {v:'d',t:'In muscle fibers, where it binds to actin to start contraction.'}]},
+ {t:'radio',id:'q3c',num:'3C',title:'When circulation fails',pts:1,auto:true,
+  prompt:"A person's lungs work normally, but the heart can no longer pump blood effectively. Why do muscle cells still run short of ATP?",
+  opts:[
+   {v:'a',t:'The lungs stop producing oxygen when the heart fails.'},
+   {v:'b',t:'Muscle cells cannot make any ATP without nerve signals.'},
+   {v:'c',t:'Glucose becomes too concentrated and blocks glycolysis.'},
+   {v:'d',t:'Oxygen enters the blood at the lungs but is not delivered to the muscle cells in sufficient amounts.'}]},
+ {t:'radio',id:'q3d',num:'3D',title:'Neurons and energy',pts:1,auto:true,
+  prompt:'Neurons need a constant supply of ATP mainly to:',
+  opts:[
+   {v:'a',t:'store memories as DNA sequences.'},
+   {v:'b',t:'run ion pumps that maintain the gradients needed for nerve signals.'},
+   {v:'c',t:'digest glucose into amino acids.'},
+   {v:'d',t:'produce the oxygen the brain uses.'}]},
+ {t:'radio',id:'q3e',num:'3E',title:'Predict the chain of effects',pts:1,auto:true,
+  prompt:'Blood flow to the muscles stops while breathing continues. Which sequence best describes what happens in the muscle cells?',
+  opts:[
+   {v:'a',t:'Oxygen delivery rises, aerobic respiration speeds up, ATP increases, and contraction gets stronger.'},
+   {v:'b',t:'Oxygen delivery falls, glycolysis stops completely, and muscles keep contracting using stored glucose alone.'},
+   {v:'c',t:'Oxygen delivery falls, aerobic respiration slows, ATP production drops, and contraction weakens.'},
+   {v:'d',t:'Oxygen delivery stays the same, but nerve signals stop, so ATP production drops.'}]},
+ {t:'text',id:'q3f',num:'3F',title:'Connect two body systems',pts:4,rows:4,len:'2 to 3 sentences',label:'Your explanation',
+  prompt:'Explain how a failure of breathing or circulation affects both ATP production in muscle cells and nerve cell function.',
+  starters:['When the ... system fails, ... which affects the ... system because ...','This changes ATP production because ...','Neurons are affected because ...']}
+]},
+
+/* ---------------- PART 4 ---------------- */
+{title:'Evaluate Competing Explanations',skill:'Skills: evaluate hypotheses against evidence, use scientific reasoning, and judge plausibility with nuance.',blocks:[
+ {t:'html',html:'<div class="panel"><h3>Section purpose</h3><p>Three fictional Ravenwood researchers each propose an explanation for how Z-02 keeps moving. Compare the explanations using evidence, then give your judgment.</p></div>'+
+  hypCard('A','Stored ATP','Dr. Reyes, Ravenwood Muscle Physiology Lab','Subject Z-02 survives using large stores of pre-existing ATP.')+
+  hypCard('B','Fermentation','Dr. Chen, Ravenwood Cellular Metabolism Lab','Fermentation allows Subject Z-02 to sprint indefinitely without oxygen.')+
+  hypCard('C','Remaining nervous system circuits','Dr. Okafor, Ravenwood Neuroscience Lab',"Remaining nervous system circuits explain the subject's coordinated movement despite extensive neurological damage.")+
+  '<div class="panel"><h3>How to rate an explanation</h3><dl class="defs"><dt>Plausible</dt><dd>Supported by evidence and able to account for the observations.</dd><dt>Temporarily plausible</dt><dd>Could explain part of the evidence, or could work for a limited time or in limited situations, but not all of it.</dd><dt>Unsupported</dt><dd>Not supported by evidence, or contradicted by known biology.</dd></dl><p class="note-small">Careful scientific nuance is welcome.</p></div>'+
+  '<div class="panel"><h3>What this section requires</h3><ul><li>Answer two scientific reasoning questions.</li><li>Match six evidence cards to the hypothesis each one most directly challenges.</li><li>Rate each hypothesis.</li><li>Write one short justification (2 to 3 sentences).</li></ul></div>'},
+ {t:'radio',id:'q4a',num:'4A',title:'Scientific reasoning check',pts:1,auto:true,
+  prompt:'Which feature best describes a strong scientific explanation?',
+  opts:[
+   {v:'a',t:'It is the most dramatic or surprising idea.'},
+   {v:'b',t:'It fits multiple independent lines of evidence and makes predictions that can be tested.'},
+   {v:'c',t:'It was proposed by the researcher with the most experience.'},
+   {v:'d',t:'It explains one observation well, even if it conflicts with the others.'}]},
+ {t:'radio',id:'q4b',num:'4B',title:'Handling mixed evidence',pts:1,auto:true,
+  prompt:'Researchers find that part of a hypothesis is supported by evidence while another part is contradicted. What is the best scientific response?',
+  opts:[
+   {v:'a',t:'Accept the whole hypothesis because part of it is supported.'},
+   {v:'b',t:'Reject every part of the hypothesis and stop investigating.'},
+   {v:'c',t:'Keep the part the evidence supports, revise or reject the part it contradicts, and note what still needs explaining.'},
+   {v:'d',t:'Ignore the contradicting evidence because it is inconvenient.'}]},
+ {t:'sort',id:'q4c',num:'4C',title:'Match the evidence to the hypothesis',pts:3,auto:true,
+  prompt:'For each evidence card, choose the hypothesis it most directly challenges. Choose "None" if it is a background fact that does not challenge any of them.',
+  items:[
+   {id:'q4c_1',text:'Muscle cells store only a small amount of ATP, enough for a few seconds of intense effort.'},
+   {id:'q4c_2',text:'Muscle contraction happens when myosin heads use energy from ATP to pull on actin filaments.'},
+   {id:'q4c_3',text:'Neurons need a steady supply of ATP and oxygen to carry nerve signals.'},
+   {id:'q4c_4',text:'Fermentation regenerates NAD+ but makes no additional ATP, and glycolysis yields only about 2 net ATP per glucose.'},
+   {id:'q4c_5',text:'Tracking moving targets and steering around obstacles requires brain regions that integrate sensory information.'},
+   {id:'q4c_6',text:'Products of fermentation can build up in muscle and contribute to fatigue.'}],
+  opts:[{v:'A',t:'A: Stored ATP'},{v:'B',t:'B: Fermentation'},{v:'C',t:'C: Neural circuits'},{v:'none',t:'None (background fact)'}]},
+ {t:'fields',id:'q4d',num:'4D',title:'Rate each hypothesis',pts:2,
+  prompt:'Using the definitions above, choose a rating for each hypothesis.',
+  groups:[{heading:'',fields:[
+   {id:'q4d_a',kind:'radio',inline:true,label:'Hypothesis A: Stored ATP',opts:RATING_OPTS},
+   {id:'q4d_b',kind:'radio',inline:true,label:'Hypothesis B: Fermentation',opts:RATING_OPTS},
+   {id:'q4d_c',kind:'radio',inline:true,label:'Hypothesis C: Remaining nervous system circuits',opts:RATING_OPTS}]}]},
+ {t:'text',id:'q4e',num:'4E',title:'Justify your judgment',pts:3,rows:4,len:'2 to 3 sentences',label:'Your justification',
+  prompt:'Which explanation is best supported by biological evidence, or does none of them fully solve the case? Name what that explanation fails to account for.',
+  starters:['The best supported explanation is ... because ...','It fails to account for ...','None of them fully solves the case because ...']}
+]},
+
+/* ---------------- PART 5 ---------------- */
+{title:'Deliver the Final Scientific Verdict',skill:'Skills: synthesize evidence across systems and build a Claim, Evidence, Reasoning argument.',blocks:[
+ {t:'html',html:'<div class="panel"><h3>The central question</h3><p><strong>Could Subject Z-02 realistically continue sprinting, tracking targets, and navigating obstacles despite severely disrupted breathing, circulation, and suspected neurological damage?</strong></p></div>'+CASE_REMINDER+
+  '<div class="panel"><h3>What this section requires</h3><p>This is the main writing task of the assessment. Use short, clear sentences.</p><ul><li><strong>Claim</strong> (1 to 2 sentences): a clear scientific verdict that answers the central question.</li><li><strong>Evidence</strong> (1 to 2 sentences each): three accurate pieces of biological evidence from at least two areas of biology. Evidence is a fact or data point, not an opinion.</li><li><strong>Reasoning</strong> (3 to 5 sentences): explain why the evidence supports your claim and connect cellular processes to body-system function. Reasoning is different from evidence: it explains the connection.</li></ul><p class="note-small">Concise, accurate responses are welcome. There is no minimum word count.</p></div>'},
+ {t:'text',id:'q5_claim',num:'5A',title:'Claim',pts:2,rows:3,len:'1 to 2 sentences',label:'Your claim (your scientific verdict)',
+  prompt:'State your verdict on the central question.',
+  starters:['Based on the evidence from the Ravenwood investigation, I conclude that ...']},
+ {t:'fields',id:'q5_evidence',num:'5B',title:'Evidence',pts:4,
+  prompt:'Give three accurate pieces of biological evidence. For each one, choose the area of biology it comes from. Use at least two different areas across your evidence.',
+  groups:[
+   {heading:'Evidence 1',fields:[
+     {id:'q5_e1_area',kind:'select',label:'Area of biology for Evidence 1',opts:AREA_OPTS},
+     {id:'q5_e1',kind:'text',label:'Evidence 1',rows:3,len:'1 to 2 sentences',starters:['One piece of biological evidence is ...']}]},
+   {heading:'Evidence 2',fields:[
+     {id:'q5_e2_area',kind:'select',label:'Area of biology for Evidence 2',opts:AREA_OPTS},
+     {id:'q5_e2',kind:'text',label:'Evidence 2',rows:3,len:'1 to 2 sentences',starters:['Another piece of evidence is ...']}]},
+   {heading:'Evidence 3',fields:[
+     {id:'q5_e3_area',kind:'select',label:'Area of biology for Evidence 3',opts:AREA_OPTS},
+     {id:'q5_e3',kind:'text',label:'Evidence 3',rows:3,len:'1 to 2 sentences',starters:['A third piece of evidence is ...']}]}]},
+ {t:'text',id:'q5_reason',num:'5C',title:'Reasoning',pts:4,rows:6,len:'3 to 5 sentences',label:'Your reasoning',
+  prompt:'Explain how your evidence supports your claim. Connect what happens inside cells to what happens in body systems.',
+  starters:['This evidence supports my claim because ...','At the cellular level, ... which affects the body system by ...']}
+]}
+];
+
+/* ================= registry ================= */
+var FIELDS={};
+var STARTERS={};
+function reg(id,kind,options,b,f){
+  FIELDS[id]={id:id,kind:kind,options:options||null,allowed:options?options.map(function(o){return o.v;}):null,block:b,part:b.part,label:f&&f.label?f.label:b.title};
+  b.fieldIds.push(id);
+}
+PARTS.forEach(function(p,pi){
+  p.n=pi+1;p.questions=[];
+  p.blocks.forEach(function(b){
+    if(b.t==='html')return;
+    b.part=p.n;b.fieldIds=[];
+    if(b.t==='radio'){reg(b.id,'radio',b.opts,b);}
+    else if(b.t==='sort'){b.items.forEach(function(it){reg(it.id,'radio',b.opts,b,{label:it.text});});}
+    else if(b.t==='match'){b.items.forEach(function(it){reg(it.id,'select',b.choices,b,{label:it.label});});}
+    else if(b.t==='text'){reg(b.id,'text',null,b);(b.starters||[]).forEach(function(s){STARTERS[s]=1;});}
+    else if(b.t==='fields'){b.groups.forEach(function(g){g.fields.forEach(function(f){
+      reg(f.id,f.kind,f.kind==='text'?null:f.opts,b,f);
+      (f.starters||[]).forEach(function(s){STARTERS[s]=1;});});});}
+    p.questions.push(b);
+  });
+});
+
+/* ================= state ================= */
+var state={student:null,step:0,maxStep:1,answers:{}};
+var storageOK=false;
+var pendingSaved=null;
+var returnStep=null;
+var saveTimer=null;
+var savedOnce=false;
+
+function fieldFilled(id){
+  var v=state.answers[id];
+  if(typeof v!=='string')return false;
+  var f=FIELDS[id];
+  if(f.kind!=='text')return v.length>0;
+  var s=v;
+  Object.keys(STARTERS).forEach(function(k){s=s.split(k).join('');});
+  return s.replace(/[\s.\u2026]+/g,'').length>0;
+}
+function blockComplete(b){return b.fieldIds.every(fieldFilled);}
+function partComplete(n){return PARTS[n-1].questions.every(blockComplete);}
+function allComplete(){return PARTS.every(function(p){return partComplete(p.n);});}
+function completionMap(){var m={};PARTS.forEach(function(p){m[p.n]=partComplete(p.n);});return m;}
+function completeCount(){return PARTS.filter(function(p){return partComplete(p.n);}).length;}
+
+/* ================= scoring ================= */
+function computeScores(){
+  var res={parts:[],autoEarned:0,autoPossible:0,pending:0,total:0};
+  PARTS.forEach(function(p){
+    var earned=0,possible=0,total=0;
+    p.questions.forEach(function(b){
+      total+=b.pts;
+      if(b.auto){
+        possible+=b.pts;
+        var per=b.pts/b.fieldIds.length;
+        b.fieldIds.forEach(function(id){if(state.answers[id]&&state.answers[id]===KEY[id])earned+=per;});
+      }
+    });
+    res.parts.push({n:p.n,title:p.title,earned:earned,possible:possible,pending:total-possible,total:total});
+    res.autoEarned+=earned;res.autoPossible+=possible;res.pending+=total-possible;res.total+=total;
+  });
+  return res;
+}
+
+/* ================= rendering ================= */
+function qHead(b){
+  return '<h3 class="q-title"><span class="qnum">'+esc(b.num)+'</span> '+esc(b.title)+' <span class="pts">'+ptsLabel(b.pts)+'</span></h3>';
+}
+function radioSet(name,legend,opts,cls){
+  var inner=opts.map(function(o){
+    return '<label class="choice"><input type="radio" name="'+name+'" value="'+esc(o.v)+'"><span>'+esc(o.t)+'</span></label>';
+  }).join('');
+  if(/\binline\b/.test(cls||''))inner='<div class="inline-choices">'+inner+'</div>';
+  return '<fieldset class="'+(cls||'')+'"><legend>'+legend+'</legend>'+inner+'</fieldset>';
+}
+function starterRow(targetId,list){
+  if(!list||!list.length)return '';
+  return '<div class="starters" role="group" aria-label="Optional sentence starters"><span class="st-label">Sentence starters (optional):</span>'+
+    list.map(function(s){return '<button type="button" class="starter" data-target="'+esc(targetId)+'" data-text="'+esc(s)+'">'+esc(s)+'</button>';}).join('')+'</div>';
+}
+function textField(id,label,rows,starters,len){
+  return '<div class="field"><label for="'+id+'">'+esc(label)+'</label>'+(len?'<p class="len-hint" id="'+id+'-len">Expected length: '+esc(len)+'.</p>':'')+'<textarea id="'+id+'" name="'+id+'" rows="'+(rows||4)+'" maxlength="'+MAXLEN+'"'+(len?' aria-describedby="'+id+'-len"':'')+'></textarea></div>'+starterRow(id,starters);
+}
+function selectField(f){
+  return '<div class="field"><label for="'+f.id+'">'+esc(f.label)+'</label><select id="'+f.id+'" name="'+f.id+'"><option value="">Choose an area of biology</option>'+
+    f.opts.map(function(o){return '<option value="'+esc(o.v)+'">'+esc(o.t)+'</option>';}).join('')+'</select></div>';
+}
+function renderBlock(b){
+  var wrap=function(inner){return '<div class="q" id="blk-'+b.id+'">'+inner+'</div>';};
+  if(b.t==='html')return b.html;
+  if(b.t==='radio')return wrap(qHead(b)+radioSet(b.id,esc(b.prompt),b.opts,'q-prompt'));
+  if(b.t==='sort'){
+    return wrap(qHead(b)+'<fieldset><legend class="q-prompt">'+esc(b.prompt)+'</legend>'+b.items.map(function(it,i){
+      return '<fieldset class="sub"><legend><span class="item-n">'+(i+1)+'.</span> '+esc(it.text)+'</legend><div class="inline-choices">'+
+        b.opts.map(function(o){return '<label class="choice"><input type="radio" name="'+it.id+'" value="'+esc(o.v)+'"><span>'+esc(o.t)+'</span></label>';}).join('')+'</div></fieldset>';
+    }).join('')+'</fieldset>');
+  }
+  if(b.t==='match'){
+    return wrap(qHead(b)+'<p class="q-prompt">'+esc(b.prompt)+'</p><ul class="choice-list">'+b.choices.map(function(c){return '<li><strong>'+c.v+'.</strong> '+esc(c.t)+'</li>';}).join('')+'</ul>'+
+      '<div class="match-grid">'+b.items.map(function(it){
+        return '<div class="match-row"><label for="'+it.id+'">'+esc(it.label)+'</label><select id="'+it.id+'" name="'+it.id+'"><option value="">Choose a letter</option>'+
+          b.choices.map(function(c){return '<option value="'+c.v+'">'+c.v+'</option>';}).join('')+'</select></div>';
+      }).join('')+'</div>');
+  }
+  if(b.t==='text')return wrap(qHead(b)+'<p class="q-prompt">'+esc(b.prompt)+'</p>'+textField(b.id,b.label,b.rows,b.starters,b.len));
+  if(b.t==='fields'){
+    return wrap(qHead(b)+'<p class="q-prompt">'+esc(b.prompt)+'</p>'+(b.lead||'')+b.groups.map(function(g){
+      return '<div class="fgroup">'+(g.heading?'<h4>'+esc(g.heading)+'</h4>':'')+g.fields.map(function(f){
+        if(f.kind==='text')return textField(f.id,f.label,f.rows,f.starters,f.len);
+        if(f.kind==='radio')return radioSet(f.id,esc(f.label),f.opts,f.inline?'field inline':'field');
+        return selectField(f);
+      }).join('')+'</div>';
+    }).join(''));
+  }
+  return '';
+}
+function buildSteps(){
+  PARTS.forEach(function(p){
+    var isLast=p.n===PARTS.length;
+    var html='<h2 id="h-'+p.n+'" class="part-h" tabindex="-1"><span class="part-tag">Part '+p.n+' of 5</span> '+esc(p.title)+'</h2>'+
+      '<p class="part-meta">10 points. '+esc(p.skill)+'</p>'+
+      p.blocks.map(renderBlock).join('')+
+      '<section class="checklist" aria-labelledby="cl-h-'+p.n+'"><h3 id="cl-h-'+p.n+'">Part '+p.n+' checklist</h3><ul id="cl-'+p.n+'"></ul></section>'+
+      (isLast?'<div id="validation" role="alert" tabindex="-1" hidden></div>':'')+
+      '<div class="step-nav no-read">'+
+        (p.n>1?'<button type="button" class="btn btn-lg" data-nav="prev">\u2190 Previous: Part '+(p.n-1)+'</button>':'<span></span>')+
+        '<span class="nav-note">Your answers save as you go.</span>'+
+        (isLast?'<button type="button" class="btn btn-primary btn-lg" data-nav="finish">Review Final Case File \u2192</button>'
+               :'<button type="button" class="btn btn-primary btn-lg" data-nav="next">Next: Part '+(p.n+1)+' \u2192</button>')+
+      '</div>';
+    $('#step-'+p.n).innerHTML=html;
+  });
+}
+function renderChecklist(n){
+  var ul=$('#cl-'+n);if(!ul)return;
+  ul.innerHTML=PARTS[n-1].questions.map(function(b){
+    var done=blockComplete(b);
+    return '<li class="'+(done?'done':'todo')+'"><span class="mark" aria-hidden="true">'+(done?'\u2713':'\u25CB')+'</span><span>'+esc(b.num)+' '+esc(b.title)+': <span class="state">'+(done?'Complete':'Not yet complete')+'</span></span></li>';
+  }).join('');
+}
+function renderAllChecklists(){PARTS.forEach(function(p){renderChecklist(p.n);});}
+
+function applyAnswersToDOM(){
+  Object.keys(FIELDS).forEach(function(id){
+    var f=FIELDS[id],v=state.answers[id]||'';
+    if(f.kind==='radio'){$$('input[name="'+id+'"]').forEach(function(r){r.checked=(r.value===v);});}
+    else{var el=document.getElementById(id);if(el)el.value=v;}
+  });
+}
+
+/* ================= announce / notices ================= */
+function announce(msg){var s=$('#sr-status');s.textContent='';setTimeout(function(){s.textContent=msg;},50);}
+function notice(msg,kind){
+  var n=$('#notice');n.textContent=msg;n.className='banner'+(kind==='warn'?' warn':'');
+  n.setAttribute('role',kind==='warn'?'alert':'status');n.hidden=false;announce(msg);
+}
+function clearNotice(){var n=$('#notice');n.hidden=true;n.textContent='';}
+function askInline(msg,yesLabel,onYes){
+  var n=$('#notice');n.textContent='';n.className='banner warn';n.setAttribute('role','alert');
+  var p=h('p',null,msg);n.appendChild(p);
+  var y=h('button','btn',yesLabel);y.type='button';
+  var c=h('button','btn','Cancel');c.type='button';
+  y.addEventListener('click',function(){clearNotice();onYes();});
+  c.addEventListener('click',function(){clearNotice();});
+  n.appendChild(y);n.appendChild(c);n.hidden=false;y.focus();
+}
+
+/* ================= saving ================= */
+function checkStorage(){
+  try{var k=STORAGE_KEY+'.test';window.localStorage.setItem(k,'1');window.localStorage.removeItem(k);storageOK=true;}
+  catch(e){storageOK=false;}
+}
+function setSaveStatus(kind){
+  var s=$('#save-status');
+  if(kind==='saved'){s.className='save-status';s.textContent='\u2713 Progress saved on this device'+(savedOnce?'':'');}
+  else if(kind==='saving'){s.className='save-status';s.textContent='Saving...';}
+  else if(kind==='failed'){s.className='save-status warn';s.textContent='\u26A0 Not saved on this device. Use Save Progress File.';}
+  else{s.className='save-status';s.textContent='Progress saves automatically after you begin';}
+}
+function record(){
+  var st=state.step;if(st===0)st=returnStep||1;
+  return {app:APP_ID,version:APP_VERSION,savedAt:new Date().toISOString(),student:state.student,step:st,maxStep:state.maxStep,answers:state.answers,completion:completionMap(),status:allComplete()?'complete':'in-progress'};
+}
+function showStorageWarning(){
+  var w=$('#storage-warning');
+  w.textContent='Your browser is not letting this page save progress automatically. This can happen in private browsing or when the page is embedded. Your work will be lost if you close this page, so use Save Progress File often to download a backup.';
+  w.hidden=false;
+}
+function saveNow(){
+  clearTimeout(saveTimer);
+  if(!state.student)return;
+  if(!storageOK){setSaveStatus('failed');showStorageWarning();return;}
+  try{
+    window.localStorage.setItem(STORAGE_KEY,JSON.stringify(record()));
+    savedOnce=true;setSaveStatus('saved');$('#storage-warning').hidden=true;
+  }catch(e){storageOK=false;setSaveStatus('failed');showStorageWarning();}
+}
+function scheduleSave(){
+  if(!state.student)return;
+  clearTimeout(saveTimer);setSaveStatus('saving');
+  saveTimer=setTimeout(saveNow,350);
+}
+
+/* ================= validate / sanitize ================= */
+function cleanName(v){
+  if(typeof v!=='string')return '';
+  var s=v.replace(/\s+/g,' ').trim();
+  if(!s||s.length>40)return '';
+  var ok;
+  try{ok=new RegExp("^[\\p{L}\\p{M}][\\p{L}\\p{M} .'\\u2019-]*$","u").test(s);}
+  catch(e){ok=/^[A-Za-z][A-Za-z .'-]*$/.test(s);}
+  return ok?s:'';
+}
+function sanitizeState(s){
+  if(!isObj(s)||!isObj(s.student))return null;
+  var first=cleanName(s.student.first),last=cleanName(s.student.last),period=String(s.student.period);
+  if(!first||!last||PERIODS.indexOf(period)<0)return null;
+  var answers={},src=isObj(s.answers)?s.answers:{};
+  Object.keys(src).forEach(function(k){
+    if(!hasOwn(FIELDS,k))return;
+    var v=src[k];if(typeof v!=='string')return;
+    var f=FIELDS[k];
+    if(f.kind==='text'){answers[k]=v.slice(0,MAXLEN);}
+    else if(f.allowed.indexOf(v)>=0){answers[k]=v;}
+  });
+  return {student:{first:first,last:last,period:period},step:toInt(s.step,1,0,6),maxStep:toInt(s.maxStep,1,1,5),answers:answers};
+}
+function loadSaved(){
+  if(!storageOK)return null;
+  try{
+    var raw=window.localStorage.getItem(STORAGE_KEY);if(!raw)return null;
+    var obj=JSON.parse(raw);
+    if(!isObj(obj)||obj.app!==APP_ID)return null;
+    return sanitizeState(obj);
+  }catch(e){return null;}
+}
+
+/* ================= names ================= */
+function safeName(s){
+  var t=String(s||'');
+  try{t=t.normalize('NFD').replace(/[\u0300-\u036f]/g,'');}catch(e){}
+  t=t.replace(/[^A-Za-z0-9-]/g,'');
+  return t||'Student';
+}
+function fileBase(){
+  var st=state.student;
+  return 'ZombieFiles_FinalVerdict_'+safeName(st?st.last:'')+'_'+safeName(st?st.first:'');
+}
+
+/* ================= navigation ================= */
+function currentStepEl(){return document.getElementById('step-'+state.step);}
+function updateChrome(){
+  var st=state.student;
+  $('#student-badge').hidden=!st;
+  if(st)$('#student-text').textContent=st.first+' '+st.last+', Period '+st.period;
+  $('#stepper').hidden=!st;
+  $$('.step-btn').forEach(function(btn){
+    var n=parseInt(btn.getAttribute('data-step'),10),stEl=$('.st',btn);
+    var done,locked,text;
+    if(n<=5){done=partComplete(n);locked=n>state.maxStep;text=done?'\u2713 Done':(locked?'Locked':(n===state.step?'Current':'In progress'));}
+    else{done=false;locked=!allComplete();text=locked?'Locked':(n===state.step?'Current':'Ready');}
+    btn.disabled=locked;btn.classList.toggle('done',done);
+    if(n===6)btn.title=locked?'Unlocks when all five parts are complete':'';
+    if(n===state.step)btn.setAttribute('aria-current','step');else btn.removeAttribute('aria-current');
+    stEl.textContent=text;
+  });
+  var c=completeCount();$('#prog').value=c;
+  var label=state.step>=1&&state.step<=5?'Part '+state.step+' of 5':(state.step===6?'Final Case File':'');
+  $('#prog-text').textContent=(label?label+'. ':'')+c+' of 5 sections complete';
+}
+function showStep(n,opts){
+  opts=opts||{};
+  if(n>=1&&!state.student)n=0;
+  if(n===6&&!allComplete())n=5;
+  ttsStop(true);
+  document.title=baseTitle;
+  clearNotice();
+  state.step=n;
+  if(n>=1&&n<=5&&n>state.maxStep)state.maxStep=n;
+  for(var i=0;i<=6;i++){var el=document.getElementById('step-'+i);if(el)el.hidden=(i!==n);}
+  document.body.setAttribute('data-step',String(n));
+  if(n>=1&&n<=5){renderChecklist(n);var v=$('#validation');if(v)v.hidden=true;}
+  if(n===6)renderFinal();
+  updateChrome();
+  if(state.student)saveNow();
+  var hd=document.getElementById('h-'+n);
+  if(hd&&!opts.noFocus){hd.focus();}
+  window.scrollTo(0,0);
+  if(!opts.silent){
+    var names=['Check-in','Part 1: '+PARTS[0].title,'Part 2: '+PARTS[1].title,'Part 3: '+PARTS[2].title,'Part 4: '+PARTS[3].title,'Part 5: '+PARTS[4].title,'Final Case File'];
+    announce('Now showing '+names[n]+'.');
+  }
+}
+function attemptFinish(){
+  var box=$('#validation');
+  if(allComplete()){box.hidden=true;showStep(6);return;}
+  var items=[];
+  PARTS.forEach(function(p){p.questions.forEach(function(b){if(!blockComplete(b))items.push({p:p,b:b});});});
+  box.innerHTML='';
+  box.appendChild(h('h3',null,'Some responses are still needed'));
+  box.appendChild(h('p',null,'Your answers have been kept. Complete the items below to open your Final Case File.'));
+  var ul=h('ul');
+  items.forEach(function(it){
+    var li=h('li'),b=h('button','linkbtn','Part '+it.p.n+', '+it.b.num+': '+it.b.title);
+    b.type='button';b.setAttribute('data-goblock',it.b.id);li.appendChild(b);ul.appendChild(li);
+  });
+  box.appendChild(ul);box.hidden=false;box.focus();
+  announce('Some responses are still needed. '+items.length+' items are incomplete.');
+}
+function goToBlock(blockId){
+  var target=null;
+  PARTS.forEach(function(p){p.questions.forEach(function(b){if(b.id===blockId)target=b;});});
+  if(!target)return;
+  showStep(target.part,{noFocus:true,silent:true});
+  var first=target.fieldIds.filter(function(id){return !fieldFilled(id);})[0]||target.fieldIds[0];
+  var el=FIELDS[first].kind==='radio'?$('input[name="'+first+'"]'):document.getElementById(first);
+  if(el){el.focus();if(el.scrollIntoView)el.scrollIntoView({block:'center'});}
+}
+
+/* ================= final screen ================= */
+function renderFinal(){
+  var ok=allComplete();
+  var fs=$('#final-status');
+  fs.className=ok?'status-ok':'status-no';
+  fs.textContent=ok?'\u2713 Completion status: all five sections are complete.':'Completion status: some responses are still needed.';
+  var sc=computeScores();
+  var ul=$('#final-scores');ul.innerHTML='';
+  [['Total possible points',sc.total+' points'],
+   ['Automatically scored points (objective questions only)',fmt(sc.autoEarned)+' of '+fmt(sc.autoPossible)+' possible'],
+   ['Points pending teacher evaluation (written and structured responses)',fmt(sc.pending)+' points']].forEach(function(r){
+    var li=h('li');li.appendChild(h('strong',null,r[0]+': '));li.appendChild(document.createTextNode(r[1]));ul.appendChild(li);
+  });
+  $('#fname').value=fileBase()+'.pdf';
+  var gp=$('#goto-parts');gp.innerHTML='';
+  PARTS.forEach(function(p,i){
+    var b=h('button','btn','Part '+p.n+': '+PART_SHORT[i]);b.type='button';b.setAttribute('data-go',String(p.n));gp.appendChild(b);gp.appendChild(document.createTextNode(' '));
+  });
+  buildReport();
+}
+
+/* ================= report ================= */
+function displayValue(id){
+  var f=FIELDS[id],v=state.answers[id]||'';
+  if(!v)return '';
+  if(f.kind==='text')return v;
+  var o=f.options.filter(function(x){return x.v===v;})[0];
+  if(!o)return '';
+  return f.block.t==='match'?(o.v+'. '+o.t):o.t;
+}
+function answerEl(text){
+  if(!text||!String(text).trim())return h('p','noresp','No response entered.');
+  var d=h('div','answer student-answer no-read');d.textContent=text;return d;
+}
+function buildReport(){
+  var r=$('#report');r.textContent='';
+  var st=state.student,sc=computeScores();
+  var prev=h('p','rp-preview-note','Preview of your Final Case File. Use the Print / Save button above to make your PDF.');
+  r.appendChild(prev);
+  var head=h('div','rp-head');
+  head.appendChild(h('p','rp-org','Ravenwood Research Division'));
+  head.appendChild(h('h2','rp-title','THE ZOMBIE FILES'));
+  head.appendChild(h('p','rp-sub','Final Case Verdict: Could Z-02 Really Survive?'));
+  r.appendChild(head);
+
+  var t=h('table','rp-table'),tb=h('tbody');
+  [['Student',st?(st.first+' '+st.last):'Not entered'],['Class period',st?st.period:'Not entered'],
+   ['Assessment','Final Case Verdict: Could Z-02 Really Survive? (50-point summative performance assessment)'],
+   ['Completion status',allComplete()?'Complete: all five sections have responses.':'Incomplete: '+completeCount()+' of 5 sections complete.'],
+   ['Report prepared',new Date().toLocaleString()]].forEach(function(row){
+    var tr=h('tr');tr.appendChild(h('th',null,row[0]));tr.lastChild.setAttribute('scope','row');tr.appendChild(h('td',null,row[1]));tb.appendChild(tr);
+  });
+  t.appendChild(tb);r.appendChild(t);
+
+  var st2=h('table','rp-table');st2.appendChild(h('caption',null,'Scoring summary (for teacher use)'));
+  var thead=h('thead'),hr=h('tr');
+  ['Section','Automatically scored (earned of possible)','Pending teacher evaluation','Section total possible'].forEach(function(x){var th=h('th',null,x);th.setAttribute('scope','col');hr.appendChild(th);});
+  thead.appendChild(hr);st2.appendChild(thead);
+  var sb=h('tbody');
+  sc.parts.forEach(function(p){
+    var tr=h('tr');
+    tr.appendChild(h('td',null,'Part '+p.n+': '+p.title));
+    tr.appendChild(h('td',null,fmt(p.earned)+' of '+fmt(p.possible)));
+    tr.appendChild(h('td',null,fmt(p.pending)+' points'));
+    tr.appendChild(h('td',null,fmt(p.total)));
+    sb.appendChild(tr);
+  });
+  var tot=h('tr');
+  tot.appendChild(h('th',null,'Total'));tot.lastChild.setAttribute('scope','row');
+  tot.appendChild(h('td',null,fmt(sc.autoEarned)+' of '+fmt(sc.autoPossible)));
+  tot.appendChild(h('td',null,fmt(sc.pending)+' points'));
+  tot.appendChild(h('td',null,fmt(sc.total)));
+  sb.appendChild(tot);st2.appendChild(sb);r.appendChild(st2);
+  r.appendChild(h('p','rp-note','Automatically scored points come from objective questions only. All written and structured responses are pending teacher evaluation. No final grade is shown on this report.'));
+
+  PARTS.forEach(function(p){
+    var sec=h('section','rp-part');
+    sec.appendChild(h('h3','rp-part-h','Part '+p.n+': '+p.title+' (10 points)'));
+    sec.appendChild(h('p','rp-status','Section status: '+(partComplete(p.n)?'Complete':'Incomplete')));
+    p.questions.forEach(function(b){
+      var q=h('div','rq');
+      q.appendChild(h('h4','rq-h',b.num+'. '+b.title));
+      q.appendChild(h('p','rq-meta',fmt(b.pts)+(b.pts===1?' point':' points')+'. '+(b.auto?'Scored automatically.':'Pending teacher evaluation.')));
+      if(b.leadText)q.appendChild(h('p','rq-lead',b.leadText));
+      q.appendChild(h('p','rq-prompt',b.prompt));
+      if(b.t==='radio'||b.t==='text'){
+        q.appendChild(answerEl(displayValue(b.fieldIds[0])));
+      }else if(b.t==='sort'||b.t==='match'){
+        var tb2=h('table','rp-table'),th2=h('thead'),hr2=h('tr');
+        [b.t==='sort'?'Statement':'Item',b.t==='sort'?'Student classification':'Student choice'].forEach(function(x){var th=h('th',null,x);th.setAttribute('scope','col');hr2.appendChild(th);});
+        th2.appendChild(hr2);tb2.appendChild(th2);
+        var bd=h('tbody');
+        b.fieldIds.forEach(function(id){
+          var tr=h('tr');tr.appendChild(h('td',null,FIELDS[id].label));
+          var td=h('td','student-answer no-read',displayValue(id)||'No response entered.');tr.appendChild(td);bd.appendChild(tr);
+        });
+        tb2.appendChild(bd);q.appendChild(tb2);
+      }else if(b.t==='fields'){
+        b.groups.forEach(function(g){
+          if(g.heading)q.appendChild(h('p','rq-lbl',g.heading));
+          g.fields.forEach(function(f){
+            q.appendChild(h('p','rq-lbl',f.label));
+            q.appendChild(answerEl(displayValue(f.id)));
+          });
+        });
+      }
+      sec.appendChild(q);
+    });
+    r.appendChild(sec);
+  });
+}
+
+/* ================= text to speech ================= */
+var tts={supported:false,state:'idle',chunks:[],idx:0,token:0,rate:1,utter:null,needsRestart:false};
+var BLOCK_TAGS={DIV:1,P:1,LI:1,UL:1,OL:1,H1:1,H2:1,H3:1,H4:1,H5:1,SECTION:1,ARTICLE:1,FIELDSET:1,LEGEND:1,LABEL:1,TR:1,TD:1,TH:1,TABLE:1,CAPTION:1,FIGURE:1,FIGCAPTION:1,BLOCKQUOTE:1,BUTTON:1,ASIDE:1,DL:1,DT:1,DD:1,BR:1,FORM:1};
+var SKIP_TAGS={SCRIPT:1,STYLE:1,SVG:1,TEXTAREA:1,INPUT:1,SELECT:1,OPTION:1,NOSCRIPT:1};
+function skipNode(el){
+  if(el.hidden)return true;
+  if(el.getAttribute('aria-hidden')==='true')return true;
+  var c=el.classList;
+  if(c.contains('no-read')||c.contains('sr-only'))return true;
+  if(SKIP_TAGS[el.tagName.toUpperCase()])return true;
+  var cs=window.getComputedStyle(el);
+  if(cs&&(cs.display==='none'||cs.visibility==='hidden'))return true;
+  return false;
+}
+function ttsClean(t){
+  return t.replace(/\bZ-0(\d)\b/g,'Z zero $1').replace(/NAD\+/g,'N A D plus').replace(/\b1 pt\b/g,'1 point').replace(/\bpts\b/g,'points')
+    .replace(/\.\.\./g,' dot dot dot').replace(/\s+/g,' ').trim();
+}
+function collectReadable(root){
+  var out=[],cur='';
+  function flush(){
+    var t=ttsClean(cur);cur='';
+    if(!t)return;
+    if(!/[.!?:;]$/.test(t))t+='.';
+    out.push(t);
+  }
+  function walk(node){
+    if(node.nodeType===3){cur+=node.textContent;return;}
+    if(node.nodeType!==1)return;
+    if(skipNode(node))return;
+    var blk=BLOCK_TAGS[node.tagName.toUpperCase()];
+    if(blk)flush();
+    for(var c=node.firstChild;c;c=c.nextSibling)walk(c);
+    if(blk)flush();
+  }
+  walk(root);flush();
+  var chunks=[];
+  out.forEach(function(s){
+    if(s.length<=220){chunks.push(s);return;}
+    var parts=s.match(/[^.!?]+[.!?]+["')\]]*|[^.!?]+$/g)||[s],buf='';
+    parts.forEach(function(p){
+      if((buf+p).length>220&&buf){chunks.push(buf.trim());buf='';}
+      buf+=p+' ';
+    });
+    if(buf.trim())chunks.push(buf.trim());
+  });
+  return chunks;
+}
+function ttsButtons(){
+  var sp=tts.state;
+  $('#tts-play').disabled=!tts.supported;
+  $('#tts-pause').disabled=!(tts.supported&&sp==='speaking');
+  $('#tts-resume').disabled=!(tts.supported&&sp==='paused');
+  $('#tts-stop').disabled=!(tts.supported&&(sp==='speaking'||sp==='paused'));
+  $('#tts-speed').disabled=!tts.supported;
+}
+function ttsMsg(msg){var m=$('#tts-msg');if(msg){m.textContent=msg;m.hidden=false;}else{m.textContent='';m.hidden=true;}}
+function pickVoice(){
+  try{
+    var vs=window.speechSynthesis.getVoices()||[];
+    var en=vs.filter(function(v){return /^en(-|_|$)/i.test(v.lang);});
+    var pref=en.filter(function(v){return /en-US/i.test(v.lang);})[0]||en[0];
+    return pref||null;
+  }catch(e){return null;}
+}
+function speakNext(tok){
+  if(tok!==tts.token)return;
+  if(tts.idx>=tts.chunks.length){tts.state='idle';tts.utter=null;ttsButtons();announce('Finished reading this section.');return;}
+  var u=new window.SpeechSynthesisUtterance(tts.chunks[tts.idx]);
+  u.rate=tts.rate;u.lang='en-US';
+  var v=pickVoice();if(v)u.voice=v;
+  u.onend=function(){if(tok!==tts.token)return;tts.idx++;speakNext(tok);};
+  u.onerror=function(e){
+    if(tok!==tts.token)return;
+    var er=e&&e.error;
+    if(er==='interrupted'||er==='canceled')return;
+    ttsStop(true);ttsMsg('Read-aloud could not start in this browser. You can still complete the assessment without it.');
+  };
+  tts.utter=u;
+  try{window.speechSynthesis.speak(u);}catch(err){ttsStop(true);ttsMsg('Read-aloud could not start in this browser. You can still complete the assessment without it.');}
+}
+function ttsStart(){
+  if(!tts.supported)return;
+  var root=currentStepEl();if(!root)return;
+  ttsMsg('');
+  var chunks=collectReadable(root);
+  try{window.speechSynthesis.cancel();window.speechSynthesis.resume();}catch(e){}
+  tts.token++;tts.chunks=chunks;tts.idx=0;tts.needsRestart=false;
+  if(!chunks.length){tts.state='idle';ttsButtons();announce('There is nothing to read on this page.');return;}
+  tts.state='speaking';ttsButtons();announce('Reading this section aloud.');
+  speakNext(tts.token);
+}
+function ttsPause(){
+  if(!tts.supported||tts.state!=='speaking')return;
+  try{window.speechSynthesis.pause();}catch(e){}
+  tts.state='paused';ttsButtons();announce('Reading paused.');
+}
+function ttsResume(){
+  if(!tts.supported||tts.state!=='paused')return;
+  if(tts.needsRestart){tts.needsRestart=false;tts.token++;tts.state='speaking';ttsButtons();speakNext(tts.token);announce('Reading resumed.');return;}
+  try{window.speechSynthesis.resume();}catch(e){}
+  tts.state='speaking';ttsButtons();announce('Reading resumed.');
+}
+function ttsStop(quiet){
+  tts.token++;tts.chunks=[];tts.idx=0;tts.needsRestart=false;
+  var was=tts.state;tts.state='idle';tts.utter=null;
+  if(tts.supported){try{window.speechSynthesis.cancel();}catch(e){}}
+  ttsButtons();
+  if(!quiet&&was!=='idle')announce('Reading stopped.');
+}
+function ttsSpeed(){
+  tts.rate=parseFloat($('#tts-speed').value)||1;
+  if(tts.state==='speaking'){
+    tts.token++;try{window.speechSynthesis.cancel();}catch(e){}
+    speakNext(tts.token);
+  }else if(tts.state==='paused'){
+    tts.token++;try{window.speechSynthesis.cancel();}catch(e){}
+    tts.needsRestart=true;
+  }
+}
+function initTTS(){
+  tts.supported=('speechSynthesis' in window)&&('SpeechSynthesisUtterance' in window);
+  if(!tts.supported){
+    ttsMsg('Read-aloud is not available in this browser. You can still complete the whole assessment without it. Chrome or Edge usually supports it.');
+  }else{
+    try{window.speechSynthesis.getVoices();}catch(e){}
+  }
+  ttsButtons();
+}
+
+/* ================= backup file ================= */
+function exportProgress(){
+  var payload={app:APP_ID,version:APP_VERSION,exportedAt:new Date().toISOString(),
+    purpose:'Progress backup only. Do not submit this file. Submit the final PDF instead.',state:record()};
+  if(!state.student){payload.state.student={first:'Student',last:'Student',period:'1'};}
+  var blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  var a=document.createElement('a');
+  var url=URL.createObjectURL(blob);
+  a.href=url;
+  a.download='ZombieFiles_Progress_'+safeName(state.student?state.student.last:'')+'_'+safeName(state.student?state.student.first:'')+'.json';
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(function(){URL.revokeObjectURL(url);},1500);
+  notice('A progress backup file was created. Check your Downloads folder. This file is only for restoring your work later. It is not your final submission.');
+}
+function applyLoaded(clean){
+  state.student=clean.student;state.answers=clean.answers;state.maxStep=clean.maxStep;
+  applyAnswersToDOM();
+  var s=clean.step;if(s<1)s=1;
+  PARTS.forEach(function(p){if(partComplete(p.n)&&p.n+1<=5&&p.n+1>state.maxStep)state.maxStep=p.n+1;});
+  if(s>5)s=allComplete()?6:5;
+  if(s<=5&&s>state.maxStep)state.maxStep=s;
+  returnStep=null;
+  saveNow();
+  showStep(s,{noFocus:false});
+  notice('Progress file loaded. Your answers were restored.');
+}
+function loadFileChosen(){
+  var input=$('#file-input'),f=input.files&&input.files[0];
+  if(!f)return;
+  input.value='';
+  if(f.size>1000000){notice('That file is too large to be a Zombie Files progress file, so it was not loaded.','warn');return;}
+  var rd=new FileReader();
+  rd.onerror=function(){notice('That file could not be read, so it was not loaded.','warn');};
+  rd.onload=function(){
+    var obj;
+    try{obj=JSON.parse(String(rd.result));}
+    catch(e){notice('That file is not a valid progress file, so it was not loaded. Your current work was not changed.','warn');return;}
+    if(!isObj(obj)||obj.app!==APP_ID||obj.version!==APP_VERSION||!isObj(obj.state)){notice('That file is not a progress file for this assessment, so it was not loaded. Your current work was not changed.','warn');return;}
+    var clean=sanitizeState(obj.state);
+    if(!clean){notice('That progress file is missing information or has unexpected content, so it was not loaded. Your current work was not changed.','warn');return;}
+    var hasWork=state.student&&Object.keys(state.answers).some(function(k){return state.answers[k];});
+    if(hasWork){askInline('Loading this file replaces the work currently in this browser. Continue?','Yes, load the file',function(){applyLoaded(clean);});}
+    else{applyLoaded(clean);}
+  };
+  rd.readAsText(f);
+}
+
+/* ================= display prefs ================= */
+var prefs={size:0,easy:false};
+function loadPrefs(){
+  try{var raw=window.localStorage.getItem(PREFS_KEY);if(raw){var o=JSON.parse(raw);if(isObj(o)){prefs.size=toInt(o.size,0,0,2);prefs.easy=o.easy===true;}}}catch(e){}
+}
+function savePrefs(){try{window.localStorage.setItem(PREFS_KEY,JSON.stringify(prefs));}catch(e){}}
+function applyPrefs(){
+  var r=document.documentElement;
+  r.classList.remove('size-1','size-2');
+  if(prefs.size>0)r.classList.add('size-'+prefs.size);
+  r.classList.toggle('easy',prefs.easy);
+  $('#size-down').disabled=prefs.size<=0;
+  $('#size-up').disabled=prefs.size>=2;
+  $('#easy-toggle').setAttribute('aria-pressed',prefs.easy?'true':'false');
+}
+
+/* ================= identification form ================= */
+function showErr(id,msg){var e=$('#'+id);e.textContent=msg;e.hidden=false;}
+function clearErr(){['err-first','err-last','err-period'].forEach(function(i){var e=$('#'+i);e.textContent='';e.hidden=true;});}
+function submitId(ev){
+  ev.preventDefault();clearErr();
+  var first=cleanName($('#id-first').value),last=cleanName($('#id-last').value),period=$('#id-period').value;
+  var bad=null;
+  if(!first){showErr('err-first','Enter your first name using letters only (up to 40 characters).');bad=bad||'id-first';}
+  if(!last){showErr('err-last','Enter your last name using letters only (up to 40 characters).');bad=bad||'id-last';}
+  if(PERIODS.indexOf(period)<0){showErr('err-period','Choose your class period.');bad=bad||'id-period';}
+  if(bad){$('#'+bad).focus();announce('Please fix the highlighted fields.');return;}
+  var editing=!!state.student&&returnStep;
+  state.student={first:first,last:last,period:period};
+  var go=editing?returnStep:1;
+  returnStep=null;
+  if(state.maxStep<1)state.maxStep=1;
+  saveNow();
+  showStep(go);
+}
+function openIdEdit(){
+  if(!state.student)return;
+  returnStep=state.step>=1?state.step:1;
+  ttsStop(true);
+  $('#resume-box').hidden=true;$('#id-form').hidden=false;
+  $('#id-first').value=state.student.first;$('#id-last').value=state.student.last;$('#id-period').value=state.student.period;
+  $('#id-submit').textContent='Save and continue';
+  showStep(0);
+}
+
+/* ================= events ================= */
+function onFieldChange(ev){
+  var t=ev.target;
+  if(!t||!t.name)return;
+  var id=t.name;
+  if(!hasOwn(FIELDS,id))return;
+  var f=FIELDS[id];
+  if(t.type==='radio'){if(!t.checked)return;}
+  state.answers[id]=t.value;
+  renderChecklist(f.part);
+  updateChrome();
+  scheduleSave();
+}
+function insertStarter(btn){
+  var ta=document.getElementById(btn.getAttribute('data-target'));if(!ta)return;
+  var t=btn.getAttribute('data-text'),cur=ta.value;
+  var joined=cur?(/\s$/.test(cur)?cur:cur+' ')+t:t;
+  ta.value=joined.slice(0,MAXLEN);
+  ta.focus();try{ta.setSelectionRange(ta.value.length,ta.value.length);}catch(e){}
+  ta.dispatchEvent(new Event('input',{bubbles:true}));
+}
+var baseTitle=document.title;
+function doPrint(){
+  buildReport();
+  document.title=fileBase();
+  window.print();
+}
+function copyFilename(){
+  var inp=$('#fname'),name=inp.value;
+  function fallback(){inp.focus();inp.select();try{document.execCommand('copy');announce('Filename selected. Press Control C to copy if needed.');}catch(e){}}
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(name).then(function(){announce('Filename copied.');},fallback);
+  }else fallback();
+}
+
+function bindEvents(){
+  var main=$('#main');
+  main.addEventListener('input',onFieldChange);
+  main.addEventListener('change',onFieldChange);
+  main.addEventListener('click',function(ev){
+    var b=ev.target.closest?ev.target.closest('button'):null;if(!b)return;
+    if(b.classList.contains('starter')){insertStarter(b);return;}
+    var nav=b.getAttribute('data-nav');
+    if(nav==='prev'){showStep(state.step-1);return;}
+    if(nav==='next'){if(state.step+1>state.maxStep)state.maxStep=state.step+1;showStep(state.step+1);return;}
+    if(nav==='finish'){attemptFinish();return;}
+    var go=b.getAttribute('data-go');if(go){showStep(parseInt(go,10));return;}
+    var gb=b.getAttribute('data-goblock');if(gb){goToBlock(gb);return;}
+  });
+  $$('.step-btn').forEach(function(btn){btn.addEventListener('click',function(){
+    var n=parseInt(btn.getAttribute('data-step'),10);
+    if(n===6){showStep(6);return;}
+    showStep(n);
+  });});
+  $('#id-form').addEventListener('submit',submitId);
+  $('#edit-student').addEventListener('click',openIdEdit);
+  $('#resume-yes').addEventListener('click',function(){
+    var s=pendingSaved;if(!s)return;
+    state.student=s.student;state.answers=s.answers;state.maxStep=s.maxStep;
+    applyAnswersToDOM();
+    PARTS.forEach(function(p){if(partComplete(p.n)&&p.n+1<=5&&p.n+1>state.maxStep)state.maxStep=p.n+1;});
+    var go=s.step<1?1:s.step;if(go>5)go=allComplete()?6:5;
+    if(go<=5&&go>state.maxStep)state.maxStep=go;
+    pendingSaved=null;showStep(go);setSaveStatus('saved');
+  });
+  $('#resume-new').addEventListener('click',function(){$('#resume-actions').hidden=true;$('#resume-confirm').hidden=false;$('#resume-new-no').focus();});
+  $('#resume-new-no').addEventListener('click',function(){$('#resume-confirm').hidden=true;$('#resume-actions').hidden=false;$('#resume-yes').focus();});
+  $('#resume-new-yes').addEventListener('click',function(){
+    try{window.localStorage.removeItem(STORAGE_KEY);}catch(e){}
+    pendingSaved=null;state={student:null,step:0,maxStep:1,answers:{}};
+    applyAnswersToDOM();renderAllChecklists();updateChrome();
+    $('#resume-box').hidden=true;$('#id-form').hidden=false;$('#id-first').focus();
+    announce('Saved work erased. Enter your information to start over.');
+  });
+  $('#tts-play').addEventListener('click',ttsStart);
+  $('#tts-pause').addEventListener('click',ttsPause);
+  $('#tts-resume').addEventListener('click',ttsResume);
+  $('#tts-stop').addEventListener('click',function(){ttsStop(false);});
+  $('#tts-speed').addEventListener('change',ttsSpeed);
+  $('#size-down').addEventListener('click',function(){if(prefs.size>0){prefs.size--;applyPrefs();savePrefs();}});
+  $('#size-up').addEventListener('click',function(){if(prefs.size<2){prefs.size++;applyPrefs();savePrefs();}});
+  $('#easy-toggle').addEventListener('click',function(){prefs.easy=!prefs.easy;applyPrefs();savePrefs();});
+  $('#save-file').addEventListener('click',exportProgress);
+  $('#load-file').addEventListener('click',function(){$('#file-input').click();});
+  $('#file-input').addEventListener('change',loadFileChosen);
+  $('#print-btn').addEventListener('click',doPrint);
+  $('#fname-copy').addEventListener('click',copyFilename);
+  window.addEventListener('beforeprint',function(){buildReport();document.title=fileBase();});
+  window.addEventListener('afterprint',function(){document.title=baseTitle;});
+  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')saveNow();});
+  window.addEventListener('pagehide',function(){saveNow();ttsStop(true);});
+}
+
+/* ================= init ================= */
+function init(){
+  checkStorage();
+  loadPrefs();applyPrefs();
+  buildSteps();
+  renderAllChecklists();
+  initTTS();
+  bindEvents();
+  var embedded=false;try{embedded=window.self!==window.top;}catch(e){embedded=true;}
+  if(embedded){
+    $('#embed-note').hidden=false;$('#embed-link').href=window.location.href;
+    $('#embed-note-final').hidden=false;$('#embed-link-final').href=window.location.href;
+  }
+  if(!storageOK){showStorageWarning();setSaveStatus('failed');}
+  var saved=loadSaved();
+  if(saved){
+    pendingSaved=saved;
+    $('#resume-text').textContent='Saved work was found for '+saved.student.first+' '+saved.student.last+', Period '+saved.student.period+'. Would you like to resume?';
+    $('#resume-box').hidden=false;$('#id-form').hidden=true;
+  }
+  showStep(0,{noFocus:true,silent:true});
+  PARTS.forEach(function(p){
+    var sum=p.questions.reduce(function(a,b){return a+b.pts;},0);
+    if(sum!==10&&window.console)console.warn('Part '+p.n+' points total '+sum);
+  });
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
+</body>
+</html>
