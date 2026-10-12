@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Build Your Plate: MyPlate Challenge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+:root{
+  --bg:#eef2f7; --card:#ffffff; --text:#0f172a; --muted:#334155; --line:#64748b; --soft:#cbd5e1;
+  --primary:#1e3a8a; --primary-text:#ffffff; --tint:#e3ebfb;
+  --good-bg:#e5f5e9; --good-line:#1b6e2e; --info-bg:#e3effb; --info-line:#0b5cad; --warn-bg:#fff2cf; --warn-line:#8a5a00;
+  --reading:#fff1a8; --reading-line:#7a5b00; --focus:#0f172a; --halo:#ffffff;
+  --c-fruits:#b3261e; --c-vegetables:#1b6e2e; --c-grains:#8a4b00; --c-protein:#6a2c91; --c-dairy:#0b5cad;
+  --font:"Atkinson Hyperlegible","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0b1220; --card:#162033; --text:#f1f5f9; --muted:#d5dde8; --line:#94a3b8; --soft:#334155;
+    --primary:#a9c4ff; --primary-text:#0b1220; --tint:#223356;
+    --good-bg:#12361f; --good-line:#6fcf8a; --info-bg:#112f4d; --info-line:#7db8f0; --warn-bg:#3b3010; --warn-line:#f0c56a;
+    --focus:#f1f5f9; --halo:#0b1220;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0b1220; --card:#162033; --text:#f1f5f9; --muted:#d5dde8; --line:#94a3b8; --soft:#334155;
+  --primary:#a9c4ff; --primary-text:#0b1220; --tint:#223356;
+  --good-bg:#12361f; --good-line:#6fcf8a; --info-bg:#112f4d; --info-line:#7db8f0; --warn-bg:#3b3010; --warn-line:#f0c56a;
+  --focus:#f1f5f9; --halo:#0b1220;
+}
+html{scroll-padding-top:calc(var(--sticky-h,0px) + env(safe-area-inset-top,0px) + 12px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);font-size:1.2rem;line-height:1.55}
+h1,h2,h3{line-height:1.2;margin:0 0 .5em}
+h1{font-size:2rem} h2{font-size:1.5rem} h3{font-size:1.25rem}
+p{margin:0 0 .8em}
+.sr-only{position:absolute!important;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.skip{position:absolute;left:-999px;top:8px;background:var(--primary);color:var(--primary-text);padding:12px 16px;border-radius:8px;z-index:100}
+.skip:focus{left:8px}
+:focus{outline:none}
+:focus-visible{outline:4px solid var(--focus);outline-offset:3px;box-shadow:0 0 0 7px var(--halo)}
+.wrap{max-width:1040px;margin:0 auto;padding:12px 16px 40px}
+
+/* Read Aloud toolbar */
+.toolbar{background:var(--card);border-bottom:3px solid var(--line);padding:10px 16px;z-index:30}
+.toolbar .in{max-width:1040px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.toolbar .lbl{font-weight:700;margin-right:4px}
+.toolbar label{display:flex;align-items:center;gap:6px;font-size:1.05rem}
+.toolbar select{font:inherit;font-size:1.05rem;min-height:48px;padding:6px 10px;border:3px solid var(--line);border-radius:10px;background:var(--card);color:var(--text)}
+#raStatus{font-size:1.05rem;color:var(--muted);min-width:5.5em}
+#raMsg{max-width:1040px;margin:8px auto 0;padding:10px 14px;border:3px solid var(--warn-line);background:var(--warn-bg);border-radius:10px;font-size:1.05rem}
+@media (min-width:720px) and (min-height:640px){.toolbar{position:sticky;top:env(safe-area-inset-top,0px)}}
+
+/* Buttons */
+.btn{font:inherit;font-size:1.1rem;font-weight:700;min-height:52px;padding:10px 20px;border:3px solid var(--line);background:var(--card);color:var(--text);border-radius:12px;cursor:pointer}
+.btn:hover{background:var(--tint)}
+.btn.primary{background:var(--primary);color:var(--primary-text);border-color:var(--primary)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.small{min-height:48px;padding:8px 14px;font-size:1.05rem}
+.btn[aria-disabled="true"]{border-style:dashed;cursor:not-allowed;opacity:.75}
+.btn.primary[aria-disabled="true"]{background:var(--card);color:var(--text);border-color:var(--line)}
+
+/* Progress */
+#progress{margin:14px 0 8px}
+.steptext{font-weight:700;margin-bottom:6px}
+.bar{height:10px;background:var(--soft);border-radius:6px;overflow:hidden;margin-bottom:10px}
+.bar>div{height:100%;background:var(--primary)}
+.steps{list-style:none;display:flex;gap:8px;padding:0;margin:0;flex-wrap:wrap}
+.step{display:flex;align-items:center;gap:6px;padding:6px 12px;border:2px solid var(--soft);border-radius:999px;font-size:1.05rem;background:var(--card)}
+.step .n{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;border:2px solid var(--line);font-weight:700;font-size:.95rem}
+.step.current{border:3px solid var(--primary);font-weight:700}
+.step.current .n{background:var(--primary);color:var(--primary-text);border-color:var(--primary)}
+.step.done .n{background:var(--good-line);color:#fff;border-color:var(--good-line)}
+@media (max-width:620px){.step:not(.current) .nm{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}.step:not(.current){padding:6px}}
+
+/* Screens */
+.screen{background:var(--card);border:2px solid var(--soft);border-radius:18px;padding:22px 22px 18px;margin-top:8px}
+.eyebrow{margin:0 0 4px;color:var(--muted);font-size:1.05rem}
+.titlerow{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;margin-bottom:6px}
+.titlerow h1{margin:0}
+.lead{font-size:1.25rem}
+.hint{border:3px solid var(--info-line);background:var(--info-bg);padding:12px 16px;border-radius:12px;margin:8px 0 14px}
+.callout{border-left:8px solid var(--primary);background:var(--tint);padding:14px 18px;border-radius:10px;margin:12px 0 18px;font-size:1.25rem}
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:860px){.split{grid-template-columns:1fr}}
+.sticky-col{position:static}
+@media (min-width:861px) and (min-height:700px){.sticky-col{position:sticky;top:calc(var(--sticky-h,0px) + env(safe-area-inset-top,0px) + 12px)}}
+.scene{border:2px dashed var(--line);border-radius:12px;padding:12px 16px;margin:10px 0 16px;background:var(--bg)}
+
+/* Plate */
+.plate{margin:0;text-align:center}
+.plate-svg{width:100%;max-width:470px;height:auto}
+.plate-svg text{font-family:var(--font)}
+.plate figcaption{font-size:1.05rem;color:var(--muted);margin-top:4px}
+.count{font-size:1.25rem;margin:6px 0}
+.chips{list-style:none;padding:0;margin:8px 0 0;display:grid;gap:6px;text-align:left}
+.chips li{display:flex;gap:8px;align-items:baseline;padding:8px 12px;border:2px solid var(--soft);border-radius:10px;font-size:1.05rem;background:var(--card)}
+.chips li.on{border:3px solid var(--good-line);background:var(--good-bg)}
+.chips .mk{font-weight:700;min-width:1.2em}
+
+/* Food cards */
+.gtag{display:inline-flex;align-items:center;gap:8px;color:#fff;font-weight:700;padding:6px 14px;border-radius:10px;font-size:1.15rem;margin:14px 0 8px}
+.gtag.fruits{background:var(--c-fruits)} .gtag.vegetables{background:var(--c-vegetables)} .gtag.grains{background:var(--c-grains)} .gtag.protein{background:var(--c-protein)} .gtag.dairy{background:var(--c-dairy)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:12px}
+.food{font:inherit;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:4px;text-align:center;min-height:138px;padding:12px 10px;border:3px solid var(--line);background:var(--card);color:var(--text);border-radius:14px;cursor:pointer;position:relative}
+.food:hover{background:var(--tint)}
+.food .em{font-size:2.4rem;line-height:1.1;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
+.food .nm{font-weight:700;font-size:1.15rem;line-height:1.2}
+.food .nt{font-size:1rem;color:var(--muted)}
+.food .st{font-size:1rem;font-weight:700;margin-top:auto;padding:2px 10px;border-radius:999px;border:2px solid var(--soft)}
+.food[aria-pressed="true"]{border-color:var(--primary);background:var(--tint);box-shadow:0 0 0 3px var(--primary)}
+.food[aria-pressed="true"] .st{background:var(--primary);color:var(--primary-text);border-color:var(--primary)}
+.food[aria-pressed="true"]:focus-visible{box-shadow:0 0 0 3px var(--primary),0 0 0 8px var(--halo)}
+
+/* Group buttons */
+.gbtns{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:10px 0 14px}
+.gbtn{font:inherit;font-size:1.15rem;font-weight:700;display:flex;gap:8px;align-items:center;justify-content:center;flex-wrap:wrap;min-height:60px;padding:10px 12px;border:3px solid transparent;border-radius:12px;color:#fff;cursor:pointer;text-align:center}
+.gbtn.fruits{background:var(--c-fruits)} .gbtn.vegetables{background:var(--c-vegetables)} .gbtn.grains{background:var(--c-grains)} .gbtn.protein{background:var(--c-protein)} .gbtn.dairy{background:var(--c-dairy)}
+.gbtn .em{font-size:1.6rem;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
+.gbtn .tick{font-size:1rem;background:rgba(255,255,255,.95);color:#111;border-radius:999px;padding:0 8px}
+.gbtn[aria-pressed="true"]{border-color:#fff;box-shadow:0 0 0 4px var(--text),inset 0 0 0 3px #fff;text-decoration:underline;text-underline-offset:5px;text-decoration-thickness:3px}
+.gbtn:hover{filter:brightness(1.1)}
+
+.panel{border:3px solid var(--line);border-radius:14px;padding:14px 18px;margin-top:8px;background:var(--card)}
+.panel .ex{display:flex;flex-wrap:wrap;gap:8px;list-style:none;padding:0;margin:8px 0}
+.panel .ex li{border:2px solid var(--soft);border-radius:999px;padding:4px 12px;font-size:1.05rem;background:var(--bg)}
+.panel .ex .e{font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
+
+/* Feedback */
+.fb{border:3px solid var(--info-line);background:var(--info-bg);border-radius:14px;padding:14px 18px;margin:16px 0}
+.fb.good{border-color:var(--good-line);background:var(--good-bg)}
+.fb.warn{border-color:var(--warn-line);background:var(--warn-bg)}
+.fb h2{font-size:1.3rem;margin-bottom:.4em}
+.fb ul{margin:.3em 0 .8em;padding-left:1.3em}
+.fb li{margin-bottom:.35em}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:12px 0}
+.tabs{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0 12px}
+.tab{font:inherit;font-size:1.1rem;font-weight:700;min-height:52px;padding:8px 16px;border:3px solid var(--line);background:var(--card);color:var(--text);border-radius:12px;cursor:pointer}
+.tab[aria-pressed="true"]{border-color:var(--primary);background:var(--primary);color:var(--primary-text)}
+.tab .ck{margin-left:6px}
+.bigfood{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;border:3px solid var(--line);border-radius:16px;padding:18px;margin:10px 0 14px;background:var(--bg)}
+.bigfood div{text-align:center;min-width:120px}
+.bigfood .em{font-size:3.6rem;line-height:1.1;font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif}
+.bigfood .nm{font-weight:700;font-size:1.15rem}
+.bottomnav{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-top:22px;padding-top:16px;border-top:3px solid var(--soft)}
+.navnote{flex:1 1 220px;text-align:center;margin:0;color:var(--muted);font-size:1.05rem}
+.summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:12px 0}
+.sg{border:3px solid var(--line);border-radius:14px;padding:12px 14px;background:var(--card)}
+.sg h3{display:flex;gap:8px;align-items:center;margin-bottom:.3em}
+.big{font-size:1.4rem}
+.reading,.reading *{color:#111827!important}
+.reading{background:var(--reading)!important;outline:4px dashed var(--reading-line);outline-offset:2px;border-radius:8px}
+details{border:2px solid var(--soft);border-radius:12px;padding:10px 14px;margin-top:16px}
+summary{font-weight:700;cursor:pointer;min-height:44px;display:flex;align-items:center}
+
+/* ===== Fun / color pass ===== */
+:root{--pgrad:linear-gradient(135deg,#1d4ed8,#6d28d9);--page:linear-gradient(160deg,#dbe8ff 0%,#f1e6ff 48%,#ffe6f0 100%);--ch:#0b5cad;--sc:#0b5cad}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--pgrad:linear-gradient(135deg,#a9c4ff,#dcc6ff);--page:linear-gradient(160deg,#0b1220 0%,#1a1240 55%,#2a0f2e 100%)}}
+:root[data-theme="dark"]{--pgrad:linear-gradient(135deg,#a9c4ff,#dcc6ff);--page:linear-gradient(160deg,#0b1220 0%,#1a1240 55%,#2a0f2e 100%)}
+body{background-color:var(--bg);background-image:var(--page);background-attachment:fixed}
+.topbar{max-width:1040px;margin:12px auto 0;padding:0 16px}
+.topbar-in{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#1e3a8a,#6d28d9 62%,#be185d);color:#fff;border-radius:16px 16px 0 0;padding:10px 18px}
+.brand{font-weight:700;font-size:1.35rem}
+.score{display:flex;gap:10px;flex-wrap:wrap}
+.pill{background:rgba(255,255,255,.18);border:2px solid #fff;border-radius:999px;padding:3px 14px;font-weight:700;font-size:1.05rem;color:#fff}
+.stripe{height:10px;border-radius:0 0 16px 16px;background:linear-gradient(90deg,var(--c-fruits) 0 20%,var(--c-vegetables) 20% 40%,var(--c-grains) 40% 60%,var(--c-protein) 60% 80%,var(--c-dairy) 80% 100%)}
+.screen{border-top:12px solid var(--ch);box-shadow:0 10px 30px rgba(40,20,100,.18)}
+.s1{--ch:#0b5cad}.s2{--ch:#1b6e2e}.s3{--ch:#8a4b00}.s4{--ch:#6a2c91}.s5{--ch:#b3261e}.s6{--ch:#be185d}.s7{--ch:#6d28d9}.s0{--ch:#6d28d9}
+.eyebrow{display:inline-block;background:var(--ch);color:#fff;padding:2px 14px;border-radius:999px;font-weight:700;font-size:1.05rem}
+.btn.primary{background:var(--pgrad);color:var(--primary-text);border-color:transparent}
+.tab[aria-pressed="true"]{background:var(--pgrad);border-color:transparent}
+.bar>div{background:linear-gradient(90deg,var(--c-fruits),var(--c-grains),var(--c-vegetables),var(--c-dairy),var(--c-protein))}
+.step.current{border-color:var(--sc)}
+.step.current .n,.step.done .n{background:var(--sc);border-color:var(--sc);color:#fff}
+.plate{background:radial-gradient(circle at 50% 35%,var(--card),var(--tint));border:3px solid var(--soft);border-radius:22px;padding:12px 10px}
+.scene{border:3px solid var(--ch);background:var(--card);border-radius:16px}
+.food{border-top-width:10px}
+.food.gc-fruits{border-top-color:var(--c-fruits)}.food.gc-vegetables{border-top-color:var(--c-vegetables)}.food.gc-grains{border-top-color:var(--c-grains)}.food.gc-protein{border-top-color:var(--c-protein)}.food.gc-dairy{border-top-color:var(--c-dairy)}
+.food[aria-pressed="true"] .em{transform:scale(1.15)}
+.food.gc-fruits[aria-pressed="true"]{border-color:var(--c-fruits);box-shadow:0 0 0 3px var(--c-fruits)}
+.food.gc-vegetables[aria-pressed="true"]{border-color:var(--c-vegetables);box-shadow:0 0 0 3px var(--c-vegetables)}
+.food.gc-grains[aria-pressed="true"]{border-color:var(--c-grains);box-shadow:0 0 0 3px var(--c-grains)}
+.food.gc-protein[aria-pressed="true"]{border-color:var(--c-protein);box-shadow:0 0 0 3px var(--c-protein)}
+.food.gc-dairy[aria-pressed="true"]{border-color:var(--c-dairy);box-shadow:0 0 0 3px var(--c-dairy)}
+.food.gc-fruits[aria-pressed="true"] .st{background:var(--c-fruits);border-color:var(--c-fruits);color:#fff}
+.food.gc-vegetables[aria-pressed="true"] .st{background:var(--c-vegetables);border-color:var(--c-vegetables);color:#fff}
+.food.gc-grains[aria-pressed="true"] .st{background:var(--c-grains);border-color:var(--c-grains);color:#fff}
+.food.gc-protein[aria-pressed="true"] .st{background:var(--c-protein);border-color:var(--c-protein);color:#fff}
+.food.gc-dairy[aria-pressed="true"] .st{background:var(--c-dairy);border-color:var(--c-dairy);color:#fff}
+.hero{background:linear-gradient(135deg,#1e3a8a,#6d28d9 60%,#be185d);color:#fff;border-radius:18px;padding:26px 24px;margin-bottom:16px}
+.hero h1{font-size:2.5rem;color:#fff;margin:.25em 0}
+.hero p{color:#fff;font-size:1.25rem;margin:0 0 .6em}
+.gpills{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.gpill{color:#fff;font-weight:700;padding:6px 14px;border-radius:999px;border:2px solid #fff;font-size:1.05rem}
+.missions{list-style:none;padding:0;margin:0 0 12px;display:grid;gap:8px}
+.missions li{border:3px solid var(--soft);border-left:12px solid var(--mc);border-radius:12px;padding:8px 14px;background:var(--card)}
+.badges{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:12px 0}
+.badge{border:3px dashed var(--line);border-radius:14px;padding:12px 14px;background:var(--card)}
+.badge.on{border-style:solid;border-color:var(--good-line);background:var(--good-bg)}
+.badge h3{margin-bottom:.2em}
+.bigscore{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0 0}
+.bigscore .pill{font-size:1.25rem;padding:6px 18px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<a class="skip" href="#screen">Skip to the game</a>
+
+<div class="toolbar" id="toolbar" role="region" aria-label="Read Aloud controls">
+  <div class="in">
+    <span class="lbl" aria-hidden="true">Listen:</span>
+    <button type="button" class="btn primary small" id="raPlay">🔊 Read Aloud</button>
+    <button type="button" class="btn small" id="raPause" aria-disabled="true">⏸ Pause</button>
+    <button type="button" class="btn small" id="raReplay">↻ Replay</button>
+    <button type="button" class="btn small" id="raStop" aria-disabled="true">⏹ Stop</button>
+    <label>Speed
+      <select id="raRate" aria-label="Reading speed">
+        <option value="0.6">Very slow</option>
+        <option value="0.8">Slow</option>
+        <option value="0.95" selected>Normal</option>
+        <option value="1.2">Fast</option>
+      </select>
+    </label>
+    <span id="raStatus">Ready</span>
+  </div>
+  <div id="raMsg" role="alert" hidden></div>
+</div>
+
+<div class="topbar"><div class="topbar-in"><div class="brand"><span aria-hidden="true">🍽️</span> Build Your Plate</div>
+<div class="score" role="group" aria-label="Your score"><span class="pill">⭐ <span id="ptsN">0</span> Plate Points</span><span class="pill" id="lvl">Level: Rookie</span></div></div><div class="stripe" aria-hidden="true"></div></div>
+<div class="wrap">
+  <div id="progress" hidden></div>
+  <main id="screen" class="screen" tabindex="-1" aria-label="Game"></main>
+</div>
+<div id="live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+<script>
+(function(){
+'use strict';
+var $=function(s,r){return (r||document).querySelector(s)};
+var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+var esc=function(s){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;')};
+
+/* ============ DATA ============ */
+var GK=['fruits','vegetables','grains','protein','dairy'];
+var G={
+ fruits:{name:'Fruits',emoji:'🍎',sample:['🍎','🍌'],
+  purpose:'Fruits give your body natural carbohydrates for energy, plus fiber, vitamin C, and potassium.',
+  counts:'Fresh, frozen, canned, and dried fruit all count, and so does 100% fruit juice. Whole fruit is a great choice because it also gives fiber.',
+  active:'A banana or an orange is an easy, quick source of energy before or after movement.',
+  role:'adds vitamins, fiber, and natural energy',
+  ex:[['🍎','Apple'],['🍌','Banana'],['🍊','Orange'],['🍓','Strawberries'],['🍇','Grapes'],['🥭','Mango']]},
+ vegetables:{name:'Vegetables',emoji:'🥦',sample:['🥦','🥕'],
+  purpose:'Vegetables give your body fiber, vitamins A and C, potassium, and other minerals.',
+  counts:'Dark green, red and orange, starchy, and other vegetables all count. Fresh, frozen, and canned count too. Beans, peas, and lentils can count as a vegetable or as a protein food. In this game, they are placed in Protein foods.',
+  active:'Colorful vegetables help the body work well all day, including during exercise.',
+  role:'adds fiber, vitamins, and minerals',
+  ex:[['🥦','Broccoli'],['🥕','Carrots'],['🥬','Leafy greens'],['🍠','Sweet potato'],['🌽','Corn'],['🍅','Tomato']]},
+ grains:{name:'Grains',emoji:'🍞',sample:['🍞','🍚'],
+  purpose:'Grains give your body carbohydrates, which are its main fuel for physical activity. They also supply B vitamins and fiber.',
+  counts:'Bread, rice, pasta, oats, tortillas, cereal, and popcorn count. Try to make at least half of your grains whole grains, such as whole-wheat bread, brown rice, and oatmeal.',
+  active:'Grains refill the energy your muscles use when you are active.',
+  role:'provides carbohydrates, the body\'s main fuel for activity',
+  ex:[['🍞','Whole-wheat bread'],['🍚','Brown rice'],['🍝','Pasta'],['🥣','Oatmeal'],['🍿','Popcorn'],['🥖','Whole-grain roll']]},
+ protein:{name:'Protein foods',emoji:'🍗',sample:['🍗','🥚'],
+  purpose:'Protein foods supply protein, iron, zinc, and B vitamins. Protein helps the body build and repair muscle.',
+  counts:'Meat, poultry, seafood, eggs, beans, lentils, nuts, seeds, and soy products such as tofu all count. Vary your choices over the week.',
+  active:'After activity, the body uses protein to repair and build muscle.',
+  role:'helps build and repair muscle',
+  ex:[['🍗','Chicken'],['🥚','Eggs'],['🐟','Salmon'],['🥜','Peanuts'],['🍲','Lentils'],['🍢','Tofu']]},
+ dairy:{name:'Dairy or fortified soy',emoji:'🥛',sample:['🥛','🧀'],
+  purpose:'Dairy foods and fortified soy drinks give you calcium, vitamin D, and protein, which help build and keep strong bones.',
+  counts:'Milk, yogurt, and cheese count. Lactose-free milk counts. Fortified soy milk and fortified soy yogurt count as well. Other plant drinks, like almond or rice milk, are not counted in this group because their nutrition is different.',
+  active:'Strong bones help support running, jumping, and every other kind of movement.',
+  role:'adds calcium and vitamin D for strong bones',
+  ex:[['🥛','Milk'],['🥄','Yogurt'],['🧀','Cheese'],['🥛','Fortified soy milk'],['🥛','Lactose-free milk']]}
+};
+var FD=[
+['apple','Apple slices','🍎','fruits','Crunchy, with fiber'],
+['banana','Banana','🍌','fruits','Quick energy and potassium'],
+['orange','Orange','🍊','fruits','Rich in vitamin C'],
+['strawberries','Strawberries','🍓','fruits','Vitamin C and fiber'],
+['grapes','Grapes','🍇','fruits','Sweet and easy to pack'],
+['mango','Mango chunks','🥭','fruits','Vitamins A and C'],
+['watermelon','Watermelon','🍉','fruits','Juicy and refreshing'],
+['carrots','Carrot sticks','🥕','vegetables','Vitamin A and fiber'],
+['broccoli','Broccoli','🥦','vegetables','Fiber and vitamin C'],
+['salad','Leafy green salad','🥬','vegetables','Dark green leafy vegetables'],
+['tomato','Tomato slices','🍅','vegetables','Vitamin C'],
+['spinach','Spinach','🥬','vegetables','Dark green vegetable'],
+['sweetpotato','Roasted sweet potato','🍠','vegetables','Vitamin A and fiber'],
+['corn','Corn on the cob','🌽','vegetables','A starchy vegetable'],
+['bread','Whole-wheat bread','🍞','grains','Whole grain for energy'],
+['rice','Brown rice','🍚','grains','Whole grain for energy'],
+['pasta','Whole-wheat pasta','🍝','grains','Carbohydrates for energy'],
+['roll','Whole-grain roll','🥖','grains','Whole grain with fiber'],
+['oatmeal','Oatmeal','🥣','grains','Whole grain with fiber'],
+['chicken','Grilled chicken','🍗','protein','Protein for muscles'],
+['egg','Hard-boiled egg','🥚','protein','Protein and vitamins'],
+['salmon','Baked salmon','🐟','protein','Protein and omega-3 fats'],
+['tofu','Tofu skewers','🍢','protein','Plant-based protein'],
+['lentils','Lentil soup','🍲','protein','Protein and fiber'],
+['pbutter','Peanut butter','🥜','protein','Protein from nuts'],
+['milk','Low-fat milk','🥛','dairy','Calcium and vitamin D'],
+['soymilk','Fortified soy milk','🥛','dairy','Dairy alternative with calcium'],
+['yogurt','Plain yogurt','🥄','dairy','Calcium and protein'],
+['cheese','Cheese cubes','🧀','dairy','Calcium']
+];
+var F={}; FD.forEach(function(r){F[r[0]]={id:r[0],n:r[1],e:r[2],g:r[3],note:r[4]}});
+
+var C2POOL={
+ fruits:['apple','banana','strawberries','orange'],
+ vegetables:['carrots','broccoli','salad','tomato'],
+ grains:['bread','rice','pasta','roll'],
+ protein:['chicken','egg','tofu','lentils'],
+ dairy:['milk','soymilk','yogurt','cheese']};
+var MEALS=[
+ {who:'Carlos',tab:'Meal 1: Carlos\'s dinner',title:'Carlos\'s dinner after soccer practice',
+  scene:'Carlos is a 10th grader. After soccer practice, he made whole-wheat pasta with grilled chicken for dinner.',
+  base:['pasta','chicken'],opts:['broccoli','carrots','salad','apple','orange','grapes','milk','soymilk','roll']},
+ {who:'Amara',tab:'Meal 2: Amara\'s breakfast',title:'Amara\'s breakfast before school',
+  scene:'Amara is a 9th grader. This morning she had a bowl of oatmeal with banana slices before first period.',
+  base:['oatmeal','banana'],opts:['egg','pbutter','yogurt','soymilk','spinach','tomato','strawberries','bread']}];
+var ROUNDS=[
+ {title:'Orange slices',items:[['🍊','Orange slices']],req:['fruits'],
+  clue:'Think about where fresh fruit belongs.',
+  explain:'Oranges are fruit. Fresh, frozen, canned, and dried fruit all count in the Fruits group.'},
+ {title:'Air-popped popcorn',items:[['🍿','Air-popped popcorn']],req:['grains'],
+  clue:'Popcorn is made from a kind of corn kernel that is eaten as a whole grain.',
+  explain:'Popcorn is a whole grain, so it counts in the Grains group. Surprising foods can still fit into MyPlate.'},
+ {title:'Fortified soy milk',items:[['🥛','Fortified soy milk']],req:['dairy'],
+  clue:'This is a plant-based drink that has calcium and vitamin D added.',
+  explain:'Fortified soy milk counts in the Dairy group because its calcium and vitamin D are similar to milk. This gives students who do not drink dairy milk a good option. Other plant drinks, like almond or rice milk, are not counted in this group.'},
+ {title:'Rice and black beans (arroz con frijoles)',items:[['🍚','Brown rice'],['🥘','Black beans']],req:['grains'],either:[['protein','vegetables']],
+  clue:'There are two foods here. Beans are special: more than one group is correct for them.',
+  explain:'Rice is a grain. Black beans, peas, and lentils can count as a vegetable or as a protein food, so either answer is accepted. Together this meal has two food groups.'},
+ {title:'Tofu and vegetable stir-fry over rice',items:[['🍢','Tofu'],['🥦','Broccoli and carrots'],['🍚','Brown rice']],req:['protein','vegetables','grains'],
+  clue:'Look at each food one at a time. Tofu is made from soybeans.',
+  explain:'Tofu is a protein food, broccoli and carrots are vegetables, and rice is a grain. One bowl can hold three food groups.'},
+ {title:'Yogurt parfait',items:[['🥄','Plain yogurt'],['🍓','Strawberries'],['🥣','Whole-grain granola (oats)']],req:['dairy','fruits','grains'],
+  clue:'Yogurt, berries, and a crunchy oat topping. Match each one to its group.',
+  explain:'Yogurt is dairy, strawberries are fruit, and oats in granola are a grain. Breakfast can include three groups in one cup.'}];
+var BOSS=[
+ {tab:'Meal 1: Cafeteria tray',title:'The cafeteria tray',who:'Eli',
+  scene:'Eli grabs this tray in the cafeteria line during lunch.',
+  items:[['🥪','Turkey sandwich on whole-wheat bread'],['🥬','Lettuce and tomato in the sandwich'],['🍎','Apple']],
+  groups:['protein','grains','vegetables','fruits'],missing:['dairy'],opts:['milk','yogurt','roll','carrots'],
+  explain:'Turkey is a protein food, whole-wheat bread is a grain, lettuce and tomato are vegetables, and the apple is a fruit.'},
+ {tab:'Meal 2: Burrito bowl',title:'The burrito bowl',who:'Priya',
+  scene:'Priya orders this burrito bowl at a fast-casual place after school.',
+  items:[['🍚','Brown rice'],['🍗','Grilled chicken'],['🥬','Lettuce and tomatoes'],['🧀','Shredded cheese']],
+  groups:['grains','protein','vegetables','dairy'],missing:['fruits'],opts:['orange','mango','rice','chicken'],
+  explain:'Rice is a grain, chicken is a protein food, lettuce and tomatoes are vegetables, and cheese is in the dairy group.'},
+ {tab:'Meal 3: Family dinner',title:'The family dinner',who:'Dev',
+  scene:'Dev\'s family makes this dinner on game night.',
+  items:[['🐟','Baked salmon'],['🍠','Roasted sweet potato'],['🥦','Steamed broccoli'],['🥛','Fortified soy milk']],
+  groups:['protein','vegetables','dairy'],missing:['grains','fruits'],opts:['rice','strawberries','broccoli','salmon'],
+  explain:'Salmon is a protein food, sweet potato and broccoli are vegetables, and fortified soy milk counts in the dairy group.'}];
+var C5POOL=['chicken','salmon','tofu','lentils','rice','pasta','roll','sweetpotato','broccoli','salad','corn','mango','grapes','watermelon','milk','soymilk','yogurt'];
+
+/* ============ STATE ============ */
+function fresh(){return{screen:0,hint:false,
+ c1:{part:0,demo:0,sel:null,seen:[]},
+ c2:{picked:[],fb:null},
+ c3:{meal:0,picked:[[],[]],fb:[null,null],done:[false,false]},
+ c4:{round:0,sel:ROUNDS.map(function(){return[]}),status:ROUNDS.map(function(){return'none'}),fb:ROUNDS.map(function(){return null})},
+ c5:{order:null,picked:[],fb:null},
+ done:{2:false,5:false},
+ best:{c2:0,c3:[0,0],c5:0,c5bal:false},
+ boss:{meal:0,sel:[[],[],[]],id:['none','none','none'],pick:[null,null,null],up:[false,false,false],fb:[null,null,null]}};}
+var S=fresh();
+var CH=['#0b5cad','#1b6e2e','#8a4b00','#6a2c91','#b3261e','#be185d'];
+function score(){
+ var p=S.c1.seen.length*10+S.best.c2*20+(S.best.c3[0]+S.best.c3[1])*25+S.best.c5*20+(S.best.c5bal?50:0);
+ S.c4.status.forEach(function(x){p+=x==='correct'?20:x==='revealed'?5:0});
+ S.boss.id.forEach(function(x){p+=x==='correct'?20:x==='revealed'?5:0});S.boss.up.forEach(function(x){if(x)p+=30});return p}
+function level(p){var L=[[0,'Rookie'],[100,'Prep Cook'],[220,'Sous Chef'],[380,'Head Chef'],[520,'MyPlate Pro'],[680,'MyPlate Legend']],r=L[0][1];L.forEach(function(l){if(p>=l[0])r=l[1]});return r}
+function ptsLine(){var p=score();return '<b>⭐ '+p+' Plate Points.</b> Level: '+level(p)+'. You can retry any challenge to boost your score.'}
+function updateScore(){var p=score();$('#ptsN').textContent=p;$('#lvl').textContent='Level: '+level(p)}
+
+/* ============ HELPERS ============ */
+function announce(msg){var l=$('#live');l.textContent='';setTimeout(function(){l.textContent=msg},60)}
+function toggle(list,id){var i=list.indexOf(id);if(i>=0){list.splice(i,1);return false}list.push(id);return true}
+function byGroup(ids){var o={};GK.forEach(function(g){o[g]=[]});ids.forEach(function(id){o[F[id].g].push(F[id])});return o}
+function names(arr){var n=arr.map(function(f){return f.n});if(n.length<3)return n.join(' and ');return n.slice(0,-1).join(', ')+', and '+n[n.length-1]}
+function lc(s){return s.charAt(0).toLowerCase()+s.slice(1)}
+function listNames(gs){var n=gs.map(function(g){return G[g].name});if(n.length<3)return n.join(' and ');return n.slice(0,-1).join(', ')+', and '+n[n.length-1]}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function fbText(fb){return fb.title+'. '+fb.paras.join(' ')+(fb.list&&fb.list.length?' '+fb.list.join('. ')+'.':'')}
+
+/* ============ PLATE ============ */
+function plateSVG(em,o){
+ o=o||{};var cx=140,cy=150,R=124;
+ var Q=[{g:'fruits',a0:180,a1:270,mid:225},{g:'vegetables',a0:270,a1:360,mid:315},{g:'protein',a0:0,a1:90,mid:45},{g:'grains',a0:90,a1:180,mid:135}];
+ var pt=function(a,r){return[cx+r*Math.cos(a*Math.PI/180),cy+r*Math.sin(a*Math.PI/180)]};
+ var emo='font-family="Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif"';
+ var s='<svg viewBox="0 0 390 300" class="plate-svg" role="img" aria-label="'+esc(o.label||'MyPlate diagram with five food groups')+'" xmlns="http://www.w3.org/2000/svg">';
+ s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+(R+10)+'" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>';
+ var rowOf=function(items){var shown=items.slice(0,3).join(' ');if(items.length>3)shown+=' +'+(items.length-3);return shown};
+ Q.forEach(function(q){
+  var p0=pt(q.a0,R),p1=pt(q.a1,R),items=em[q.g]||[],filled=items.length>0,hl=o.highlight===q.g;
+  var act=o.click?' data-action="exploreGroup" data-g="'+q.g+'" style="cursor:pointer"':'';
+  s+='<path d="M'+cx+' '+cy+' L'+p0[0].toFixed(1)+' '+p0[1].toFixed(1)+' A'+R+' '+R+' 0 0 1 '+p1[0].toFixed(1)+' '+p1[1].toFixed(1)+' Z" fill="'+(filled?'var(--c-'+q.g+')':'#e5e7eb')+'" stroke="'+(hl?'#0f172a':'#ffffff')+'" stroke-width="'+(hl?6:4)+'" stroke-linejoin="round"'+act+'/>';
+  var l=pt(q.mid,R*0.58),tc=filled?'#ffffff':'#0f172a';
+  s+='<text x="'+l[0].toFixed(1)+'" y="'+(l[1]-2).toFixed(1)+'" text-anchor="middle" font-size="16" font-weight="700" fill="'+tc+'" style="pointer-events:none">'+(filled&&!o.noTick?'✔ ':'')+G[q.g].name+'</text>';
+  if(filled)s+='<text x="'+l[0].toFixed(1)+'" y="'+(l[1]+26).toFixed(1)+'" text-anchor="middle" font-size="22" '+emo+' style="pointer-events:none">'+rowOf(items)+'</text>';
+  else s+='<text x="'+l[0].toFixed(1)+'" y="'+(l[1]+20).toFixed(1)+'" text-anchor="middle" font-size="14" fill="#0f172a" style="pointer-events:none">none yet</text>';
+ });
+ var di=em.dairy||[],df=di.length>0,dh=o.highlight==='dairy',dact=o.click?' data-action="exploreGroup" data-g="dairy" style="cursor:pointer"':'';
+ s+='<circle cx="322" cy="78" r="60" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>';
+ s+='<circle cx="322" cy="78" r="52" fill="'+(df?'var(--c-dairy)':'#e5e7eb')+'" stroke="'+(dh?'#0f172a':'#ffffff')+'" stroke-width="'+(dh?6:3)+'"'+dact+'/>';
+ s+='<text x="322" y="72" text-anchor="middle" font-size="16" font-weight="700" fill="'+(df?'#ffffff':'#0f172a')+'" style="pointer-events:none">'+(df&&!o.noTick?'✔ ':'')+'Dairy</text>';
+ if(df)s+='<text x="322" y="100" text-anchor="middle" font-size="22" '+emo+' style="pointer-events:none">'+rowOf(di)+'</text>';
+ else s+='<text x="322" y="95" text-anchor="middle" font-size="14" fill="#0f172a" style="pointer-events:none">none yet</text>';
+ s+='<text x="322" y="156" text-anchor="middle" font-size="14" fill="var(--text)">Dairy or</text><text x="322" y="174" text-anchor="middle" font-size="14" fill="var(--text)">fortified soy</text>';
+ return s+'</svg>';
+}
+function emojiMap(by){var m={};GK.forEach(function(g){m[g]=(by[g]||[]).map(function(f){return f.e})});return m}
+function filledCount(by){return GK.filter(function(g){return by[g].length}).length}
+function summaryText(by){return 'The plate has '+filledCount(by)+' of 5 food groups. '+GK.map(function(g){return G[g].name+': '+(by[g].length?names(by[g]):'none yet')}).join('. ')+'.'}
+function chips(by){
+ return '<ul class="chips">'+GK.map(function(g){var a=by[g];
+  return '<li class="'+(a.length?'on':'')+'"><span class="mk" aria-hidden="true">'+(a.length?'✔':'○')+'</span><span><b>'+G[g].name+':</b> '+(a.length?'<span class="sr-only">included, </span>'+names(a):'<span>not yet</span>')+'</span></li>'}).join('')+'</ul>';
+}
+function plateBlock(by,labelPrefix){
+ var n=filledCount(by),txt=summaryText(by);
+ return '<figure class="plate">'+plateSVG(emojiMap(by),{label:(labelPrefix||'Plate')+'. '+txt})+
+  '<figcaption>MyPlate tip: fruits and vegetables take up about half of the plate.</figcaption></figure>'+
+  '<div class="rd" data-read="'+esc(txt)+'"><p class="count" aria-hidden="true"><strong>'+n+' of 5</strong> food groups on the plate</p>'+chips(by)+'</div>';
+}
+
+/* ============ COMMON UI ============ */
+function head(num,title,emoji,hintText){
+ var lab=typeof num==='number'?'Challenge '+num+' of 5':num;
+ return '<div><p class="eyebrow">'+lab+'</p><div class="titlerow">'+
+ '<h1 id="screenTitle" tabindex="-1" class="rd" data-read="'+lab+'. '+esc(title)+'."><span aria-hidden="true">'+emoji+'</span> '+title+'</h1>'+
+ '<button type="button" class="btn small" data-action="hint" data-fid="hintbtn" aria-expanded="'+S.hint+'" aria-controls="hintbox">💡 '+(S.hint?'Hide':'Show')+' Help / Hint</button></div>'+
+ '<div id="hintbox" class="hint rd" '+(S.hint?'':'hidden')+' data-read="Hint. '+esc(hintText)+'"><strong>💡 Hint:</strong> '+hintText+'</div></div>';
+}
+function fbBlock(fb){
+ if(!fb)return'';
+ var ic=fb.tone==='good'?'✅':fb.tone==='warn'?'🔎':'💬';
+ return '<div class="fb '+fb.tone+' rd fbread" id="fb" data-read="'+esc(fbText(fb))+'"><h2><span aria-hidden="true">'+ic+'</span> '+fb.title+'</h2>'+
+  fb.paras.map(function(p){return'<p>'+p+'</p>'}).join('')+
+  (fb.list&&fb.list.length?'<ul>'+fb.list.map(function(l){return'<li>'+l+'</li>'}).join('')+'</ul>':'')+
+  '<button type="button" class="btn small" data-action="readfb" data-fid="readfb">🔊 Read this feedback</button></div>';
+}
+function foodCard(f,opt){
+ var on=opt.on;
+ var rd=f.n+'.'+(opt.note?' '+f.note+'.':'')+(on?' Selected.':' Not selected.');
+ return '<button type="button" class="food rd'+(opt.neutral?'':' gc-'+f.g)+'" data-action="'+opt.action+'" data-id="'+f.id+'" data-fid="'+opt.action+f.id+'" aria-pressed="'+on+'" data-read="'+esc(rd)+'">'+
+  '<span class="em" aria-hidden="true">'+f.e+'</span><span class="nm">'+f.n+'</span>'+(opt.note?'<span class="nt">'+f.note+'</span>':'')+
+  '<span class="st" aria-hidden="true">'+(on?(opt.onT||'✔ On plate'):(opt.offT||'+ Add'))+'</span></button>';
+}
+function canContinue(){
+ var s=S.screen;
+ if(s===1)return S.c1.seen.length===5;
+ if(s===2)return S.done[2];
+ if(s===3)return S.c3.done[0]&&S.c3.done[1];
+ if(s===4)return S.c4.status.every(function(x){return x!=='none'});
+ if(s===5)return S.done[5];
+ return true;
+}
+function lockMsg(){
+ var s=S.screen;
+ if(s===1)return S.c1.part===0?'Finish the demo, then explore all five food groups to continue.':'Explore all five food groups to continue. '+(5-S.c1.seen.length)+' left.';
+ if(s===2)return 'Choose some foods, then press Check my plate to continue.';
+ if(s===3)return 'Add foods to both meals and check each one to continue.';
+ if(s===4)return 'Finish all six foods to continue. Done so far: '+S.c4.status.filter(function(x){return x!=='none'}).length+' of 6.';
+ if(s===5)return 'Build your meal and press Check my meal to continue.';
+ return '';
+}
+function nav(){
+ var ok=canContinue(),s=S.screen;
+ return '<nav class="bottomnav" aria-label="Game navigation"><button type="button" class="btn" data-action="back" data-fid="back">Back</button>'+
+ '<p id="navnote" class="navnote">'+(ok?(s===6?'This bonus round is optional. Finish any time.':''):lockMsg())+'</p>'+
+ '<button type="button" class="btn primary" data-action="next" data-fid="next" aria-describedby="navnote"'+(ok?'':' aria-disabled="true"')+'>'+(s===6?'Finish':'Continue')+'</button></nav>';
+}
+function updateProgress(){
+ var el=$('#progress'),s=S.screen;
+ if(s===0||s===7){el.hidden=true;el.innerHTML='';return}
+ var nm=['Explore','Build','Fix','Identify','Final'];
+ el.hidden=false;
+ el.innerHTML='<p class="steptext">'+(s===6?'Bonus Boss Round (optional)':'Step '+s+' of 5: '+nm[s-1])+'</p><div class="bar" aria-hidden="true"><div style="width:'+(s===6?100:(s-1)/5*100+10)+'%"></div></div>'+
+ '<ol class="steps" aria-label="Progress">'+nm.map(function(n,i){var k=i+1,st=k<s?'done':k===s?'current':'todo';
+  return'<li class="step '+st+'" style="--sc:'+CH[i]+'"'+(k===s?' aria-current="step"':'')+'><span class="n" aria-hidden="true">'+(st==='done'?'✔':k)+'</span><span class="nm">'+n+(st==='done'?' (done)':'')+'</span></li>'}).join('')+'</ol>';
+}
+
+/* ============ SCREENS ============ */
+function s0(){
+ var pills=GK.map(function(g){return'<span class="gpill" style="background:var(--c-'+g+')"><span aria-hidden="true">'+G[g].emoji+'</span> '+G[g].name+'</span>'}).join('');
+ var M=[['🔍','Explore MyPlate','Learn the five groups.',0],['🥗','Build Your Plate','Fuel Maya for practice.',1],['🛠️','Fix the Meal','Upgrade two meals.',2],['⚡','Food Group Challenge','Spot the groups in six foods.',3],['🏆','Final Meal Challenge','Build Jordan\'s dinner on your own.',4],['🔥','Boss Round','Optional bonus. Real-world meals and smart upgrades.',5]];
+ return '<div class="welcome"><div class="hero"><p class="rd" style="margin:0">Personal Fitness Mission. About 10 to 15 minutes.</p>'+
+ '<h1 id="screenTitle" tabindex="-1" class="rd" data-read="Build Your Plate. MyPlate Challenge."><span aria-hidden="true">🍽️</span> Build Your Plate: MyPlate Challenge</h1>'+
+ '<p class="rd">You are the team nutrition captain. Fuel real teens for real days, earn Plate Points, and level up from Rookie to MyPlate Pro.</p><div class="gpills" aria-hidden="true">'+pills+'</div></div>'+
+ '<div class="callout rd" data-read="I Can statement. I can use MyPlate to create a balanced meal and make informed nutrition choices."><strong>I Can:</strong> I can use MyPlate to create a balanced meal and make informed nutrition choices.</div>'+
+ '<div class="split"><div><h2 class="rd" data-read="Your missions. '+M.map(function(m,i){return(i<5?'Mission '+(i+1):'Bonus mission')+', '+m[1]+'. '+m[2]}).join(' ')+'">Your missions</h2><ul class="missions" aria-label="Missions">'+
+ M.map(function(m,i){return'<li style="--mc:'+CH[m[3]]+'"><span aria-hidden="true">'+m[0]+'</span> <b>'+(i<5?(i+1)+'. ':'Bonus: ')+m[1]+'</b><br>'+m[2]+'</li>'}).join('')+'</ul></div>'+
+ '<div><h2 class="rd">How to play</h2><ul class="rd" data-read="How to play. Use your mouse or keyboard. On a keyboard, press Tab to move and Enter or Space to choose. Press the Read Aloud button at the top to hear any screen. Earn Plate Points as you go. You can retry anything to boost your score. There are no timers. Nothing is saved or shared, and you never type personal information. All students and meals in this game are made up. No camera or microphone is needed."><li>Use your mouse or keyboard. On a keyboard, press <b>Tab</b> to move and <b>Enter</b> or <b>Space</b> to choose.</li><li>Press <b>🔊 Read Aloud</b> at the top to hear any screen. Sound starts only when you press it.</li><li>Earn <b>⭐ Plate Points</b> as you go. Retry anything to boost your score.</li><li>There are no timers.</li><li>Nothing is saved or shared. You never type personal information.</li><li>All students and meals are made up. No camera or microphone needed.</li></ul></div></div>'+
+ '<div class="row"><button type="button" class="btn primary big" data-action="start" data-fid="start">Start Challenge 1</button></div>'+
+ '<details><summary>For teachers (Engageli and Canvas)</summary><div class="rd" data-read="For teachers. Screen-share this page in Engageli, or have students open the shared link on their own. Each student plays alone, and no accounts, cameras, microphones, or personal information are needed. Plate Points are for fun and are based only on food-group variety. You can pause after any challenge to discuss student choices. Read Aloud uses the text-to-speech built into the student browser, so it works best in current Chrome, Edge, or Safari.">'+
+ '<p>Screen-share this page in Engageli, or have students open the shared link and play alone. No accounts, cameras, microphones, or personal information are needed.</p>'+
+ '<p>Plate Points are for fun and are based only on food-group variety. They are never tied to calories, weight, or body size.</p>'+
+ '<p>Pause after any challenge to discuss student choices. More than one meal can be balanced, so invite students to explain their reasoning.</p>'+
+ '<p>Read Aloud uses the text-to-speech built into each student browser, so it works best in current Chrome, Edge, or Safari. If it is unavailable, a message appears and all text stays on screen.</p></div></details></div>';
+}
+
+var DEMO=[
+ {g:['fruits','vegetables'],t:'Start with fruits and vegetables. Together they fill about half of the plate.'},
+ {g:['fruits','vegetables','grains'],t:'Add grains. Try to make at least half of your grains whole grains.'},
+ {g:['fruits','vegetables','grains','protein'],t:'Add protein foods. Vary your choices: seafood, eggs, beans, nuts, or meat.'},
+ {g:['fruits','vegetables','grains','protein','dairy'],t:'Add dairy or a fortified soy option. That is all five groups, and there are many ways to build it.'}];
+
+function s1(){
+ var c=S.c1,hintT=c.part===0?'Press Next step to see a plate fill up one group at a time. You can skip the demo.':'Select a food group button or a slice of the plate. Read the card that appears. Explore all five groups to continue.';
+ var out=head(1,'Explore MyPlate','🍽️',hintT);
+ if(c.part===0){
+  var d=DEMO[c.demo],em={};GK.forEach(function(g){if(d.g.indexOf(g)>=0)em[g]=G[g].sample});
+  var lastStep=c.demo===DEMO.length-1;
+  out+='<p class="lead rd">Watch how a plate comes together, one step at a time.</p>'+
+  '<div class="split"><div class="sticky-col"><figure class="plate">'+plateSVG(em,{label:'MyPlate demo, step '+(c.demo+1)+' of 4. Groups on the plate: '+listNames(d.g)+'.'})+'<figcaption>Demo plate: step '+(c.demo+1)+' of 4</figcaption></figure></div>'+
+  '<div><div class="panel"><h2 class="rd" data-read="Step '+(c.demo+1)+' of 4.">Step '+(c.demo+1)+' of 4</h2><p class="lead rd">'+d.t+'</p></div>'+
+  '<div class="row">'+(c.demo>0?'<button type="button" class="btn" data-action="demoPrev" data-fid="demoPrev">Previous step</button>':'')+
+  (lastStep?'<button type="button" class="btn primary" data-action="startExplore" data-fid="startExplore">Start exploring</button>':'<button type="button" class="btn primary" data-action="demoNext" data-fid="demoNext">Next step</button>')+
+  (lastStep?'':'<button type="button" class="btn" data-action="startExplore" data-fid="skipDemo">Skip demo</button>')+'</div></div></div>';
+ }else{
+  var all={};GK.forEach(function(g){all[g]=G[g].sample});
+  out+='<p class="lead rd">MyPlate has five food groups. Select a group to learn what it does and see examples.</p>'+
+  '<div class="split"><div class="sticky-col"><figure class="plate">'+plateSVG(all,{click:true,highlight:c.sel,noTick:true,label:'MyPlate diagram. Fruits, vegetables, grains, and protein foods fill the plate. Dairy or fortified soy is in a cup beside the plate.'})+
+  '<figcaption>You can also click a slice of the plate.</figcaption></figure></div><div>'+
+  '<div class="gbtns" role="group" aria-label="Food groups">'+GK.map(function(g){var seen=c.seen.indexOf(g)>=0;
+   return '<button type="button" class="gbtn '+g+' rd" data-action="exploreGroup" data-g="'+g+'" data-fid="g'+g+'" aria-pressed="'+(c.sel===g)+'" data-read="'+esc(G[g].name+(seen?'. Already explored.':'.'))+'"><span class="em" aria-hidden="true">'+G[g].emoji+'</span><span>'+G[g].name+'</span>'+(seen?'<span class="tick"><span aria-hidden="true">✔</span> seen</span>':'')+'</button>'}).join('')+'</div>'+
+  '<p class="rd" data-read="Food groups explored: '+c.seen.length+' of 5."><strong>Explored: '+c.seen.length+' of 5</strong></p>'+
+  (c.sel?(function(){var g=G[c.sel];var txt=g.name+'. '+g.purpose+' What counts: '+g.counts+' Examples: '+g.ex.map(function(e){return e[1]}).join(', ')+'. For active people: '+g.active;
+   return '<section class="panel rd" aria-label="'+g.name+' details" data-read="'+esc(txt)+'"><h2><span aria-hidden="true">'+g.emoji+'</span> '+g.name+'</h2><p><b>Why it matters:</b> '+g.purpose+'</p><p><b>What counts:</b> '+g.counts+'</p><p><b>Examples:</b></p><ul class="ex">'+g.ex.map(function(e){return'<li><span class="e" aria-hidden="true">'+e[0]+'</span> '+e[1]+'</li>'}).join('')+'</ul><p><b>For active people:</b> '+g.active+'</p></section>'})()
+   :'<div class="panel rd">Select a food group to begin.</div>')+'</div></div>';
+ }
+ return out+nav();
+}
+
+function s2(){
+ var c=S.c2,by=byGroup(c.picked);
+ var out=head(2,'Build Your Plate','🥗','Pick at least one food from each group. Select a card to add it, and select it again to remove it. Watch the plate fill up. There is more than one balanced lunch.');
+ out+='<div class="scene rd" data-read="Meet Maya. Basketball practice is at 4 PM, and lunch is her fuel stop. Build her plate with foods from each group. Many different lunches can be balanced."><p class="lead" style="margin:0"><span aria-hidden="true">🏀</span> <b>Meet Maya.</b> Basketball practice is at 4 PM, and lunch is her fuel stop. Build her plate with foods from each group. Many different lunches can be balanced.</p></div>';
+ out+='<div class="split"><div class="sticky-col">'+plateBlock(by,'Maya\'s lunch plate')+'</div><div>';
+ GK.forEach(function(g){
+  out+='<h2 class="gtag '+g+' rd" data-read="'+esc(G[g].name)+'"><span aria-hidden="true">'+G[g].emoji+'</span> '+G[g].name+'</h2><div class="grid">'+
+  C2POOL[g].map(function(id){return foodCard(F[id],{action:'toggle2',on:c.picked.indexOf(id)>=0,note:true})}).join('')+'</div>';
+ });
+ out+='<div class="row"><button type="button" class="btn primary" data-action="check2" data-fid="check2">Check my plate</button></div>'+fbBlock(c.fb)+'</div></div>';
+ return out+nav();
+}
+
+function s3(){
+ var c=S.c3,m=c.meal,M=MEALS[m],picks=c.picked[m];
+ var base=byGroup(M.base),all=byGroup(M.base.concat(picks));
+ var out=head(3,'Fix the Meal','🔎','Look at the plate. Which food groups say "none yet"? Choose foods that fill them. You can add as many foods as you like and change your mind.');
+ out+='<div class="tabs" role="group" aria-label="Choose a meal">'+MEALS.map(function(x,i){return'<button type="button" class="tab" data-action="meal" data-m="'+i+'" data-fid="tab'+i+'" aria-pressed="'+(i===m)+'">'+x.tab+(c.done[i]?' <span class="ck"><span aria-hidden="true">✔</span> checked</span>':'')+'</button>'}).join('')+'</div>';
+ out+='<div class="scene rd" data-read="'+esc(M.title+'. '+M.scene+' Already on the plate: '+names(M.base.map(function(id){return F[id]}))+'. Your mission: upgrade it with more variety.')+'"><h2 style="margin-bottom:.3em">'+M.title+'</h2><p class="lead" style="margin:0">'+M.scene+' It is a solid start. Your mission: upgrade it with more variety.</p></div>';
+ out+='<div class="split"><div class="sticky-col">'+plateBlock(all,M.who+'\'s meal with your additions')+'</div><div>'+
+ '<h2 class="rd">Already on the plate</h2><div class="grid">'+M.base.map(function(id){var f=F[id];return'<div class="food rd gc-'+f.g+'" style="cursor:default;border-style:dashed" data-read="'+esc(f.n+'. Already on the plate.')+'"><span class="em" aria-hidden="true">'+f.e+'</span><span class="nm">'+f.n+'</span><span class="st">Already added</span></div>'}).join('')+'</div>'+
+ '<h2 class="rd" style="margin-top:18px">Choose foods to add</h2><div class="grid">'+
+ M.opts.map(function(id){return foodCard(F[id],{action:'toggle3',on:picks.indexOf(id)>=0,note:true})}).join('')+'</div>'+
+ '<div class="row"><button type="button" class="btn primary" data-action="check3" data-fid="check3">Check this meal</button>'+
+ (c.done[m]&&m===0?'<button type="button" class="btn" data-action="meal" data-m="1" data-fid="gomeal2">Go to Meal 2</button>':'')+'</div>'+fbBlock(c.fb[m])+'</div></div>';
+ return out+nav();
+}
+
+function s4(){
+ var c=S.c4,i=c.round,R=ROUNDS[i],sel=c.sel[i],st=c.status[i],multi=R.items.length>1||R.req.length>1||!!R.either;
+ var doneN=c.status.filter(function(x){return x!=='none'}).length;
+ var out=head(4,'Food Group Challenge','⚡','Look at each food on its own. Choose every group that fits. Beans can fit in more than one group. If you get stuck, press Check and read the feedback, or use Show the answer.');
+ out+='<p class="rd" data-read="Food '+(i+1)+' of 6. Foods finished: '+doneN+' of 6."><b>Food '+(i+1)+' of 6</b> <span aria-hidden="true">·</span> Finished: '+doneN+' of 6</p>';
+ var itemsTxt=R.items.map(function(x){return x[1]}).join(', ');
+ out+='<h2 class="rd" data-read="'+esc(R.title+'. It has: '+itemsTxt+'.')+'">'+R.title+'</h2>'+
+ '<div class="bigfood" role="group" aria-label="Foods in this meal">'+R.items.map(function(x){return'<div><div class="em" role="img" aria-label="'+esc(x[1])+'">'+x[0]+'</div><div class="nm">'+x[1]+'</div></div>'}).join('')+'</div>'+
+ '<p class="lead rd">'+(multi?'Which MyPlate food groups are in this meal? Select all that apply.':'Which MyPlate food group is this food in?')+'</p>'+
+ '<div class="gbtns" role="group" aria-label="Food group answers">'+GK.map(function(g){var on=sel.indexOf(g)>=0;
+  return'<button type="button" class="gbtn '+g+' rd" data-action="toggle4" data-g="'+g+'" data-fid="a'+g+'" aria-pressed="'+on+'" data-read="'+esc(G[g].name+(on?'. Selected.':'. Not selected.'))+'"><span class="em" aria-hidden="true">'+G[g].emoji+'</span><span>'+G[g].name+'</span>'+(on?'<span class="tick"><span aria-hidden="true">✔</span> selected</span>':'')+'</button>'}).join('')+'</div>'+
+ '<div class="row"><button type="button" class="btn primary" data-action="check4" data-fid="check4">Check my answer</button>'+
+ ((c.fb[i]&&c.fb[i].tone==='info'&&st==='none')?'<button type="button" class="btn" data-action="reveal4" data-fid="reveal4">Show the answer</button>':'')+'</div>'+fbBlock(c.fb[i])+
+ '<div class="row">'+(i>0?'<button type="button" class="btn" data-action="prev4" data-fid="prev4">Previous food</button>':'')+
+ ((st!=='none'&&i<ROUNDS.length-1)?'<button type="button" class="btn primary" data-action="next4" data-fid="next4">Next food</button>':'')+'</div>';
+ return out+nav();
+}
+
+function s5(){
+ if(!S.c5.order)S.c5.order=shuffle(C5POOL);
+ var c=S.c5,by=byGroup(c.picked);
+ var out=head(5,'Final Meal Challenge','🏆','Think about the five groups. Choose foods so the plate has something in every group. Watch the plate to see where each food belongs. You can swap foods and check again.');
+ out+='<div class="scene rd" data-read="Meet Jordan. There is a track meet tomorrow, and tonight\'s dinner is the final fuel-up. Your mission: build a balanced dinner on your own. Many different dinners can work."><p class="lead" style="margin:0"><span aria-hidden="true">🏃</span> <b>Meet Jordan.</b> There is a track meet tomorrow, and tonight\'s dinner is the final fuel-up. Your mission: build a balanced dinner on your own. Many different dinners can work.</p></div>';
+ out+='<div class="split"><div class="sticky-col">'+plateBlock(by,'Jordan\'s dinner plate')+'</div><div><h2 class="rd">Choose Jordan\'s foods</h2><div class="grid">'+
+ c.order.map(function(id){return foodCard(F[id],{action:'toggle5',on:c.picked.indexOf(id)>=0,note:false,neutral:true})}).join('')+'</div>'+
+ '<div class="row"><button type="button" class="btn primary" data-action="check5" data-fid="check5">Check my meal</button></div>'+fbBlock(c.fb)+'</div></div>';
+ return out+nav();
+}
+
+function s6(){
+ var B=S.boss,m=B.meal,M=BOSS[m],sel=B.sel[m],ids=B.id[m];
+ var out=head('Bonus Boss Round','Boss Round: Real-World Meals','🔥','First, find every food group in the meal. Then look for a group that is missing and pick a food that adds it. More than one upgrade can work.');
+ out+='<p class="rd">Optional bonus. Earn extra Plate Points and the Boss Slayer badge. You can finish any time.</p>';
+ out+='<div class="tabs" role="group" aria-label="Choose a meal">'+BOSS.map(function(x,i){return'<button type="button" class="tab" data-action="meal6" data-m="'+i+'" data-fid="btab'+i+'" aria-pressed="'+(i===m)+'">'+x.tab+(B.up[i]?' <span class="ck"><span aria-hidden="true">✔</span> upgraded</span>':'')+'</button>'}).join('')+'</div>';
+ out+='<div class="scene rd" data-read="'+esc(M.title+'. '+M.scene+' It has: '+M.items.map(function(x){return x[1]}).join(', ')+'.')+'"><h2 style="margin-bottom:.3em">'+M.title+'</h2><p class="lead" style="margin:0">'+M.scene+'</p></div>';
+ out+='<div class="bigfood" role="group" aria-label="Foods in this meal">'+M.items.map(function(x){return'<div><div class="em" role="img" aria-label="'+esc(x[1])+'">'+x[0]+'</div><div class="nm">'+x[1]+'</div></div>'}).join('')+'</div>';
+ out+='<h2 class="rd">Step 1: Find the groups</h2><p class="lead rd">Which MyPlate food groups are in this meal? Select all that apply.</p>'+
+ '<div class="gbtns" role="group" aria-label="Food group answers">'+GK.map(function(g){var on=sel.indexOf(g)>=0;
+  return'<button type="button" class="gbtn '+g+' rd" data-action="toggle6" data-g="'+g+'" data-fid="b'+g+'" aria-pressed="'+on+'" data-read="'+esc(G[g].name+(on?'. Selected.':'. Not selected.'))+'"><span class="em" aria-hidden="true">'+G[g].emoji+'</span><span>'+G[g].name+'</span>'+(on?'<span class="tick"><span aria-hidden="true">✔</span> selected</span>':'')+'</button>'}).join('')+'</div>'+
+ '<div class="row"><button type="button" class="btn primary" data-action="check6id" data-fid="check6id">Check my groups</button>'+
+ ((B.fb[m]&&B.fb[m].tone==='info'&&ids==='none')?'<button type="button" class="btn" data-action="reveal6" data-fid="reveal6">Show the answer</button>':'')+'</div>';
+ if(ids!=='none'){
+  out+='<h2 class="rd" style="margin-top:18px">Step 2: Pick a smart upgrade</h2><p class="lead rd">Choose one food that adds a group this meal is missing.</p><div class="grid">'+
+  M.opts.map(function(id){return foodCard(F[id],{action:'pick6',on:B.pick[m]===id,note:false,neutral:true,onT:'✔ Chosen',offT:'Choose'})}).join('')+'</div>'+
+  '<div class="row"><button type="button" class="btn primary" data-action="check6up" data-fid="check6up">Check my upgrade</button></div>';
+ }
+ out+=fbBlock(B.fb[m]);
+ if(B.up[m]&&m<BOSS.length-1)out+='<div class="row"><button type="button" class="btn primary" data-action="meal6" data-m="'+(m+1)+'" data-fid="nextmeal6">Next meal</button></div>';
+ return out+nav();
+}
+
+function s7(){
+ var p=score(),lv=level(p),b=S.best;
+ var B=[['🔍','Group Explorer','You explored all five food groups.',S.c1.seen.length===5],
+  ['🥗','Balanced Builder','You put all five groups on Maya\'s plate.',b.c2===5],
+  ['🛠️','Meal Fixer','You added 2 or more new groups to both meals.',b.c3[0]>=2&&b.c3[1]>=2],
+  ['⚡','Group Sleuth','You identified all six foods without using Show the answer.',S.c4.status.every(function(x){return x==='correct'})],
+  ['🏆','Plate Pro','You built a balanced dinner for Jordan.',b.c5bal],
+  ['🔥','Boss Slayer','You found a smart upgrade for all three real-world meals.',S.boss.up.every(function(x){return x})]];
+ var bt=B.map(function(x){return x[1]+(x[3]?', earned. ':', not yet. ')+x[2]}).join(' ');
+ return '<div><div class="hero"><h1 id="screenTitle" tabindex="-1" class="rd" data-read="MyPlate Challenge Complete! You earned '+p+' Plate Points. Level: '+lv+'."><span aria-hidden="true">🏆</span> MyPlate Challenge Complete!</h1>'+
+ '<p>You used MyPlate to explore, build, fix, and identify balanced meals.</p><div class="bigscore"><span class="pill">⭐ '+p+' Plate Points</span><span class="pill">Level: '+lv+'</span></div></div>'+
+ '<h2 class="rd" data-read="Your badges. '+esc(bt)+'">Your badges</h2><div class="badges">'+B.map(function(x){return'<div class="badge '+(x[3]?'on':'')+'"><h3><span aria-hidden="true">'+x[0]+'</span> '+x[1]+'</h3><p style="margin:0"><b>'+(x[3]?'<span aria-hidden="true">✔</span> Earned':'Not yet')+'</b>. '+x[2]+'</p></div>'}).join('')+'</div>'+
+ '<p class="rd">Missing a badge? Use Back to revisit a challenge and try different foods, or press Play Again.</p>'+
+ '<h2 class="rd">The five MyPlate food groups</h2><div class="summary-grid">'+GK.map(function(g){var G_=G[g];
+  return'<div class="sg rd" style="border-top:10px solid var(--c-'+g+')" data-read="'+esc(G_.name+'. '+G_.purpose)+'"><h3><span aria-hidden="true">'+G_.emoji+'</span> '+G_.name+'</h3><p style="margin:0">'+G_.purpose+'</p></div>'}).join('')+'</div>'+
+ '<div class="callout rd" data-read="Why variety matters. Different foods give you different nutrients. Choosing a variety from all five groups helps your body get the carbohydrates, protein, vitamins, minerals, and fiber it needs for energy, recovery, and growth. There is no single perfect meal. Many combinations can be balanced."><strong>Why variety matters:</strong> Different foods give you different nutrients. Choosing a variety from all five groups helps your body get the carbohydrates, protein, vitamins, minerals, and fiber it needs for energy, recovery, and growth. There is no single perfect meal. Many combinations can be balanced.</div>'+
+ '<h2 class="rd" data-read="Quick reminders. Make half your plate fruits and vegetables. Make at least half your grains whole grains. Vary your protein foods. Choose low-fat or fat-free dairy, or fortified soy.">Quick reminders</h2><ul class="rd" data-read="Make half your plate fruits and vegetables. Make at least half your grains whole grains. Vary your protein foods. Choose low-fat or fat-free dairy, or fortified soy."><li>Make half your plate fruits and vegetables.</li><li>Make at least half your grains whole grains.</li><li>Vary your protein foods.</li><li>Choose low-fat or fat-free dairy, or fortified soy.</li></ul>'+
+ '<p class="rd">Nothing from this game was saved or shared.</p>'+
+ '<nav class="bottomnav" aria-label="Game navigation"><button type="button" class="btn" data-action="back" data-fid="back">Back</button><span class="navnote"></span><button type="button" class="btn primary" data-action="again" data-fid="again">Play Again</button></nav></div>';
+}
+var SCREENS=[s0,s1,s2,s3,s4,s5,s6,s7];
+
+/* ============ RENDER / NAV ============ */
+function render(){
+ var a=document.activeElement,fid=a&&a.dataset?a.dataset.fid:null;
+ var sc=$('#screen');
+ sc.className='screen s'+S.screen;
+ sc.innerHTML=SCREENS[S.screen]();
+ updateProgress();updateScore();
+ if(fid){var t=sc.querySelector('[data-fid="'+fid+'"]');if(t)t.focus({preventScroll:true})}
+}
+function go(n){
+ Speech.stop();S.screen=n;S.hint=false;render();
+ var h=$('#screenTitle');if(h)h.focus({preventScroll:true});
+ window.scrollTo(0,0);
+}
+function afterFeedback(fb){
+ announce(fbText(fb));
+ var el=$('#fb');if(el&&el.scrollIntoView)el.scrollIntoView({block:'nearest'});
+}
+
+/* ============ ACTIONS ============ */
+function act(a,d){
+ if(a==='readfb'){Speech.play('#screen .fbread');return}
+ Speech.stop();
+ var c;
+ switch(a){
+ case 'start':go(1);return;
+ case 'back':go(Math.max(0,S.screen-1));return;
+ case 'next':
+  if(!canContinue()){announce(lockMsg());return}
+  go(S.screen+1);return;
+ case 'again':S=fresh();go(0);return;
+ case 'hint':S.hint=!S.hint;render();return;
+ /* challenge 1 */
+ case 'demoNext':S.c1.demo=Math.min(DEMO.length-1,S.c1.demo+1);render();announce('Step '+(S.c1.demo+1)+' of 4. '+DEMO[S.c1.demo].t);return;
+ case 'demoPrev':S.c1.demo=Math.max(0,S.c1.demo-1);render();announce('Step '+(S.c1.demo+1)+' of 4. '+DEMO[S.c1.demo].t);return;
+ case 'startExplore':S.c1.part=1;render();var h=$('#screenTitle');if(h)h.focus({preventScroll:true});announce('Now explore the five food groups.');return;
+ case 'exploreGroup':
+  if(S.c1.part!==1)return;
+  S.c1.sel=d.g;if(S.c1.seen.indexOf(d.g)<0)S.c1.seen.push(d.g);
+  render();announce(G[d.g].name+'. '+G[d.g].purpose+' Explored '+S.c1.seen.length+' of 5 groups.');
+  var pn=$('#screen .panel');if(pn&&pn.scrollIntoView)pn.scrollIntoView({block:'nearest'});
+  return;
+ /* challenge 2 */
+ case 'toggle2':
+  c=S.c2;var on=toggle(c.picked,d.id);c.fb=null;render();
+  announce(F[d.id].n+(on?' added to':' removed from')+' the plate. The plate has '+filledCount(byGroup(c.picked))+' of 5 food groups.');return;
+ case 'check2':check2();return;
+ /* challenge 3 */
+ case 'meal':S.c3.meal=+d.m;render();var h3=$('#screenTitle');announce(MEALS[S.c3.meal].title);return;
+ case 'toggle3':
+  c=S.c3;var on3=toggle(c.picked[c.meal],d.id);c.fb[c.meal]=null;render();
+  announce(F[d.id].n+(on3?' added.':' removed.')+' The plate has '+filledCount(byGroup(MEALS[c.meal].base.concat(c.picked[c.meal])))+' of 5 food groups.');return;
+ case 'check3':check3();return;
+ /* challenge 4 */
+ case 'toggle4':c=S.c4;toggle(c.sel[c.round],d.g);c.fb[c.round]=null;render();return;
+ case 'check4':check4();return;
+ case 'reveal4':reveal4();return;
+ case 'next4':S.c4.round=Math.min(ROUNDS.length-1,S.c4.round+1);render();announce('Food '+(S.c4.round+1)+' of 6. '+ROUNDS[S.c4.round].title);return;
+ case 'prev4':S.c4.round=Math.max(0,S.c4.round-1);render();announce('Food '+(S.c4.round+1)+' of 6. '+ROUNDS[S.c4.round].title);return;
+ /* challenge 5 */
+ case 'toggle5':
+  c=S.c5;var on5=toggle(c.picked,d.id);c.fb=null;render();
+  announce(F[d.id].n+(on5?' added to':' removed from')+' the plate. The plate has '+filledCount(byGroup(c.picked))+' of 5 food groups.');return;
+ case 'check5':check5();return;
+ /* boss round */
+ case 'meal6':S.boss.meal=+d.m;render();announce(BOSS[S.boss.meal].title);return;
+ case 'toggle6':c=S.boss;toggle(c.sel[c.meal],d.g);c.fb[c.meal]=null;render();return;
+ case 'check6id':check6id();return;
+ case 'reveal6':reveal6();return;
+ case 'pick6':c=S.boss;c.pick[c.meal]=c.pick[c.meal]===d.id?null:d.id;c.fb[c.meal]=null;render();return;
+ case 'check6up':check6up();return;
+ }
+}
+
+function check2(){
+ var c=S.c2,by=byGroup(c.picked),present=GK.filter(function(g){return by[g].length}),missing=GK.filter(function(g){return!by[g].length});
+ if(!c.picked.length){c.fb={tone:'warn',title:'Pick a few foods first',paras:['Select food cards to build Maya\'s lunch, then press Check my plate again.'],list:[]};render();afterFeedback(c.fb);return}
+ S.done[2]=true;S.best.c2=Math.max(S.best.c2,present.length);
+ var list=present.map(function(g){return'<b>'+G[g].name+':</b> '+names(by[g])+' '+G[g].role+'.'});
+ if(!missing.length)c.fb={tone:'good',title:'Balanced plate! All five food groups are here.',
+  paras:['Maya\'s lunch has something from every MyPlate group. Together these foods give her energy for practice, nutrients for muscles and bones, and variety.','This is only one of many balanced lunches. You could swap any food for another in the same group and still be balanced.'],list:list};
+ else c.fb={tone:'info',title:'Good start: '+present.length+' of 5 food groups.',
+  paras:['Not on the plate yet: <b>'+listNames(missing)+'</b>. Try adding one food from each missing group. You can change any card, and you can check as many times as you like.'],list:list};
+ c.fb.paras.push(ptsLine());render();afterFeedback(c.fb);
+}
+function check3(){
+ var cc=S.c3,m=cc.meal,M=MEALS[m],picks=cc.picked[m];
+ var baseBy=byGroup(M.base),baseG=GK.filter(function(g){return baseBy[g].length});
+ if(!picks.length){cc.fb[m]={tone:'warn',title:'Choose at least one food to add',paras:[M.who+'\'s meal has '+listNames(baseG)+'. Pick foods to add from the cards, then check again.'],list:[]};render();afterFeedback(cc.fb[m]);return}
+ var allBy=byGroup(M.base.concat(picks)),total=filledCount(allBy);
+ var added=byGroup(picks),newG=GK.filter(function(g){return added[g].length&&baseG.indexOf(g)<0});S.best.c3[m]=Math.max(S.best.c3[m],newG.length);var sameG=GK.filter(function(g){return added[g].length&&baseG.indexOf(g)>=0});
+ var missing=GK.filter(function(g){return!allBy[g].length});
+ var list=newG.map(function(g){return'<b>'+G[g].name+':</b> '+names(added[g])+' '+G[g].role+'. This is a new group on the plate.'})
+  .concat(sameG.map(function(g){return'<b>'+G[g].name+':</b> '+names(added[g])+' adds more variety within a group that was already on the plate. Choosing different foods in a group is a good habit, but it does not add a new group.'}));
+ var title,tone='good';
+ if(total===5)title='All five food groups are now on the plate!';
+ else if(newG.length>=2)title='Great improvement! You added '+newG.length+' new food groups.';
+ else if(newG.length===1){title='Nice addition! You added 1 new food group.';tone='info'}
+ else{title='You added variety within the groups already there.';tone='info'}
+ var paras=[M.who+'\'s meal already had '+listNames(baseG)+', which is a solid start.'];
+ if(missing.length)paras.push('Groups still empty: <b>'+listNames(missing)+'</b>. Add a food from one of them if you want to see more variety. You can change your choices any time.');
+ else paras.push('Many different additions could work, so your choices are one good answer, not the only one.');
+ paras.push(ptsLine());cc.fb[m]={tone:tone,title:title,paras:paras,list:list};cc.done[m]=true;
+ render();afterFeedback(cc.fb[m]);
+}
+function evalRound(R,sel){
+ var req=R.req,eith=R.either||[],allowed=req.slice();eith.forEach(function(s){s.forEach(function(g){allowed.push(g)})});
+ var missReq=req.filter(function(g){return sel.indexOf(g)<0}),extra=sel.filter(function(g){return allowed.indexOf(g)<0}),missEither=eith.filter(function(s){return!s.some(function(g){return sel.indexOf(g)>=0})});
+ return{ok:!missReq.length&&!extra.length&&!missEither.length,missing:missReq.length+missEither.length,extra:extra.length,right:sel.length-extra.length};
+}
+function check4(){
+ var c=S.c4,i=c.round,R=ROUNDS[i],sel=c.sel[i];
+ if(!sel.length){c.fb[i]={tone:'warn',title:'Select at least one food group',paras:['Choose the group or groups that fit, then press Check my answer.'],list:[]};render();afterFeedback(c.fb[i]);return}
+ var r=evalRound(R,sel);
+ if(r.ok){c.status[i]=c.status[i]==='none'?'correct':c.status[i];c.fb[i]={tone:'good',title:'Correct!',paras:[R.explain],list:[]};c.fb[i].paras.push(ptsLine())}
+ else{
+  var p=[];
+  if(r.extra)p.push('At least one group you chose does not match this food. Look at each food again.');
+  if(r.missing)p.push('There is at least one more group to find.');
+  p.push('Clue: '+R.clue);
+  c.fb[i]={tone:'info',title:'Not quite yet. You can try again.',paras:p,list:[]};
+ }
+ render();afterFeedback(c.fb[i]);
+}
+function reveal4(){
+ var c=S.c4,i=c.round,R=ROUNDS[i];
+ var ans=R.req.slice();(R.either||[]).forEach(function(s){ans.push(s[0])});
+ c.sel[i]=ans;c.status[i]='revealed';
+ c.fb[i]={tone:'info',title:'Here is the answer: '+listNames(ans)+(R.either?' (the beans can be '+listNames(R.either[0])+')':''),paras:[R.explain,'You can use Previous food to try it again later.'],list:[]};
+ render();afterFeedback(c.fb[i]);
+}
+function check5(){
+ var c=S.c5,by=byGroup(c.picked),present=GK.filter(function(g){return by[g].length}),missing=GK.filter(function(g){return!by[g].length});
+ if(!c.picked.length){c.fb={tone:'warn',title:'Pick a few foods first',paras:['Select foods for Jordan\'s dinner, then press Check my meal.'],list:[]};render();afterFeedback(c.fb);return}
+ S.done[5]=true;S.best.c5=Math.max(S.best.c5,present.length);if(!missing.length)S.best.c5bal=true;
+ var list=present.map(function(g){return'<b>'+G[g].name+':</b> '+names(by[g])+' '+G[g].role+'.'});
+ if(!missing.length)c.fb={tone:'good',title:'Balanced dinner! All five food groups are on the plate.',
+  paras:['Jordan\'s dinner has variety and covers every MyPlate group, which supports energy for a track meet, muscle recovery, and strong bones.','Another student might choose different foods and also build a balanced plate.'],list:list};
+ else c.fb={tone:'info',title:present.length+' of 5 food groups so far.',
+  paras:['Not on the plate yet: <b>'+listNames(missing)+'</b>. Swap or add a food to bring in more variety, then check again. When you are ready, press Continue.'],list:list};
+ c.fb.paras.push(ptsLine());render();afterFeedback(c.fb);
+}
+
+function bossFb(m,fb){S.boss.fb[m]=fb;render();afterFeedback(fb)}
+function check6id(){
+ var B=S.boss,m=B.meal,M=BOSS[m],sel=B.sel[m];
+ if(!sel.length){bossFb(m,{tone:'warn',title:'Select at least one food group',paras:['Choose the groups you see in this meal, then press Check my groups.'],list:[]});return}
+ var r=evalRound({req:M.groups},sel);
+ if(r.ok){if(B.id[m]==='none')B.id[m]='correct';bossFb(m,{tone:'good',title:'Correct! You found every group.',paras:[M.explain,'Now pick a smart upgrade in Step 2.',ptsLine()],list:[]})}
+ else{var p=[];if(r.extra)p.push('At least one group you chose is not in this meal. Look at each food one at a time.');if(r.missing)p.push('There is at least one more group to find.');
+  bossFb(m,{tone:'info',title:'Not quite yet. You can try again.',paras:p,list:[]})}
+}
+function reveal6(){
+ var B=S.boss,m=B.meal,M=BOSS[m];
+ B.sel[m]=M.groups.slice();if(B.id[m]==='none')B.id[m]='revealed';
+ bossFb(m,{tone:'info',title:'Here is the answer: '+listNames(M.groups),paras:[M.explain,'Now pick a smart upgrade in Step 2.'],list:[]});
+}
+function check6up(){
+ var B=S.boss,m=B.meal,M=BOSS[m],id=B.pick[m];
+ if(!id){bossFb(m,{tone:'warn',title:'Choose a food first',paras:['Select one food card, then press Check my upgrade.'],list:[]});return}
+ var f=F[id],g=f.g;
+ if(M.missing.indexOf(g)>=0){
+  B.up[m]=true;
+  var left=M.missing.filter(function(x){return x!==g});
+  bossFb(m,{tone:'good',title:'Smart upgrade! You added a new food group.',paras:[f.n+' is in the '+G[g].name+' group, which this meal was missing.',
+   left.length?'Groups still missing: <b>'+listNames(left)+'</b>. You could keep upgrading in real life.':'Now the meal has all five groups.',ptsLine()],list:[]});
+ }else bossFb(m,{tone:'info',title:'Try a different upgrade.',paras:[f.n+' is in the '+G[g].name+' group, which is already in this meal. Think about which group is not in the meal yet, then choose a food from it.'],list:[]});
+}
+
+document.addEventListener('click',function(e){
+ var t=e.target.closest?e.target.closest('[data-action]'):null;
+ if(!t||!$('#screen').contains(t))return;
+ act(t.getAttribute('data-action'),t.dataset);
+});
+
+/* ============ READ ALOUD ============ */
+var Speech=(function(){
+ var ok=('speechSynthesis' in window)&&(typeof SpeechSynthesisUtterance!=='undefined');
+ var queue=[],idx=0,state='idle',rate=0.95,token=0,voice=null,lastSel='#screen .rd',cur=null,keep=null;
+ var bPlay=$('#raPlay'),bPause=$('#raPause'),bReplay=$('#raReplay'),bStop=$('#raStop'),sel=$('#raRate'),stat=$('#raStatus'),msg=$('#raMsg');
+ function say(t){msg.textContent=t;msg.hidden=false}
+ function clean(t){return String(t).replace(/[\u2714\u2713\u25CB\u2192\u2190\u21BB\u23F8\u25B6\u23F9]/g,' ').replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\uFE0F\u200D]/gu,' ').replace(/\s+/g,' ').trim()}
+ function chunk(t){var parts=t.match(/[^.!?]+[.!?]+["')\]]*\s*|[^.!?]+$/g)||[t],out=[],buf='';
+  parts.forEach(function(p){if((buf+p).length>200&&buf){out.push(buf.trim());buf=p}else buf+=p});
+  if(buf.trim())out.push(buf.trim());return out}
+ function build(selector){var out=[];$$(selector).forEach(function(el){
+   if(el.closest('[hidden]'))return;
+   var raw=el.hasAttribute('data-read')?el.getAttribute('data-read'):(el.innerText||el.textContent);
+   var t=clean(raw);if(!t)return;chunk(t).forEach(function(c){out.push({el:el,text:c})})});return out}
+ function pickVoice(){if(!ok)return;var vs=speechSynthesis.getVoices()||[];
+  var en=vs.filter(function(v){return/^en[-_]US/i.test(v.lang)});var pref=/(natural|google us english|samantha|aria|jenny|zira|alex)/i;
+  voice=en.filter(function(v){return pref.test(v.name)})[0]||en[0]||vs.filter(function(v){return/^en/i.test(v.lang)})[0]||null}
+ function mark(el){unmark();if(el){el.classList.add('reading');cur=el;if(el.scrollIntoView)el.scrollIntoView({block:'nearest'})}}
+ function unmark(){if(cur){cur.classList.remove('reading');cur=null}$$('.reading').forEach(function(x){x.classList.remove('reading')})}
+ function ui(){
+  bPause.textContent=state==='paused'?'▶ Resume':'⏸ Pause';
+  bPause.setAttribute('aria-disabled',state==='idle'?'true':'false');
+  bStop.setAttribute('aria-disabled',state==='idle'?'true':'false');
+  stat.textContent=state==='playing'?'Reading…':state==='paused'?'Paused':state==='finished'?'Finished':'Ready';
+ }
+ function speakNow(my){
+  if(my!==token)return;
+  if(idx>=queue.length){state='finished';unmark();ui();return}
+  var item=queue[idx];
+  var live=item.el&&item.el.isConnected?item.el:null;
+  mark(live);
+  var u=new SpeechSynthesisUtterance(item.text);
+  u.lang='en-US';u.rate=rate;u.pitch=1;if(voice)u.voice=voice;
+  u.onend=function(){if(my!==token)return;idx++;speakNow(my)};
+  u.onerror=function(ev){if(my!==token)return;if(ev&&(ev.error==='canceled'||ev.error==='interrupted'))return;
+   token++;state='idle';idx=0;unmark();ui();say('Read Aloud ran into a problem in this browser. All text is still on the screen.')};
+  keep=u;
+  speechSynthesis.speak(u);
+ }
+ function startLater(){var my=++token;try{speechSynthesis.cancel()}catch(e){}setTimeout(function(){speakNow(my)},60)}
+ function unsupported(){say('Read Aloud is not available in this browser. All directions, questions, and feedback are written on the screen. Try current Chrome, Edge, or Safari to use Read Aloud.')}
+ var api={
+  supported:ok,
+  play:function(selector){
+   if(!ok){unsupported();return}
+   msg.hidden=true;
+   try{speechSynthesis.cancel()}catch(e){}token++;unmark();
+   lastSel=selector||'#screen .rd';queue=build(lastSel);idx=0;
+   if(!queue.length){state='idle';ui();return}
+   if(!voice)pickVoice();
+   state='playing';ui();startLater();
+  },
+  pauseToggle:function(){
+   if(!ok){unsupported();return}
+   if(state==='playing'){state='paused';token++;try{speechSynthesis.cancel()}catch(e){}ui()}
+   else if(state==='paused'){state='playing';ui();startLater()}
+  },
+  replay:function(){api.play(lastSel)},
+  stop:function(){
+   if(!ok)return;
+   token++;try{speechSynthesis.cancel()}catch(e){}
+   state='idle';idx=0;queue=[];unmark();ui();
+  },
+  setRate:function(r){rate=r;if(state==='playing')startLater()}
+ };
+ if(!ok){unsupported();[bPlay,bPause,bReplay,bStop].forEach(function(b){b.setAttribute('aria-disabled','true')});sel.disabled=true;stat.textContent='Not available'}
+ else{pickVoice();if(speechSynthesis.addEventListener)speechSynthesis.addEventListener('voiceschanged',pickVoice);else speechSynthesis.onvoiceschanged=pickVoice}
+ bPlay.addEventListener('click',function(){api.play('#screen .rd')});
+ bPause.addEventListener('click',function(){if(bPause.getAttribute('aria-disabled')==='true')return;api.pauseToggle()});
+ bReplay.addEventListener('click',function(){api.replay()});
+ bStop.addEventListener('click',function(){if(bStop.getAttribute('aria-disabled')==='true')return;api.stop()});
+ sel.addEventListener('change',function(){api.setRate(parseFloat(sel.value))});
+ window.addEventListener('pagehide',function(){if(ok)try{speechSynthesis.cancel()}catch(e){}});
+ ui();
+ return api;
+})();
+
+/* ============ STICKY OFFSET + START ============ */
+function setSticky(){var tb=$('#toolbar');var sticky=getComputedStyle(tb).position==='sticky';document.documentElement.style.setProperty('--sticky-h',sticky?tb.offsetHeight+'px':'0px')}
+window.addEventListener('resize',setSticky);
+if(window.ResizeObserver)new ResizeObserver(setSticky).observe($('#toolbar'));
+setSticky();
+render();
+window.__game={S:function(){return S},act:act,go:go,Speech:Speech,canContinue:canContinue};
+})();
+</script>
+</body>
+</html>
