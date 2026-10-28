@@ -240,17 +240,6 @@ summary{cursor:pointer;font-weight:700;min-height:32px}
 pre#caseOut{white-space:pre-wrap;word-break:break-word;background:#f4f8fa;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:12px;font:14.5px/1.5 ui-monospace,Menlo,Consolas,monospace;max-height:440px;overflow:auto}
 .final-ok{font-weight:800;color:var(--green)}
 
-
-/* read aloud bar */
-.ttsbar[hidden]{display:none}
-.ttsbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding-top:4px;padding-bottom:8px}
-.ttsbar .btn.tts-main{background:#ffd166;color:#12242f;border-color:#ffd166;font-weight:700}
-.ttsbar .btn.tts-main:hover{background:#ffe08f;border-color:#ffe08f}
-.ttsbar .btn[disabled]{opacity:.5;cursor:not-allowed}
-.ttsbar label{font-size:14px;color:var(--dktext);display:flex;align-items:center;gap:6px}
-.ttsbar select{font:inherit;font-size:15px;min-height:44px;border-radius:10px;border:2px solid #5b7587;background:#fff;color:#1f2937;padding:4px 8px}
-.ttsstat{font-size:13.5px;color:#b9f3d6;min-width:90px}
-.ttsmsg{font-size:14px;color:#ffe3a3;margin:0}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 @media print{
  body{background:#fff;color:#000;padding:0}
@@ -277,16 +266,6 @@ pre#caseOut{white-space:pre-wrap;word-break:break-word;background:#f4f8fa;color:
       <button class="btn" id="exitBtn" aria-haspopup="dialog">Save &amp; Exit</button>
     </div>
   </div>
-  <div class="wrap ttsbar" id="ttsBar" role="group" aria-label="Read aloud controls" hidden>
-    <button class="btn tts-main" id="ttsRead" type="button">&#128266; Read This Page Aloud</button>
-    <button class="btn" id="ttsPause" type="button" disabled>Pause</button>
-    <button class="btn" id="ttsResume" type="button" disabled>Resume</button>
-    <button class="btn" id="ttsStop" type="button" disabled>Stop</button>
-    <label for="ttsRate">Reading speed
-      <select id="ttsRate"><option value="0.75">Slow</option><option value="1" selected>Normal</option><option value="1.25">Fast</option><option value="1.5">Faster</option></select></label>
-    <span class="ttsstat" id="ttsStat" role="status" aria-live="polite"></span>
-  </div>
-  <p class="wrap ttsmsg" id="ttsMsg" hidden>Read-aloud is not available in this browser. You can use your device or browser&rsquo;s built-in read-aloud or screen-reader tools instead.</p>
   <div class="wrap"><nav id="progress" aria-label="Investigation progress"></nav></div>
 </header>
 <div id="previewBanner" hidden>Teacher preview: all steps are unlocked and answer checks are not required.</div>
@@ -620,7 +599,7 @@ function r0(){var G=[
 function r1(){return '<h1>Initial Prediction</h1><section class="card"><h2>What the team knows so far</h2><div class="grid3"><div class="stagebox"><b>Day 1</b><br>2 new cases reported at the Ravenwood Clinic. Fever, confusion, and restlessness.</div><div class="stagebox"><b>Day 2</b><br>3 new cases reported. Some patients are agitated and act unusually aggressively toward staff.</div><div class="stagebox gold"><b>Still unknown</b><br>How it spreads, how long before symptoms appear, and which actions would help.</div></div><p class="muted">'+FICT+'</p></section>'+
  '<section class="card"><h2>Make your prediction</h2><p>Write down your thinking before you see the data. You will come back to this later and decide whether to keep or change it.</p><fieldset class="q"><legend>Over the next 14 days, what do you think will happen to the number of <em>new cases per day</em> if nobody responds?</legend>'+radios('pred2',PREDOPTS)+'</fieldset>'+
  '<fieldset class="q"><legend>Which of these might influence how quickly Z-Virus spreads? Select all that you think could matter. Some may not matter at all.</legend>'+checks('fac2',FACTORS)+'</fieldset>'+
- ta('why2','Explain your prediction','Write your reasoning here.',4,8,'Write your prediction and reasoning below. If you are completing this during a live class, you may also share your reasoning in chat.')+'</section>';}
+ ta('why2','Explain your prediction','Write your reasoning here.',4,5,'Write your prediction and reasoning below. If you are completing this during a live class, you may also share your reasoning in chat.')+'</section>';}
 
 /* =====================================================================
    10. PAGE 2: OUTBREAK DATA
@@ -634,7 +613,7 @@ function r2(){var rows=CASES.slice();if(UI.grp3)rows.sort(function(a,b){return a
   '<div class="tablewrap"><table><caption>Interview sample of 12 cases. "Possible exposure" means the setting where the person may have been exposed, not a confirmed source.</caption><thead><tr><th>Case</th><th>Age group</th><th>Symptom onset day</th><th>Possible exposure day</th><th>Possible exposure setting</th></tr></thead><tbody>'+html+'</tbody></table></div></section>'+
   '<section class="card"><h2>Symptoms reported in the 12 interviewed cases</h2><div class="bars">'+symp.map(function(s){return '<div class="brow"><div class="nm">'+s[0]+'</div><div class="track"><div class="fill sym" style="width:'+(s[1]/12*100)+'%"></div></div><div class="pc">'+s[1]+' of 12</div></div>';}).join('')+'</div><p class="muted">Notice that not every case had every symptom.</p></section>'+
   '<section class="card"><h2>Analyze the registry</h2>'+qBlock('q3a')+evCard('gym_reg')+qBlock('q3b')+evCard('incub')+
-  ta('obs3','What patterns do you notice in the registry?','Look at ages, onset days, and settings.',4,10,'Describe at least two patterns. Remember this is a sample, so use careful wording such as "possible" or "likely". If you are completing this during a live class, you may also share your ideas in chat.')+'</section>';}
+  ta('obs3','What patterns do you notice in the registry?','Look at ages, onset days, and settings.',4,6,'Describe at least two patterns. Remember this is a sample, so use careful wording such as "possible" or "likely". If you are completing this during a live class, you may also share your ideas in chat.')+'</section>';}
 
 /* =====================================================================
    11. PAGE 3: EPIDEMIC CURVE (progressive reveal)
@@ -699,7 +678,7 @@ function r4(){var legend=Object.keys(SETCOL).map(function(k){return '<span><i cl
   '<div class="chartwrap">'+netSVG()+'</div><div class="legend">'+legend+'</div>'+
   '<div class="detail" aria-live="polite">'+nodeDetail(UI.sel)+'</div><p class="hint">Cases viewed: '+vcount+' of 12 (view at least 4 to continue).</p></section>'+
   '<section class="card"><h2>Interpret the evidence</h2>'+qBlock('q5a')+evCard('hubgym')+evCard('symp')+qBlock('q5b')+evCard('unknown')+qBlock('q5c')+evCard('nocase')+
-  ta('chain5','Write one possible transmission chain that is consistent with the evidence.','Example: Z-01 may have ... which is consistent with ...',4,12,'Name at least three cases in order. Because exposure does not prove infection, include careful wording such as "possible", "likely", or "consistent with". If you are completing this during a live class, you may also share your chain in chat.')+'</section>'+
+  ta('chain5','Write one possible transmission chain that is consistent with the evidence.','Example: Z-01 may have ... which is consistent with ...',4,8,'Name at least three cases in order. Because exposure does not prove infection, include careful wording such as "possible", "likely", or "consistent with". If you are completing this during a live class, you may also share your chain in chat.')+'</section>'+
   '<div class="note"><strong>Next:</strong> when you finish this step you will reach an <strong>Investigation Checkpoint</strong>, a safe place to stop and save.</div>';}
 
 /* =====================================================================
@@ -732,9 +711,9 @@ function r6(){var e=S.env,list=GATH.filter(function(g){return UI.filt6==='all'||
   var hit=(S.t.pick6||[]).filter(function(id){return top.indexOf(id)>-1;}).length;
   h+='<section class="stagebox teal"><h2>Your prediction</h2><p>You predicted: <strong>'+esc(pk)+'</strong>. The two highest were the <strong>Ravenwood Gym night ('+f1(pct(GATH[0]))+'%)</strong> and the <strong>school bus rides ('+f1(pct(GATH[1]))+'%)</strong>. You matched '+hit+' of 2.</p></section>'+
   '<section class="card"><h2>Analyze the environment</h2>'+qBlock('q6a')+evCard('envtop')+evCard('envout')+evCard('envvent')+qBlock('q6b')+qBlock('q6c')+
-  ta('obs6','Which environmental conditions seem linked to more spread? Use evidence.','Use specific percentages from the chart.',4,15,'Use at least two numbers from the chart and careful wording such as "linked to" or "consistent with". Remember: correlation does not equal causation.')+'</section>'+
+  ta('obs6','Which environmental conditions seem linked to more spread? Use evidence.','Explain the pattern using case counts or percentages.',4,8,'Use evidence from the chart. Case counts and percentages are both welcome. Describe the pattern in your own words; the data show associations, not proof of cause.')+'</section>'+
   '<section class="card"><h2>Revise your thinking</h2><p>Here is what you wrote in Step 2:</p><div class="note"><strong>Prediction:</strong> '+esc(labelOf(PREDOPTS,S.t.pred2||''))+'<br><strong>Reasoning:</strong> '+esc(S.t.why2||'(none)')+'</div><fieldset class="q"><legend>After seeing the data, what do you want to do with your original prediction?</legend>'+radios('rev6',[['keep','Keep it. The evidence supports my thinking.'],['change','Change it. The evidence made me rethink.'],['partly','Keep part of it and change part of it.']])+'</fieldset>'+
-  ta('revtxt','Explain what evidence confirmed or changed your thinking.','Name at least one piece of evidence from Steps 3 to 6.',4,10)+'</section>';
+  ta('revtxt','Explain what evidence confirmed or changed your thinking.','Name one piece of evidence from Steps 3 to 6.',4,6)+'</section>';
   return h;}
 
 /* =====================================================================
@@ -745,7 +724,7 @@ function r7(){var locked=S.committed&&!PREVIEW;
   var form;
   if(S.committed){form='<section class="card"><h2>Your prediction is locked</h2><div class="note"><strong>You predicted:</strong> '+esc(SCEN[S.t.pred7]?SCEN[S.t.pred7].pick:'(none)')+'<br><strong>Your reason:</strong> '+esc(S.t.why7||'')+'</div><p class="muted">It is locked so you can compare it honestly with the fictional results. You can look at the results in Step 8.</p></section>';}
   else{form='<section class="card"><h2>Make your prediction</h2><fieldset class="q"><legend>Which response do you predict will slow the outbreak most effectively?</legend>'+radios('pred7',SC.map(function(k){return [k,SCEN[k].pick];}))+'</fieldset>'+
-   ta('why7','Why did you choose this response?','Use evidence from your investigation.',4,10,'Write a short explanation (at least 10 words) and name at least one piece of evidence. Predictions are not marked right or wrong. When you press the button at the bottom, your prediction is locked and the fictional results are revealed. If you are completing this during a live class, you may also share your reasoning in chat.')+'</section>';}
+   ta('why7','Why did you choose this response?','Use evidence from your investigation.',4,6,'Write a short explanation (at least 10 words) and name at least one piece of evidence. Predictions are not marked right or wrong. When you press the button at the bottom, your prediction is locked and the fictional results are revealed. If you are completing this during a live class, you may also share your reasoning in chat.')+'</section>';}
   return '<h1>Intervention Decision</h1><section class="card"><h2>Four possible responses</h2><p>Ravenwood is considering four responses. For each one, scientists compared what happened in a <strong>fictional instructional dataset</strong>. Read about each response, review your evidence, and then predict which will slow the outbreak most effectively.</p><div class="note fict"><strong>Remember:</strong> '+FICTION_STMT+'</div></section>'+cards+form;}
 
 /* =====================================================================
@@ -779,10 +758,10 @@ function r8(){
   '<div class="row"><button class="btn" data-act="tbl8" aria-pressed="'+UI.tbl8+'">'+(UI.tbl8?'Hide data table':'Show data table')+'</button></div>'+(UI.tbl8?resultsTable():'')+
   evCard('resA')+evCard('resB')+evCard('resC')+evCard('resD')+evCard('resCmp')+'</section>'+
   '<section class="card"><h2>Interpret the results</h2>'+qBlock('q8a')+qBlock('q8b')+qBlock('q8c')+
-  ta('ans8d','What evidence supports Scenario D as the strongest response in THIS fictional dataset?','Use numbers from the table or graph.',4,15,'Use at least two numbers and write at least 15 words.')+
+  ta('ans8d','What evidence supports Scenario D as the strongest response in THIS fictional dataset?','Use numbers from the table or graph.',4,8,'Use at least two numbers and write at least 15 words.')+
   ta('ans8e','What can these fictional data NOT tell us?','Think about what this simplified model leaves out.',5,20,'Write at least 20 words. Think about it: this is a simplified model, real diseases behave differently, communities differ, and interventions can interact.')+'</section>'+
   '<section class="card"><h2>Revise your thinking</h2><fieldset class="q"><legend>Now that you have seen the fictional results, what do you want to do with your prediction from Step 7?</legend>'+radios('rev8',[['keep','Keep it. The results supported my prediction.'],['change','Change it. The results made me rethink.'],['partly','Keep part of it and change part of it.']])+'</fieldset>'+
-  ta('revtxt8','Explain how the results confirmed or changed your thinking.','Compare your prediction with at least one number from the data.',4,10)+'</section>';}
+  ta('revtxt8','Explain how the results confirmed or changed your thinking.','Describe what the results show.',4,6)+'</section>';}
 
 /* =====================================================================
    17. PAGE 9: CER CASE REPORT (model first, then independent CER)
@@ -808,7 +787,7 @@ function r9(){var lk=S.locker.filter(function(id){return EV[id];});
   ta('cerE','Write your evidence','Use at least two specific numbers from your selected evidence.',5,25,'Write at least 25 words and include at least two numbers. Describe the data in your own words.')+
   '<h2>Reasoning</h2>'+ta('cerR','Explain why the evidence supports your claim','Connect the data to how the response works.',6,30,'Explain how your evidence supports the recommendation. Connect the outbreak patterns, the possible transmission evidence, the environmental evidence, and the intervention results. Use careful wording where the data do not prove a cause.')+
   '<details><summary>Need sentence starters?</summary><ul><li>I recommend ... because the data show ...</li><li>For example, ... percent of ... which is consistent with ...</li><li>This evidence suggests that ... because ...</li></ul></details>'+
-  '<h2>Limitation / uncertainty</h2>'+ta('cerL','What is one limitation of this classroom investigation, or one reason these results cannot automatically be applied to every real infectious disease?','One limitation is ...',4,12,'Write at least 12 words.')+
+  '<h2>Limitation / uncertainty</h2>'+ta('cerL','What is one limitation of this classroom investigation, or one reason these results cannot automatically be applied to every real infectious disease?','One limitation is ...',4,6,'Write at least 12 words.')+
   '<fieldset class="q"><legend>Self-check before you continue</legend><div class="opts">'+CHECKS.map(function(c,i){return '<label class="opt"><input type="checkbox" data-cerchk value="'+i+'"'+(S.cerChecks.indexOf(String(i))>-1?' checked':'')+'><span>'+c+'</span></label>';}).join('')+'</div></fieldset></section>';
   return h;}
 
@@ -851,27 +830,27 @@ function buildCase(){var T=S.t,L=[];var hr=function(t){L.push('');L.push('=== '+
 var RENDER=[r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10];
 function missing(n){var m=[],t=S.t;
   if(n===0){if((t.name||'').trim().length<2)m.push('Type your name in the Investigator box.');}
-  if(n===1){if(!t.pred2)m.push('Choose a prediction.');if(!(t.fac2||[]).length)m.push('Select at least one factor.');if(wc(t.why2)<8)m.push('Explain your prediction in at least 8 words.');}
-  if(n===2){if(!qd('q3a'))m.push('Answer the question about the most common exposure setting.');if(!qd('q3b'))m.push('Answer the question about the time from exposure to symptoms.');if(wc(t.obs3)<10)m.push('Describe the patterns you notice in at least 10 words.');}
-  if(n===3){if(S.reveal<2)m.push('Make your predictions and reveal all 14 days.');if(!qd('q4a')||!qd('q4b'))m.push('Answer both epidemic curve questions.');if(wc(t.an4)<15)m.push('Write your analysis in at least 15 words.');}
-  if(n===4){var v=S.viewed.filter(function(x){return x!=='NC';}).length;if(v<4)m.push('View the notes for at least 4 cases (you have viewed '+v+').');if(!qd('q5a')||!qd('q5b')||!qd('q5c'))m.push('Answer all three contact investigation questions.');if(wc(t.chain5)<12)m.push('Write your transmission chain in at least 12 words.');else if(!HEDGE.test(t.chain5||''))m.push('Use careful wording in your chain, such as "possible", "likely", or "consistent with".');}
-  if(n===6){if(!S.env.revealed)m.push('Make your prediction, do the calculation, and reveal the percents.');else{if(!qd('q6a')||!qd('q6b')||!qd('q6c'))m.push('Answer all three environment questions.');if(wc(t.obs6)<15||nums(t.obs6)<2)m.push('Write at least 15 words and use at least 2 numbers from the chart.');if(!t.rev6)m.push('Choose whether to keep or change your original prediction.');if(wc(t.revtxt)<10)m.push('Explain what evidence confirmed or changed your thinking (10 words).');}}
-  if(n===7){if(!S.committed){if(!t.pred7)m.push('Choose which response you predict will slow the outbreak most effectively.');if(wc(t.why7)<10)m.push('Explain your choice in at least 10 words.');}}
-  if(n===8){if(!S.committed)m.push('Go back to Step 7 and make your prediction first.');if(!qd('q8a')||!qd('q8b')||!qd('q8c'))m.push('Answer all three results questions.');if(wc(t.ans8d)<15||nums(t.ans8d)<2)m.push('Write at least 15 words that include at least 2 numbers about what supports Scenario D.');if(wc(t.ans8e)<20)m.push('Write at least 20 words about what the fictional data cannot tell us.');else if(!LIMITRX.test(t.ans8e||''))m.push('Mention at least one limit (for example: it is fictional, real diseases differ, communities differ, or the measures interact).');if(!t.rev8)m.push('Choose whether to keep or change your prediction.');if(wc(t.revtxt8)<10)m.push('Explain how the results confirmed or changed your thinking (10 words).');}
-  if(n===9){if(!qd('qm1')||!qd('qm2'))m.push('Answer both questions about the model CER.');if(!t.rec9)m.push('Choose the response you recommend.');if(wc(t.claim)<10)m.push('Write your claim in at least 10 words.');if(S.cerEv.length<2)m.push('Select at least 2 pieces of evidence from your locker.');if(wc(t.cerE)<25||nums(t.cerE)<2)m.push('Write at least 25 words of evidence that include at least 2 numbers.');if(wc(t.cerR)<30)m.push('Write your reasoning in at least 30 words.');if(wc(t.cerL)<12)m.push('Write your limitation or uncertainty in at least 12 words.');if(!HEDGE.test((t.cerE||'')+' '+(t.cerR||'')+' '+(t.cerL||'')))m.push('Use careful wording such as "consistent with", "likely", or "suggests" where the data do not prove a cause.');if(S.cerChecks.length<CHECKS.length)m.push('Complete every box in the self-check.');}
+  if(n===1){if(!t.pred2)m.push('Choose a prediction.');if(!(t.fac2||[]).length)m.push('Select at least one factor.');if(wc(t.why2)<5)m.push('Add a short explanation for your prediction (at least 5 words).');}
+  if(n===2){if(!qd('q3a'))m.push('Answer the question about the most common exposure setting.');if(!qd('q3b'))m.push('Answer the question about the time from exposure to symptoms.');if(wc(t.obs3)<6)m.push('Describe a pattern you notice (at least 6 words).');}
+  if(n===3){if(S.reveal<2)m.push('Make your predictions and reveal all 14 days.');if(!qd('q4a')||!qd('q4b'))m.push('Answer both epidemic curve questions.');if(wc(t.an4)<8)m.push('Explain what the curve shows (at least 8 words).');}
+  if(n===4){var v=S.viewed.filter(function(x){return x!=='NC';}).length;if(v<4)m.push('View the notes for at least 4 cases (you have viewed '+v+').');if(!qd('q5a')||!qd('q5b')||!qd('q5c'))m.push('Answer all three contact investigation questions.');if(wc(t.chain5)<8)m.push('Describe a possible transmission chain (at least 8 words).');}
+  if(n===6){if(!S.env.revealed)m.push('Make your prediction, do the calculation, and reveal the percents.');else{if(!qd('q6a')||!qd('q6b')||!qd('q6c'))m.push('Answer all three environment questions.');if(wc(t.obs6)<8)m.push('Describe the environmental pattern (at least 8 words). Counts or percentages are both acceptable evidence.');if(!t.rev6)m.push('Choose whether to keep or change your original prediction.');if(wc(t.revtxt)<6)m.push('Briefly explain what evidence confirmed or changed your thinking (at least 6 words).');}}
+  if(n===7){if(!S.committed){if(!t.pred7)m.push('Choose which response you predict will slow the outbreak most effectively.');if(wc(t.why7)<6)m.push('Briefly explain your choice (at least 6 words).');}}
+  if(n===8){if(!S.committed)m.push('Go back to Step 7 and make your prediction first.');if(!qd('q8a')||!qd('q8b')||!qd('q8c'))m.push('Answer all three results questions.');if(wc(t.ans8d)<8)m.push('Explain what supports Scenario D (at least 8 words). Numbers are encouraged, but not required to continue.');if(wc(t.ans8e)<8)m.push('Explain one thing these fictional data cannot tell us (at least 8 words).');if(!t.rev8)m.push('Choose whether to keep or change your prediction.');if(wc(t.revtxt8)<6)m.push('Briefly explain how the results confirmed or changed your thinking (at least 6 words).');}
+  if(n===9){if(!qd('qm1')||!qd('qm2'))m.push('Answer both questions about the model CER.');if(!t.rec9)m.push('Choose the response you recommend.');if(wc(t.claim)<5)m.push('Write a clear claim (at least 5 words).');if(S.cerEv.length<2)m.push('Select at least 2 pieces of evidence from your locker.');if(wc(t.cerE)<12)m.push('Describe your supporting evidence (at least 12 words). Use numerical data when possible.');if(wc(t.cerR)<12)m.push('Explain why your evidence supports the claim (at least 12 words).');if(wc(t.cerL)<6)m.push('Name a limitation or uncertainty (at least 6 words).');if(S.cerChecks.length<CHECKS.length)m.push('Complete every box in the self-check.');}
   return m;}
 function renderGate(){var g=$('#gate');if(!g)return;if(UI.gate===null){g.innerHTML='';return;}
   var m=missing(S.step);
-  g.innerHTML=m.length?'<div class="gatebox"><strong>Almost there. Finish these to continue:</strong><ul>'+m.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul></div>':'<div class="gatebox ok"><strong>All set.</strong> Press the button at the bottom to continue.</div>';}
+  g.innerHTML=m.length?'<div class="gatebox"><strong>Optional checklist: You can continue now and return to these later.</strong><ul>'+m.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul></div>':'<div class="gatebox ok"><strong>All set.</strong> Press the button at the bottom to continue.</div>';}
 function showGate(){UI.gate=true;renderGate();var g=$('#gate');if(g&&g.scrollIntoView)g.scrollIntoView({block:'center'});}
-function show(top){var y=window.scrollY||0,p=S.step,main=$('#main');if(TTS.ok&&TTS.state!=='idle'&&TTS.step!==p)ttsStop();
-  main.innerHTML=partBanner(p)+RENDER[p]()+'<div id="gate" role="alert" aria-live="assertive"></div>';
+function show(top){var y=window.scrollY||0,p=S.step,main=$('#main');
+  main.innerHTML='<div class="note"><strong>Investigator reminder:</strong> You may select any step using the numbered navigation above, including Step 6. Unfinished answers do not block progress. Your work saves automatically; revisit questions before submitting your Final Case File.</div>'+partBanner(p)+RENDER[p]()+'<div id="gate" role="alert" aria-live="assertive"></div>';
   if(p===10&&S.built){var txt=buildCase();$('#caseOut').textContent=txt;$('#caseText').value=txt;}
   renderProgress();updateNav();updateWC();updateLocker();renderGate();
   if(top){UI.gate=null;window.scrollTo(0,0);main.focus({preventScroll:true});}else{window.scrollTo(0,y);}}
 function renderProgress(){var h='<ol aria-label="Investigation steps">',lastPart='';
   PAGES.forEach(function(pg,i){if(pg.part!==lastPart){lastPart=pg.part;h+='<li class="partlab" aria-hidden="true">Part '+pg.part+'</li>';}
-    var cur=i===S.step,done=S.done.indexOf(i)>-1,can=PREVIEW||i<=S.max;
+    var cur=i===S.step,done=S.done.indexOf(i)>-1,can=true;
     var num=pg.cp?'&#9670;':(done&&!cur?'&#10003;':stepNo(i));
     h+='<li class="'+(cur?'cur':done?'done':'')+'"><button data-act="goto" data-n="'+i+'"'+(can?'':' disabled')+(cur?' aria-current="step"':'')+' aria-label="'+esc(pageLabel(i))+(done?' (completed)':'')+'" title="'+esc(pageLabel(i))+'"><span class="num">'+num+'</span>'+(cur?'<span class="lbl">'+esc(pg.cp?'Checkpoint':pg.t)+'</span>':'')+'</button></li>';});
   $('#progress').innerHTML=h+'</ol>';}
@@ -881,8 +860,11 @@ function updateNav(){var p=S.step;$('#backBtn').disabled=p===0;var nb=$('#nextBt
 function updateLocker(){$('#lockerCount').textContent=S.locker.length;var l=$('#lockerList');l.innerHTML=S.locker.length?S.locker.filter(function(id){return EV[id];}).map(function(id){return '<div class="litem">'+esc(EV[id].text)+'<div style="margin-top:8px"><button class="btn pin" data-act="unpin" data-id="'+id+'">Remove</button></div></div>';}).join(''):'<p class="hint">Nothing saved yet. Look for the 📌 buttons as you investigate.</p>';
   $$('[data-act="pin"]').forEach(function(b){var on=S.locker.indexOf(b.dataset.id)>-1;b.classList.toggle('on',on);b.setAttribute('aria-pressed',on);b.textContent=on?'📌 Saved to Evidence Locker':'📌 Add to Evidence Locker';});}
 function go(n){S.step=n;S.max=Math.max(S.max,n);UI.gate=null;save();show(true);}
-function next(){var p=S.step;if(p===LAST)return;var m=missing(p);if(m.length&&!PREVIEW){showGate();return;}
-  if(p===7)S.committed=true;markDone(p);go(p+1);}
+function next(){var p=S.step;if(p===LAST)return;
+  // Incomplete answers are saved for later; never block forward navigation.
+  if(p===7)S.committed=true;
+  if(missing(p).length===0)markDone(p);
+  go(p+1);}
 
 /* =====================================================================
    20. SAVE LAYERS 2 AND 3: RESUME SCREEN, EXPORT, IMPORT, SAVE & EXIT
@@ -929,85 +911,11 @@ function showWelcome(){var last=lastDone(),w=$('#welcome');
    '<h2 style="font-size:19px;margin-top:18px">On a different computer or browser?</h2><label class="lab" for="wlFile">Restore Progress File</label><input type="file" id="wlFile" accept=".json,application/json" data-restore-file><div class="msg restoremsg" role="status"></div></div>';
   w.hidden=false;UI.opener=null;renderStart();var b=$('button',w);if(b)b.focus();}
 
-
-/* =====================================================================
-   20b. READ ALOUD (browser Web Speech API; nothing leaves the device)
-   ===================================================================== */
-var TTS={ok:false,chunks:[],i:0,state:'idle',tok:0,step:-1,voice:null,rate:1,ready:false};
-(function(){try{var r=parseFloat(localStorage.getItem('zvirus41_tts_rate'));if(r>0)TTS.rate=r;}catch(e){}})();
-function ttsSupported(){return typeof window!=='undefined'&&!!window.speechSynthesis&&typeof window.SpeechSynthesisUtterance==='function';}
-function ttsClean(s){return s.replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}\u{25C6}]/gu,' ').replace(/→/g,' to ').replace(/&/g,' and ').replace(/\(\s+/g,'(').replace(/\s+/g,' ').trim();}
-var TTS_BLOCK={DIV:1,P:1,H1:1,H2:1,H3:1,H4:1,H5:1,H6:1,LI:1,UL:1,OL:1,LABEL:1,LEGEND:1,DT:1,DD:1,DL:1,SECTION:1,FIELDSET:1,BLOCKQUOTE:1,FIGURE:1,FIGCAPTION:1,BR:1,TABLE:1,CAPTION:1,ARTICLE:1,HEADER:1,FOOTER:1,DETAILS:1,SUMMARY:1};
-var TTS_INLINE={A:1,B:1,I:1,EM:1,STRONG:1,CODE:1,SUB:1,SUP:1,SMALL:1,MARK:1,ABBR:1,U:1};
-function ttsCollect(root){var out=[],buf='';
-  function flush(){var t=ttsClean(buf);buf='';if(t&&/[A-Za-z0-9]/.test(t))out.push(t);}
-  function walk(n){
-    if(n.nodeType===3){buf+=n.nodeValue;return;}
-    if(n.nodeType!==1)return;
-    var tag=n.tagName;
-    if(n.hidden||n.getAttribute('aria-hidden')==='true')return;
-    if(tag==='SCRIPT'||tag==='STYLE'||tag==='BUTTON'||tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||tag==='NOSCRIPT')return;
-    if(n.id==='gate'||(n.classList&&(n.classList.contains('wc')||n.classList.contains('skip'))))return;
-    var cs=window.getComputedStyle?getComputedStyle(n):null;if(cs&&(cs.display==='none'||cs.visibility==='hidden'))return;
-    if(tag==='svg'||tag==='SVG'){var al=n.getAttribute('aria-label');if(al){flush();out.push('Figure description. '+ttsClean(al));}return;}
-    if(tag==='TR'){flush();var cells=[].slice.call(n.children).map(function(c){return ttsClean(c.innerText||c.textContent||'');}).filter(Boolean);if(cells.length)out.push(cells.join(', '));return;}
-    var blk=TTS_BLOCK[tag],sp=!blk&&!TTS_INLINE[tag];if(blk)flush();if(sp)buf+=' ';
-    for(var c=n.firstChild;c;c=c.nextSibling)walk(c);
-    if(sp)buf+=' ';if(blk)flush();
-  }
-  walk(root);flush();return out;}
-function ttsSplit(chunks){var res=[];chunks.forEach(function(c){
-  if(c.length<=220){res.push(c);return;}
-  var parts=c.match(/[^.!?]+[.!?]+["')\]]*\s*|[^.!?]+$/g)||[c],cur='';
-  parts.forEach(function(p){if((cur+p).length>220&&cur){res.push(cur.trim());cur=p;}else cur+=p;});
-  if(cur.trim())res.push(cur.trim());});
-  return res.map(function(s){return s.length>400?s.slice(0,400):s;});}
-function ttsPageText(){var list=[];var ct=$('#stepCt');if(ct)list.push(ttsClean(ct.textContent));
-  list=list.concat(ttsCollect($('#main')));return ttsSplit(list);}
-function ttsPickVoice(){var vs=window.speechSynthesis.getVoices()||[];
-  if(!vs.length){TTS.voice=null;return 'default';}
-  var loc=vs.filter(function(v){return v.localService;});
-  if(!loc.length){TTS.voice=null;return 'remote';}
-  var lang=(document.documentElement.lang||'en').toLowerCase().slice(0,2);
-  var pick=loc.filter(function(v){return v.lang&&v.lang.toLowerCase().indexOf('en-us')===0;})[0]||loc.filter(function(v){return v.lang&&v.lang.toLowerCase().slice(0,2)===lang;})[0]||loc[0];
-  TTS.voice=pick;return 'local';}
-function ttsUI(){var st=TTS.state;
-  $('#ttsPause').disabled=st!=='speaking';$('#ttsResume').disabled=st!=='paused';$('#ttsStop').disabled=st==='idle';
-  $('#ttsRead').textContent=st==='idle'?'🔊 Read This Page Aloud':'🔊 Read This Page Again';
-  $('#ttsStat').textContent=st==='speaking'?'Reading':st==='paused'?'Paused':TTS.note||'';}
-function ttsSpeakFrom(i){var ss=window.speechSynthesis;ss.cancel();TTS.tok++;var tok=TTS.tok;TTS.i=i;
-  if(i>=TTS.chunks.length){TTS.state='idle';TTS.note='Finished';ttsUI();return;}
-  TTS.state='speaking';TTS.note='';ttsUI();
-  function one(k){if(tok!==TTS.tok)return;if(k>=TTS.chunks.length){TTS.state='idle';TTS.note='Finished';ttsUI();return;}
-    TTS.i=k;var u=new SpeechSynthesisUtterance(TTS.chunks[k]);u.rate=TTS.rate;u.lang=TTS.voice&&TTS.voice.lang?TTS.voice.lang:'en-US';if(TTS.voice)u.voice=TTS.voice;
-    u.onend=function(){if(tok===TTS.tok)one(k+1);};
-    u.onerror=function(ev){if(tok!==TTS.tok)return;if(ev&&(ev.error==='canceled'||ev.error==='interrupted'))return;TTS.state='idle';TTS.note='Reading stopped';ttsUI();};
-    ss.speak(u);}
-  one(i);}
-function ttsStop(msg){if(!TTS.ok)return;TTS.tok++;try{window.speechSynthesis.cancel();}catch(e){}TTS.state='idle';TTS.i=0;TTS.note=msg||'';ttsUI();}
-function ttsStart(){if(!TTS.ok)return;var v=ttsPickVoice();
-  if(v==='remote'){TTS.note='';$('#ttsStat').textContent='';toast('Read aloud is not used here because this browser only offers online voices, and nothing from this investigation is sent to an online service. Please use your device’s built-in read-aloud or screen-reader tools.');return;}
-  TTS.chunks=ttsPageText();TTS.step=S.step;if(!TTS.chunks.length)return;ttsSpeakFrom(0);}
-function ttsInit(){var bar=$('#ttsBar'),msg=$('#ttsMsg');
-  if(!ttsSupported()){bar.hidden=true;msg.hidden=false;return;}
-  TTS.ok=true;bar.hidden=false;msg.hidden=true;
-  var sel=$('#ttsRate');sel.value=String(TTS.rate);if(sel.value!==String(TTS.rate)){sel.value='1';TTS.rate=1;}
-  sel.addEventListener('change',function(){TTS.rate=parseFloat(sel.value)||1;try{localStorage.setItem('zvirus41_tts_rate',String(TTS.rate));}catch(e){}
-    if(TTS.state==='speaking')ttsSpeakFrom(TTS.i);});
-  $('#ttsRead').addEventListener('click',ttsStart);
-  $('#ttsPause').addEventListener('click',function(){if(TTS.state!=='speaking')return;TTS.tok++;try{window.speechSynthesis.cancel();}catch(e){}TTS.state='paused';ttsUI();});
-  $('#ttsResume').addEventListener('click',function(){if(TTS.state!=='paused')return;ttsSpeakFrom(TTS.i);});
-  $('#ttsStop').addEventListener('click',function(){ttsStop('Stopped');});
-  window.addEventListener('pagehide',function(){ttsStop();});
-  window.addEventListener('beforeunload',function(){ttsStop();});
-  try{window.speechSynthesis.addEventListener('voiceschanged',ttsPickVoice);}catch(e){}
-  ttsPickVoice();ttsUI();}
-
 /* =====================================================================
    21. EVENTS
    ===================================================================== */
 document.addEventListener('click',function(e){var el=e.target.closest('[data-act]');if(!el)return;var a=el.dataset.act;
-  if(a==='goto'){var n=+el.dataset.n;if(PREVIEW||n<=S.max)go(n);}
+  if(a==='goto'){var n=+el.dataset.n;if(Number.isInteger(n)&&n>=0&&n<=LAST)go(n);}
   else if(a==='check')doCheck(el.dataset.q);
   else if(a==='pin'){var id=el.dataset.id,i=S.locker.indexOf(id);if(i>-1)S.locker.splice(i,1);else S.locker.push(id);save();updateLocker();if(S.step===5)show(false);}
   else if(a==='unpin'){var j=S.locker.indexOf(el.dataset.id);if(j>-1)S.locker.splice(j,1);S.cerEv=S.cerEv.filter(function(x){return x!==el.dataset.id;});save();updateLocker();if(S.step===9||S.step===5)show(false);}
@@ -1021,7 +929,7 @@ document.addEventListener('click',function(e){var el=e.target.closest('[data-act
   else if(a==='node'){var nid=el.dataset.id;UI.sel=nid;if(S.viewed.indexOf(nid)<0)S.viewed.push(nid);save();show(false);var nf=$('.node.sel');if(nf)nf.focus({preventScroll:true});}
   else if(a==='rev6'){var msg=$('#msg6');if((S.t.pick6||[]).length!==2){msg.textContent='Choose exactly two gatherings.';return;}var cv=parseFloat((S.t.calc6||'').replace('%',''));if(isNaN(cv)||Math.abs(cv-35)>0.6){msg.textContent='Check your math: divide 21 by 60, then multiply by 100.';return;}S.env.revealed=true;save();show(false);}
   else if(a==='cont6'){markDone(5);go(6);}
-  else if(a==='build'){if(wc(S.t.move10)<6&&!PREVIEW){$('#msg10').textContent='Write your first idea (at least 6 words) before building your Final Case File.';return;}S.built=true;markDone(10);save();show(false);var cw=$('#caseWrap');if(cw)cw.scrollIntoView();}
+  else if(a==='build'){S.built=true;markDone(10);save();show(false);var cw=$('#caseWrap');if(cw)cw.scrollIntoView();}
   else if(a==='copy')copyText();
   else if(a==='download'){var ok=downloadText('ZVirus_FinalCaseFile_'+safeName()+'.txt',buildCase(),'text/plain');var cm=$('#copyMsg');if(cm)cm.textContent=ok?'Final Case File downloaded.':'Download was blocked. Use Copy Final Case File instead.';}
   else if(a==='print'){try{window.print();}catch(err){}}
@@ -1058,7 +966,7 @@ $('#spClose').addEventListener('click',function(){closeDialog($('#savePanel'));}
 /* =====================================================================
    22. START
    ===================================================================== */
-testStorage();updateSaveInd();ttsInit();
+testStorage();updateSaveInd();
 if(PREVIEW)$('#previewBanner').hidden=false;
 show(true);
 if(HAD_SAVED&&!PREVIEW)showWelcome();
